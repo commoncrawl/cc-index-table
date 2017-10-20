@@ -1,0 +1,270 @@
+{
+  "type": "struct",
+  "fields": [
+    {
+      "name": "url",
+      "nullable": false,
+      "type": {
+        "type": "struct",
+        "fields": [
+          {
+            "name": "surtkey",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "SURT URL key",
+              "example": "com,example)/path/index.html"
+            }
+          },
+          {
+            "name": "url",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "URL string",
+              "example": "https://www.example.com/path/index.html"
+            }
+          },
+          {
+            "name": "host",
+            "nullable": false,
+            "metadata": {
+              "description": "Parsed fully-qualified host or domain name"
+            },
+            "type": {
+              "type": "struct",
+              "fields": [
+                {
+                  "name": "name",
+                  "type": "string",
+                  "nullable": false,
+                  "metadata": {
+                    "description": "Hostname, including IP addresses",
+                    "example": "www.example.com"
+                  }
+                },
+                {
+                  "name": "reverse_host",
+                  "nullable": true,
+                  "type": {
+                    "type": "array",
+                    "containsNull": false,
+                    "elementType": "string"
+                  },
+                  "metadata": {
+                    "description": "Parts of the hostname in reverse order",
+                    "example": "[com, example, www]"
+                  }
+                },
+                {
+                  "name": "registry_suffix",
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Public suffix of domain registry",
+                    "example": "com, co.uk"
+                  }
+                },
+                {
+                  "name": "registered_domain",
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Domain name of the host (one level below the registry suffix)",
+                    "example": "example.com, bbc.co.uk"
+                  }
+                },
+                {
+                  "name": "private_suffix",
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Suffix of domain registries including private registrars",
+                    "example": "com, co.uk, but also s3.amazonaws.com or blogspot.com"
+                  }
+                },
+                {
+                  "name": "private_domain",
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Domain name of the host (one level below the private suffix)",
+                    "example": "commoncrawl.s3.amazonaws.com or myblog.blogspot.com"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "name": "protocol",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "Protocol of the URL",
+              "example": "https"
+            }
+          },
+          {
+            "name": "port",
+            "type": "integer",
+            "nullable": true,
+            "metadata": {
+              "description": "Port of the URL (null if not explicitly specified in URL)",
+              "example": "8443"
+            }
+          },
+          {
+            "name": "path",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "File path of the URL",
+              "example": "/path/index.html",
+              "TODO": "alternatively, as array of segments???"
+            }
+          },
+          {
+            "name": "query",
+            "type": "string",
+            "nullable": true,
+            "metadata": {
+              "description": "Query part of the URL",
+              "example": "q=abc&lang=en for .../search?q=abc&lang=en",
+              "TODO": "alternatively, as array or map???"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "fetch",
+      "nullable": false,
+      "type": {
+        "type": "struct",
+        "fields": [
+          {
+            "name": "time",
+            "type": "long",
+            "nullable": false,
+            "metadata": {
+              "description": "Fetch time (capture time stamp) as YYYYmmddHHMMSS",
+              "example": "20171024001432"
+            }
+          },
+          {
+            "name": "status",
+            "type": "short",
+            "nullable": false,
+            "metadata": {
+              "description": "HTTP response status code",
+              "example": "200"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "content",
+      "nullable": false,
+      "type": {
+        "type": "struct",
+        "fields": [
+          {
+            "name": "digest",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "SHA-1 content digest (WARC-Payload-Digest)",
+              "example": "CH7IV3XAD3M7A42JARKRLJ3T5PGGCGXD"
+            }
+          },
+          {
+            "name": "mime_type",
+            "type": "string",
+            "nullable": true,
+            "metadata": {
+              "description": "Content-Type sent in HTTP response header",
+              "example": "text/xml"
+            }
+          },
+          {
+            "name": "mime_detected",
+            "type": "string",
+            "nullable": true,
+            "metadata": {
+              "description": "Content-Type detected based on content (WARC-Identified-Payload-Type)",
+              "example": "application/rss+xml"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "warc",
+      "nullable": false,
+      "type": {
+        "type": "struct",
+        "fields": [
+          {
+            "name": "filename",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "WARC filename/path below s3://commoncrawl/",
+              "example": "crawl-data/CC-MAIN-2017-39/segments/1505818689752.21/warc/CC-MAIN-20170923160736-20170923180736-00256.warc.gz"
+            }
+          },
+          {
+            "name": "record_offset",
+            "type": "integer",
+            "nullable": false,
+            "metadata": {
+              "description": "Offset of the WARC record",
+              "example": "397346194"
+            }
+          },
+          {
+            "name": "record_length",
+            "type": "integer",
+            "nullable": false,
+            "metadata": {
+              "description": "Length of the WARC record",
+              "example": "24662"
+            }
+          },
+          {
+            "name": "segment",
+            "type": "string",
+            "nullable": false,
+            "metadata": {
+              "description": "Segment the WARC file belongs to",
+              "example": "1505818689752.21"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "crawl",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Crawl the capture/record is part of",
+        "example": "CC-MAIN-2017-39"
+      }
+    },
+    {
+      "name": "subset",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Subset of responses (organized as subdirectory in segments)",
+        "enumeration": {
+          "warc": "successful captures",
+          "crawldiagnostics": "redirects, 404s, and other non-successful captures",
+          "robotstxt": "robots.txt responses"
+        }
+      }
+    }
+  ]
+}
