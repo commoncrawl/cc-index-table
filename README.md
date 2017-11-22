@@ -38,3 +38,16 @@ Options:
 
 The script [convert_url_index.sh](src/script/convert_url_index.sh) runs `CCIndex2Table` using Spark on Yarn.
 
+Columns are defined described in the table schema ([flat](src/main/resources/schema/cc-index-schema-flat.json) or [nested](src/main/resources/schema/cc-index-schema-nested.json)).
+
+
+## Query the table in AWS Athena
+
+First, the table needs to be imported into Athena:
+
+1. edit the "create table" statement ([flat](src/sql/athena/cc-index-create-table-flat.sql) or [nested](src/sql/athena/cc-index-create-table-nested.sql)) and add the correct table name and path to the Parquet/ORC data on `s3://`. Execute the "create table" query.
+2. make Athena recognize the data partitions on `s3://`: `MSCK REPAIR TABLE 'ccindex';` (do not forget to adapt the table name). This step needs to be done again after new data partitions have been added.
+
+A couple of sample queries are also provided:
+- page/host/domain counts per top-level domain [count-by-tld-page-host-domain.sql](src/sql/examples/count-by-tld-page-host-domain.sql)
+- [compare-mime-type-http-vs-detected.sql](src/sql/examples/compare-mime-type-http-vs-detected.sql): compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/)
