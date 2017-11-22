@@ -52,19 +52,14 @@ public class HostName {
 		} else {
 			type = Type.hostname;
 			revHost = reverseHost(hostName);
-			EffectiveTLD tld = EffectiveTldFinder.getEffectiveTLD(hostName, true);
-			if (tld != null) {
-				registrySuffix = tld.getDomain();
-				domainName = EffectiveTldFinder.getAssignedDomain(hostName, tld, true);
-				EffectiveTLD privateTld = EffectiveTldFinder.getEffectiveTLD(hostName, false);
-				if (privateTld != null) {
-					privateSuffix = privateTld.getDomain();
-					if (privateSuffix.equals(registrySuffix)) {
-						privateDomain = domainName;
-					} else {
-						privateDomain = EffectiveTldFinder.getAssignedDomain(hostName, privateTld, true);
-					}
-				}
+			registrySuffix = null;
+			domainName = null;
+			// TODO: set registry suffix and non-private domain after
+			//       fix of https://github.com/crawler-commons/crawler-commons/issues/185
+			EffectiveTLD privateTld = EffectiveTldFinder.getEffectiveTLD(hostName);
+			if (privateTld != null) {
+				privateSuffix = privateTld.getDomain();
+				privateDomain = EffectiveTldFinder.getAssignedDomain(hostName, true);
 			}
 		}
 	}

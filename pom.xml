@@ -110,7 +110,7 @@
 		<dependency>
 			<groupId>com.github.crawler-commons</groupId>
 			<artifactId>crawler-commons</artifactId>
-			<version>0.10-SNAPSHOT</version>
+			<version>0.9</version>
 		</dependency>
 
 		<dependency>
