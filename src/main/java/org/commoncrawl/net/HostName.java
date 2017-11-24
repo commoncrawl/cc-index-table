@@ -94,9 +94,9 @@ public class HostName {
 	public static String[] reverseHost(String hostName) {
 		String[] rev = SPLIT_HOST_PATTERN.split(hostName);
 		for (int i = 0; i < (rev.length/2); i++) {
-		    String temp = rev[i];
-		    rev[i] = rev[rev.length - i - 1];
-		    rev[rev.length - i - 1] = temp;
+			String temp = rev[i];
+			rev[i] = rev[rev.length - i - 1];
+			rev[rev.length - i - 1] = temp;
 		}
 		return rev;
 	}

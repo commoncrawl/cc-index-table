@@ -212,21 +212,21 @@ public class CCIndex2Table {
 				.addOption(new Option(null, "outputCompression", true,
 						"data output compression codec: gzip/zlib (default), snappy, lzo, none"));
 		
-	    CommandLineParser parser = new PosixParser();
-	    CommandLine cli;
+		CommandLineParser parser = new PosixParser();
+		CommandLine cli;
 
-	    try {
-	    	cli = parser.parse(options, args);
-	    } catch (ParseException e) {
+		try {
+			cli = parser.parse(options, args);
+		} catch (ParseException e) {
 			System.err.println(e.getMessage());
-	    	help(options);
-	    	return 1;
-	    }
+			help(options);
+			return 1;
+		}
 
-	    if (cli.hasOption("help")) {
-	    	help(options);
-	    	return 0;
-	    }
+		if (cli.hasOption("help")) {
+			help(options);
+			return 0;
+		}
 
 		if (cli.hasOption("partitionBy")) {
 			partitionBy = cli.getOptionValue("partitionBy");
