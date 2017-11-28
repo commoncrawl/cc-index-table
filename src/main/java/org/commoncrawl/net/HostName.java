@@ -1,6 +1,7 @@
 package org.commoncrawl.net;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.spark.sql.Row;
@@ -39,7 +40,7 @@ public class HostName {
 	}
 
 	public HostName(URL url) {
-		String hostName = url.getHost();
+		String hostName = url.getHost().toLowerCase(Locale.ROOT);
 		setHostName(hostName);
 	}
 
