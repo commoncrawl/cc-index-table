@@ -78,7 +78,15 @@ public class CCIndex2Table {
 		JsonObject jsonobj = (JsonObject) json;
 		String url = jsonobj.get("url").getAsString();
 		CommonCrawlURL u = new CommonCrawlURL(url);
-		short status = jsonobj.get("status").getAsShort();
+		short status = -1;
+		try {
+			status = jsonobj.get("status").getAsShort();
+		} catch (NumberFormatException e) {
+			// https://tools.ietf.org/html/rfc7231#page-47
+			// defines HTTP status codes as "a three-digit integer code"
+			// -- it should fit into a short integer
+			LOG.error("Invalid HTTP status code {}: {}", jsonobj.get("status"), e);
+		}
 		String digest = jsonobj.get("digest").getAsString();
 		String mime = null;
 		if (jsonobj.has("mime")) {
