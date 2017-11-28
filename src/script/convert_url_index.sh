@@ -9,9 +9,9 @@ COMPRS=gzip    # gzip, snappy, lzo, none
 PARTITION_BY="crawl,subset"
 
 # Input spec (URL index files to convert)
-DATA=s3a://commoncrawl/cc-index/collections/CC-MAIN-2017-43/indexes/cdx-*.gz
+DATA=s3a://commoncrawl/cc-index/collections/CC-MAIN-2017-47/indexes/cdx-*.gz
 # Output directory
-hdfs:///user/ubuntu/cc-index-table/
+OUTPUTDIR=hdfs:///user/ubuntu/cc-index-table/
 
 
 # Spark configuration
@@ -21,7 +21,7 @@ EXECUTOR_CORES=6
 NUM_EXECUTORS=48
 
 
-_APPJAR=$PWD/cc-spark-0.1-SNAPSHOT-jar-with-dependencies.jar
+_APPJAR=$PWD/target/cc-spark-0.1-SNAPSHOT-jar-with-dependencies.jar
 
 
 
