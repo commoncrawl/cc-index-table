@@ -49,5 +49,9 @@ First, the table needs to be imported into Athena:
 2. make Athena recognize the data partitions on `s3://`: `MSCK REPAIR TABLE 'ccindex';` (do not forget to adapt the table name). This step needs to be done again after new data partitions have been added.
 
 A couple of sample queries are also provided:
-- page/host/domain counts per top-level domain [count-by-tld-page-host-domain.sql](src/sql/examples/count-by-tld-page-host-domain.sql)
-- [compare-mime-type-http-vs-detected.sql](src/sql/examples/compare-mime-type-http-vs-detected.sql): compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/)
+- page/host/domain counts per top-level domain: [count-by-tld-page-host-domain.sql](src/sql/examples/count-by-tld-page-host-domain.sql)
+- "word" count of host name elements (split host name at `.` into words): [count-hostname-elements.sql](src/sql/examples/count-hostname-elements.sql)
+- "word" count of URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/count-url-path-elements.sql)
+- count HTTP status codes: [count-fetch-status.sql](src/sql/examples/count-fetch-status.sql)
+- count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/count-domains-of-tld.sql)
+- compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/compare-mime-type-http-vs-detected.sql)
