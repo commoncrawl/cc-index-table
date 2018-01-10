@@ -42,7 +42,7 @@ $SPARK_HOME/bin/spark-submit \
     --num-executors $NUM_EXECUTORS \
     --executor-cores $EXECUTOR_CORES \
     --executor-memory $EXECUTOR_MEM \
-    --conf "parquet.enable.dictionary=true" \
+    --conf parquet.enable.dictionary=true \
     --class org.commoncrawl.spark.CCIndex2Table $_APPJAR \
     --outputCompression=$COMPRS \
     --outputFormat=$FORMAT $NESTED \
