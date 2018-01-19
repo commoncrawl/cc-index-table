@@ -50,8 +50,15 @@ First, the table needs to be imported into Athena:
 
 A couple of sample queries are also provided:
 - page/host/domain counts per top-level domain: [count-by-tld-page-host-domain.sql](src/sql/examples/count-by-tld-page-host-domain.sql)
-- "word" count of host name elements (split host name at `.` into words): [count-hostname-elements.sql](src/sql/examples/count-hostname-elements.sql)
-- "word" count of URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/count-url-path-elements.sql)
+- "word" count of
+  - host name elements (split host name at `.` into words): [count-hostname-elements.sql](src/sql/examples/count-hostname-elements.sql)
+  - URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/count-url-path-elements.sql)
 - count HTTP status codes: [count-fetch-status.sql](src/sql/examples/count-fetch-status.sql)
 - count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/count-domains-of-tld.sql)
 - compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/compare-mime-type-http-vs-detected.sql)
+- distribution/histogram of host name lengths: [host_length_distrib.sql](src/sql/examples/host_length_distrib.sql)
+- count URL paths to robots.txt files [count-robotstxt-url-paths.sql](src/sql/examples/count-robotstxt-url-paths.sql)
+- export WARC record specs (file, offset, length) for
+  - a single domain: [get-records-of-domain.sql](src/sql/examples/get-records-of-domain.sql)
+  - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/get-records-of-mime-type.sql)
+- find multi-lingual domains by analyzing URL paths: [get_language_translations_url_path.sql](src/sql/examples/get_language_translations_url_path.sql)
