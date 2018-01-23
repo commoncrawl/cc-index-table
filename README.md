@@ -62,3 +62,5 @@ A couple of sample queries are also provided:
   - a single domain: [get-records-of-domain.sql](src/sql/examples/get-records-of-domain.sql)
   - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/get-records-of-mime-type.sql)
 - find multi-lingual domains by analyzing URL paths: [get_language_translations_url_path.sql](src/sql/examples/get_language_translations_url_path.sql)
+- find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/similar-domains.sql)
+

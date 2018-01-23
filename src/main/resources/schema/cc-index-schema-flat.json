@@ -37,8 +37,53 @@
         "elementType": "string"
       },
       "metadata": {
-        "description": "Parts of the hostname in reverse order",
+        "description": "Parts of the hostname in reverse order, null if not a hostname but an IP address, etc.",
         "example": "[com, example, www]"
+      }
+    },
+    {
+      "name": "url_host_tld",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "Top-level domain or first element of the reversed hostname, same as url_host_reverse[1]",
+        "example": "com for the hostname www.example.com"
+      }
+    },
+    {
+      "name": "url_host_reverse_2",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "Second element of the reversed hostname, same as url_host_reverse[2]",
+        "example": "example for the hostname www.example.com, co for bbc.co.uk"
+      }
+    },
+    {
+      "name": "url_host_reverse_3",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "Third element of the reversed hostname, same as url_host_reverse[3]",
+        "example": "www for the hostname www.example.com"
+      }
+    },
+    {
+      "name": "url_host_reverse_4",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "4th element of the reversed hostname, same as url_host_reverse[4]",
+        "example": "host1 for the host1.subdomain.example.com"
+      }
+    },
+    {
+      "name": "url_host_reverse_5",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "5th element of the reversed hostname, same as url_host_reverse[5]",
+        "example": "host1 for the host1.sub2.subdomain.example.com"
       }
     },
     {

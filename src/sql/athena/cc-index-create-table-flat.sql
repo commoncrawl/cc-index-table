@@ -10,6 +10,11 @@ CREATE EXTERNAL TABLE IF NOT EXISTS 'ccindex' (
   url           STRING,
   url_host_name STRING,
   url_host_reverse              ARRAY<STRING>,
+  url_host_tld                  STRING,
+  url_host_reverse_2            STRING,
+  url_host_reverse_3            STRING,
+  url_host_reverse_4            STRING,
+  url_host_reverse_5            STRING,
   url_host_registry_suffix      STRING,
   url_host_registered_domain    STRING,
   url_host_private_suffix       STRING,
@@ -29,5 +34,5 @@ CREATE EXTERNAL TABLE IF NOT EXISTS 'ccindex' (
   warc_segment          STRING)
 PARTITIONED BY(crawl STRING, subset STRING)
 STORED AS parquet
-LOCATION 's3://path_to_table/'
+LOCATION 's3://path_to_table/';
 

@@ -29,6 +29,7 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
 import org.commoncrawl.net.CommonCrawlURL;
+import org.commoncrawl.net.HostName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +132,12 @@ public class CCIndex2Table {
 					urlkey,
 					url,
 					// host
-					h.get(0), h.get(1), h.get(2), h.get(3), h.get(4), h.get(5),
+					h.get(0), h.get(1),
+					h.get(2), h.get(3),
+					h.get(4), h.get(5),
+					h.get(6), h.get(7),
+					h.get(8), h.get(9),
+					h.get(10),
 					// URL components
 					u.getUrl().getProtocol(),
 					(u.getUrl().getPort() != -1 ? u.getUrl().getPort() : null),

@@ -6,7 +6,7 @@ SELECT COUNT(*) AS count,
 FROM "ccindex"."ccindex"
 WHERE crawl = 'CC-MAIN-2017-47'
   AND subset = 'warc'
-  AND url_host_reverse[1] = 'no'
+  AND url_host_tld = 'no'
 GROUP BY  url_host_registered_domain
 HAVING (COUNT(*) >= 100)
 ORDER BY  count DESC;

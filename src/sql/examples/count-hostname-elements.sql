@@ -7,7 +7,7 @@ FROM "ccindex"."ccindex",
      UNNEST(url_host_reverse) AS t (host_name_part)
 WHERE crawl = 'CC-MAIN-2017-47'
   AND subset = 'warc'
-  AND url_host_reverse[1] = 'fr'
+  AND url_host_tld = 'fr'
 GROUP BY host_name_part
 HAVING (COUNT(host_name_part) >= 100)
 ORDER BY frequency DESC;

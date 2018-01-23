@@ -9,7 +9,7 @@ FROM "ccindex"."ccindex",
   UNNEST(transform(filter(split(url_path, '/'), w -> w != ''), w -> url_decode(w))) AS t (url_path_element)
 WHERE crawl = 'CC-MAIN-2017-47'
   AND subset = 'warc'
-  AND url_host_reverse[1] = 'fr'
+  AND url_host_tld = 'fr'
 GROUP BY url_path_element
 HAVING (COUNT(url_path_element) >= 100)
 ORDER BY frequency DESC;
