@@ -44,60 +44,47 @@
                   }
                 },
                 {
-                  "name": "reverse_host",
-                  "nullable": true,
-                  "type": {
-                    "type": "array",
-                    "containsNull": false,
-                    "elementType": "string"
-                  },
-                  "metadata": {
-                    "description": "Parts of the hostname in reverse order",
-                    "example": "[com, example, www]"
-                  }
-                },
-                {
                   "name": "tld",
                   "nullable": true,
                   "type": "string",
                   "metadata": {
-                    "description": "Top-level domain or first element of the reversed hostname, same as reverse_host[1]",
+                    "description": "Top-level domain or last part of the hostname",
                     "example": "com for the hostname www.example.com"
                   }
                 },
                 {
-                  "name": "reverse_host_2",
+                  "name": "2nd_last_part",
                   "nullable": true,
                   "type": "string",
                   "metadata": {
-                    "description": "Second element of the reversed hostname, same as reverse_host[2]",
+                    "description": "Second last part of the hostname",
                     "example": "example for the hostname www.example.com, co for bbc.co.uk"
                   }
                 },
                 {
-                  "name": "reverse_host_3",
+                  "name": "3rd_last_part",
                   "nullable": true,
                   "type": "string",
                   "metadata": {
-                    "description": "Third element of the reversed hostname, same as reverse_host[3]",
+                    "description": "Third last part of the hostname",
                     "example": "www for the hostname www.example.com"
                   }
                 },
                 {
-                  "name": "reverse_host_4",
+                  "name": "4th_last_part",
                   "nullable": true,
                   "type": "string",
                   "metadata": {
-                    "description": "4th element of the reversed hostname, same as reverse_host[4]",
+                    "description": "4th last part of the hostname",
                     "example": "host1 for the host1.subdomain.example.com"
                   }
                 },
                 {
-                  "name": "reverse_host_5",
+                  "name": "5th_last_part",
                   "nullable": true,
                   "type": "string",
                   "metadata": {
-                    "description": "5th element of the reversed hostname, same as reverse_host[5]",
+                    "description": "5th last part of the hostname",
                     "example": "host1 for the host1.sub2.subdomain.example.com"
                   }
                 },

@@ -126,7 +126,6 @@ public class HostName {
 	public Row asRow() {
 		return RowFactory.create(
 				hostName,
-				revHost,
 				((revHost != null && revHost.length > 0) ? revHost[0] : null),
 				((revHost != null && revHost.length > 1) ? revHost[1] : null),
 				((revHost != null && revHost.length > 2) ? revHost[2] : null),
