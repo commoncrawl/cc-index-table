@@ -6,8 +6,14 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -29,7 +35,6 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
 import org.commoncrawl.net.CommonCrawlURL;
-import org.commoncrawl.net.HostName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +58,8 @@ public class CCIndex2Table {
 	protected static String outputFormat = "parquet";
 	protected static String outputCompression = "zlib";
 
+	protected static DateTimeFormatter fetchTimeParser = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.ROOT)
+			.withZone(ZoneId.of(ZoneOffset.UTC.toString()));
 
 	private static final Pattern filenameAnalyzer = Pattern
 			.compile("^(?:common-crawl/)?crawl-data/([^/]+)/segments/([^/]+)/(crawldiagnostics|robotstxt|warc)/");
@@ -62,7 +69,9 @@ public class CCIndex2Table {
 		String urlkey = line.substring(0, timeStampOffset);
 		timeStampOffset++;
 		int jsonOffset = line.indexOf(' ', timeStampOffset);
-		long timestamp = Long.parseLong(line.substring(timeStampOffset, jsonOffset));
+		String timeStampString = line.substring(timeStampOffset, jsonOffset);
+		ZonedDateTime fetchTime = (ZonedDateTime) fetchTimeParser.parse(timeStampString, ZonedDateTime::from);
+		Timestamp timestamp = Timestamp.from(fetchTime.toInstant());
 		jsonOffset++;
 		Reader in = new StringReader(line);
 		try {

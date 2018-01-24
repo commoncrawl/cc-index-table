@@ -164,8 +164,7 @@
             "nullable": false,
             "metadata": {
               "description": "File path of the URL",
-              "example": "/path/index.html",
-              "TODO": "alternatively, as array of segments???"
+              "example": "/path/index.html"
             }
           },
           {
@@ -174,8 +173,7 @@
             "nullable": true,
             "metadata": {
               "description": "Query part of the URL",
-              "example": "q=abc&lang=en for .../search?q=abc&lang=en",
-              "TODO": "alternatively, as array or map???"
+              "example": "q=abc&lang=en for .../search?q=abc&lang=en"
             }
           }
         ]
@@ -189,11 +187,11 @@
         "fields": [
           {
             "name": "time",
-            "type": "long",
+            "type": "timestamp",
             "nullable": false,
             "metadata": {
-              "description": "Fetch time (capture time stamp) as YYYYmmddHHMMSS",
-              "example": "20171024001432"
+              "description": "Fetch time (capture time stamp)",
+              "example": "2017-10-24T00:14:32Z"
             }
           },
           {

@@ -23,7 +23,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS 'ccindex' (
   url_port      INT,
   url_path      STRING,
   url_query     STRING,
-  fetch_time    BIGINT,
+  fetch_time    TIMESTAMP,
   fetch_status  SMALLINT,
   content_digest    STRING,
   content_mime_type STRING,
