@@ -7,7 +7,7 @@ SELECT url_path_element,
        COUNT(url_path_element) as frequency
 FROM "ccindex"."ccindex",
   UNNEST(transform(filter(split(url_path, '/'), w -> w != ''), w -> url_decode(w))) AS t (url_path_element)
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'warc'
   AND url_host_tld = 'fr'
 GROUP BY url_path_element

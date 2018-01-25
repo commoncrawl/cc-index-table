@@ -5,7 +5,7 @@ SELECT COUNT(*) as n_pages,
        content_mime_type,
        content_mime_detected
 FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'warc'
 GROUP BY content_mime_type,
          content_mime_detected

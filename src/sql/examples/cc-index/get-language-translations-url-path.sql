@@ -12,10 +12,10 @@
 SELECT url_host_registered_domain,
        COUNT(DISTINCT(url_path_lang)) as n_lang,
        COUNT(*) as n_pages,
-       histogram(DISTINCT(url_path_lang)) as lang_counts
+       histogram(url_path_lang) as lang_counts
 FROM "ccindex"."ccindex",
   UNNEST(regexp_extract_all(url_path, '(?<=/)(?:[a-z][a-z])(?=/)')) AS t (url_path_lang)
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'warc'
   AND url_host_registry_suffix = 'va'
 GROUP BY url_host_registered_domain

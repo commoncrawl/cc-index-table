@@ -4,7 +4,7 @@
 SELECT COUNT(*) AS count,
        url_host_registered_domain
 FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'warc'
   AND url_host_tld = 'no'
 GROUP BY  url_host_registered_domain

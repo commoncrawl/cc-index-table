@@ -49,18 +49,19 @@ First, the table needs to be imported into Athena:
 2. make Athena recognize the data partitions on `s3://`: `MSCK REPAIR TABLE 'ccindex';` (do not forget to adapt the table name). This step needs to be done again after new data partitions have been added.
 
 A couple of sample queries are also provided:
-- page/host/domain counts per top-level domain: [count-by-tld-page-host-domain.sql](src/sql/examples/count-by-tld-page-host-domain.sql)
+- count captures over partitions (crawls and subsets), get a quick overview how many pages are contained in the monthly crawl archives (and are also indexed in the table): [count-by-partition.sql](src/sql/examples/cc-index/count-by-partition.sql)
+- page/host/domain counts per top-level domain: [count-by-tld-page-host-domain.sql](src/sql/examples/cc-index/count-by-tld-page-host-domain.sql)
 - "word" count of
-  - host name elements (split host name at `.` into words): [count-hostname-elements.sql](src/sql/examples/count-hostname-elements.sql)
-  - URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/count-url-path-elements.sql)
-- count HTTP status codes: [count-fetch-status.sql](src/sql/examples/count-fetch-status.sql)
-- count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/count-domains-of-tld.sql)
-- compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/compare-mime-type-http-vs-detected.sql)
-- distribution/histogram of host name lengths: [host_length_distrib.sql](src/sql/examples/host_length_distrib.sql)
-- count URL paths to robots.txt files [count-robotstxt-url-paths.sql](src/sql/examples/count-robotstxt-url-paths.sql)
+  - host name elements (split host name at `.` into words): [count-hostname-elements.sql](src/sql/examples/cc-index/count-hostname-elements.sql)
+  - URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/cc-index/count-url-path-elements.sql)
+- count HTTP status codes: [count-fetch-status.sql](src/sql/examples/cc-index/count-fetch-status.sql)
+- count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/cc-index/count-domains-of-tld.sql)
+- compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/cc-index/compare-mime-type-http-vs-detected.sql)
+- distribution/histogram of host name lengths: [host_length_distrib.sql](src/sql/examples/cc-index/host_length_distrib.sql)
+- count URL paths to robots.txt files [count-robotstxt-url-paths.sql](src/sql/examples/cc-index/count-robotstxt-url-paths.sql)
 - export WARC record specs (file, offset, length) for
-  - a single domain: [get-records-of-domain.sql](src/sql/examples/get-records-of-domain.sql)
-  - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/get-records-of-mime-type.sql)
-- find multi-lingual domains by analyzing URL paths: [get_language_translations_url_path.sql](src/sql/examples/get_language_translations_url_path.sql)
-- find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/similar-domains.sql)
+  - a single domain: [get-records-of-domain.sql](src/sql/examples/cc-index/get-records-of-domain.sql)
+  - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/cc-index/get-records-of-mime-type.sql)
+- find multi-lingual domains by analyzing URL paths: [get_language_translations_url_path.sql](src/sql/examples/cc-index/get_language_translations_url_path.sql)
+- find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/cc-index/similar-domains.sql)
 

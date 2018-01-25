@@ -4,7 +4,7 @@
 SELECT COUNT(*) AS count,
        URL_EXTRACT_PATH(url) AS urlpath
 FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'robotstxt'
 GROUP BY URL_EXTRACT_PATH(url)
 HAVING (COUNT(*) >= 100)
@@ -15,7 +15,7 @@ ORDER BY  count DESC
 --  SELECT COUNT(*) AS count,
 --         url_path
 --  FROM "ccindex"."ccindex"
---  WHERE crawl = 'CC-MAIN-2017-47'
+--  WHERE crawl = 'CC-MAIN-2018-05'
 --    AND subset = 'robotstxt'
 --  GROUP BY url_path
 --  HAVING (COUNT(*) >= 100)

@@ -6,7 +6,7 @@ SELECT url,
        warc_record_offset,
        warc_record_length
 FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'warc'
   AND url_host_registered_domain = 'commoncrawl.org'
 LIMIT 1000;

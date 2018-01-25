@@ -10,7 +10,7 @@ SELECT host_name_part,
 FROM "ccindex"."ccindex",
      UNNEST(reverse(split(url_host_name, '.')))
         WITH ORDINALITY AS t (host_name_part, part_position)
-WHERE crawl = 'CC-MAIN-2017-47'
+WHERE crawl = 'CC-MAIN-2018-05'
   AND subset = 'warc'
   AND url_host_tld = 'fr'
 GROUP BY host_name_part
