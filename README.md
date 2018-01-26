@@ -43,12 +43,13 @@ Columns are defined described in the table schema ([flat](src/main/resources/sch
 
 ## Query the table in AWS Athena
 
-First, the table needs to be imported into Athena:
+First, the table needs to be imported into [AWS Athena](). In the Athena Query Editor:
 
-1. edit the "create table" statement ([flat](src/sql/athena/cc-index-create-table-flat.sql) or [nested](src/sql/athena/cc-index-create-table-nested.sql)) and add the correct table name and path to the Parquet/ORC data on `s3://`. Execute the "create table" query.
-2. make Athena recognize the data partitions on `s3://`: `MSCK REPAIR TABLE 'ccindex';` (do not forget to adapt the table name). This step needs to be done again after new data partitions have been added.
+1. create a database `ccindex`: `CREATE DATABASE ccindex` and make sure that it's selected as "DATABASE"
+2. edit the "create table" statement ([flat](src/sql/athena/cc-index-create-table-flat.sql) or [nested](src/sql/athena/cc-index-create-table-nested.sql)) and add the correct table name and path to the Parquet/ORC data on `s3://`. Execute the "create table" query.
+3. make Athena recognize the data partitions on `s3://`: `MSCK REPAIR TABLE ccindex` (do not forget to adapt the table name). This step needs to be repeated every time new data partitions have been added.
 
-A couple of sample queries are also provided:
+A couple of sample queries are also provided (for the flat schema):
 - count captures over partitions (crawls and subsets), get a quick overview how many pages are contained in the monthly crawl archives (and are also indexed in the table): [count-by-partition.sql](src/sql/examples/cc-index/count-by-partition.sql)
 - page/host/domain counts per top-level domain: [count-by-tld-page-host-domain.sql](src/sql/examples/cc-index/count-by-tld-page-host-domain.sql)
 - "word" count of
@@ -57,11 +58,39 @@ A couple of sample queries are also provided:
 - count HTTP status codes: [count-fetch-status.sql](src/sql/examples/cc-index/count-fetch-status.sql)
 - count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/cc-index/count-domains-of-tld.sql)
 - compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/cc-index/compare-mime-type-http-vs-detected.sql)
-- distribution/histogram of host name lengths: [host_length_distrib.sql](src/sql/examples/cc-index/host_length_distrib.sql)
+- distribution/histogram of host name lengths: [host-length-distrib.sql](src/sql/examples/cc-index/host-length-distrib.sql)
 - count URL paths to robots.txt files [count-robotstxt-url-paths.sql](src/sql/examples/cc-index/count-robotstxt-url-paths.sql)
 - export WARC record specs (file, offset, length) for
   - a single domain: [get-records-of-domain.sql](src/sql/examples/cc-index/get-records-of-domain.sql)
   - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/cc-index/get-records-of-mime-type.sql)
-- find multi-lingual domains by analyzing URL paths: [get_language_translations_url_path.sql](src/sql/examples/cc-index/get_language_translations_url_path.sql)
 - find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/cc-index/similar-domains.sql)
+- find multi-lingual domains by analyzing URL paths: [get-language-translations-url-path.sql](src/sql/examples/cc-index/get-language-translations-url-path.sql)
+
+Athena creates results in CSV format. E.g., for the last example, the mining of multi-lingual domains we get:
+
+domain                    |n_lang | n_pages  | lang_counts
+--------------------------|-------|----------|------------------
+vatican.va                |    40 |    42795 | {de=3147, ru=20, be=1, fi=3, pt=4036, bg=11, lt=1, hr=395, fr=5677, hu=79, uc=2, uk=17, sk=20, sl=4, sp=202, sq=5, mk=1, ge=204, sr=2, sv=3, or=2243, sw=5, el=5, mt=2, en=7650, it=10776, es=5360, zh=5, iw=2, cs=12, ar=184, vi=1, th=4, la=1844, pl=658, ro=9, da=2, tr=5, nl=57, po=141}
+iubilaeummisericordiae.va |     7 |     2916 | {de=445, pt=273, en=454, it=542, fr=422, pl=168, es=612}
+osservatoreromano.va      |     7 |     1848 | {de=284, pt=42, en=738, it=518, pl=62, fr=28, es=176}
+cultura.va                |     3 |     1646 | {en=373, it=1228, es=45}
+annusfidei.va             |     6 |      833 | {de=51, pt=92, en=171, it=273, fr=87, es=159}
+pas.va                    |     2 |      689 | {en=468, it=221}
+photogallery.va           |     6 |      616 | {de=90, pt=86, en=107, it=130, fr=83, es=120}
+im.va                     |     6 |      325 | {pt=2, en=211, it=106, pl=1, fr=3, es=2}
+museivaticani.va          |     5 |      266 | {de=63, en=54, it=47, fr=37, es=65}
+laici.va                  |     4 |      243 | {en=134, it=5, fr=51, es=53}
+radiovaticana.va          |     3 |      220 | {en=5, it=214, fr=1}
+casinapioiv.va            |     2 |      213 | {en=125, it=88}
+vaticanstate.va           |     5 |      193 | {de=25, en=76, it=24, fr=25, es=43}
+laityfamilylife.va        |     5 |      163 | {pt=21, en=60, it=3, fr=78, es=1}
+camposanto.va             |     1 |      156 | {de=156}
+synod2018.va              |     3 |      113 | {en=24, it=67, fr=22}
+
+
+
+## Process the Table with Spark
+
+tbd.
+
 

@@ -9,7 +9,14 @@
 --     - number of pages per language as map/histogram
 --   - only output domains with at least 100 pages and
 --     at least one language code in the URL path
-SELECT url_host_registered_domain,
+-- 
+-- The idea was taken from
+--  - Resnik/Smith 2003: The Web as a Parallel Corpus,
+--    http://www.aclweb.org/anthology/J03-3002.pdf
+--  - Buck 2015: Corpus Acquisition from the Interwebs,
+--    http://mt-class.org/jhu-2015/slides/lecture-crawling.pdf
+-- 
+SELECT url_host_registered_domain AS domain,
        COUNT(DISTINCT(url_path_lang)) as n_lang,
        COUNT(*) as n_pages,
        histogram(url_path_lang) as lang_counts
