@@ -52,11 +52,11 @@ public class CCIndex2Table {
 	private static final Logger LOG = LoggerFactory.getLogger(CCIndex2Table.class);
 	private static final String name = CCIndex2Table.class.getCanonicalName();
 	
-	// static output configuration, defaults overwritten by command-line options
-	protected static String partitionBy = "crawl,subset";
+	// (static) output configuration, defaults overwritten by command-line options
 	protected static boolean useNestedSchema = false;
-	protected static String outputFormat = "parquet";
-	protected static String outputCompression = "zlib";
+	protected String partitionBy = "crawl,subset";
+	protected String outputFormat = "parquet";
+	protected String outputCompression = "gzip";
 
 	protected static DateTimeFormatter fetchTimeParser = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.ROOT)
 			.withZone(ZoneId.of(ZoneOffset.UTC.toString()));
@@ -183,8 +183,6 @@ public class CCIndex2Table {
 		JavaSparkContext sc = new JavaSparkContext(conf);
 		SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
 		JavaRDD<String> input = sc.textFile(inputPaths);
-		// JavaRDD<Row> output = input.map((x) -> CCIndex2Parquet.convertCdxLine(x,
-		// useNestedSchema));
 		JavaRDD<Row> output = input.map(CCIndex2Table::convertCdxLine);
 		StructType schema;
 		if (useNestedSchema) {
