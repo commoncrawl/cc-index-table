@@ -1,6 +1,8 @@
--- count domains
+-- count domains (number of captured pages per domain)
 --  of a single top-level domain (here: .no)
---  limited to domains with at least 100 pages
+--  restricted to a single monthly crawl
+--  and successfully fetched pages (subset = warc)
+--  only show domains with at least 100 pages
 SELECT COUNT(*) AS count,
        url_host_registered_domain
 FROM "ccindex"."ccindex"
