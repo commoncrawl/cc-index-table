@@ -64,8 +64,10 @@ A couple of sample queries are also provided (for the flat schema):
   - a single domain: [get-records-of-domain.sql](src/sql/examples/cc-index/get-records-of-domain.sql)
   - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/cc-index/get-records-of-mime-type.sql)
 - find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/cc-index/similar-domains.sql)
+- average length and occupied storage of WARC records by MIME type: [average-warc-record-length-by-mime-type.sql](src/sql/examples/cc-index/average-warc-record-length-by-mime-type.sql)
+- count pairs of top-level domain and content language: [count-language-tld.sql](src/sql/examples/cc-index/count-language-tld.sql)
+- find correlations between TLD and content language using the log-likelihood ratio: [loglikelihood-language-tld.sql](src/sql/examples/cc-index/loglikelihood-language-tld.sql)
 - find multi-lingual domains by analyzing URL paths: [get-language-translations-url-path.sql](src/sql/examples/cc-index/get-language-translations-url-path.sql)
-- average length and occupied storage of WARC records by MIME type [average-warc-record-length-by-mime-type.sql](src/sql/examples/cc-index/average-warc-record-length-by-mime-type.sql)
 
 Athena creates results in CSV format. E.g., for the last example, the mining of multi-lingual domains we get:
 

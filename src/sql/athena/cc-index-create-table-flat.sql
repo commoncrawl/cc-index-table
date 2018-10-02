@@ -27,6 +27,8 @@ CREATE EXTERNAL TABLE IF NOT EXISTS ccindex (
   content_digest                STRING,
   content_mime_type             STRING,
   content_mime_detected         STRING,
+  content_charset               STRING,
+  content_languages             STRING,
   warc_filename                 STRING,
   warc_record_offset            INT,
   warc_record_length            INT,

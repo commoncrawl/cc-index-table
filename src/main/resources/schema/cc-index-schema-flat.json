@@ -166,7 +166,7 @@
     {
       "name": "content_digest",
       "type": "string",
-      "nullable": false,
+      "nullable": true,
       "metadata": {
         "description": "SHA-1 content digest (WARC-Payload-Digest)",
         "example": "CH7IV3XAD3M7A42JARKRLJ3T5PGGCGXD"
@@ -188,6 +188,26 @@
       "metadata": {
         "description": "Content-Type detected based on content (WARC-Identified-Payload-Type)",
         "example": "application/rss+xml"
+      }
+    },
+    {
+      "name": "content_charset",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Character set of an HTML page and other text-based document formats",
+        "example": "UTF-8",
+        "since": "CC-MAIN-2018-39"
+      }
+    },
+    {
+      "name": "content_languages",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Language(s) of a document as ISO-639-3 language code(s), multiple values are separated by a comma",
+        "example": "fra,eng",
+        "since": "CC-MAIN-2018-39"
       }
     },
     {

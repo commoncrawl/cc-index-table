@@ -97,7 +97,10 @@ public class CCIndex2Table {
 			// -- it should fit into a short integer
 			LOG.error("Invalid HTTP status code {}: {}", jsonobj.get("status"), e);
 		}
-		String digest = jsonobj.get("digest").getAsString();
+		String digest = null;
+		if (jsonobj.has("digest")) {
+			digest = jsonobj.get("digest").getAsString();
+		}
 		String mime = null;
 		if (jsonobj.has("mime")) {
 			mime = jsonobj.get("mime").getAsString();
@@ -117,6 +120,15 @@ public class CCIndex2Table {
 			subset = m.group(3);
 		} else {
 			LOG.error("Filename not parseable: {}", filename);
+		}
+		String charset = null;
+		if (jsonobj.has("charset")) {
+			charset = jsonobj.get("charset").getAsString();
+		}
+		String languages = null;
+		if (jsonobj.has("languages")) {
+			// multiple values separated by a comma
+			languages = jsonobj.get("languages").getAsString();
 		}
 		// Note: the row layout must be congruent with the schema
 		if (useNestedSchema) {
@@ -155,6 +167,8 @@ public class CCIndex2Table {
 					timestamp, status,
 					// content-related
 					digest, mime, mimeDetected,
+					// content-related (since CC-MAIN-2018-34/CC-MAIN-2018-39)
+					charset, languages,
 					// WARC record location
 					filename, offset, length, segment,
 					// partition fields
