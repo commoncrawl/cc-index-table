@@ -13,7 +13,7 @@ Provide an index to Common Crawl archives in a tabular format.
 A Spark job converts the Common Crawl URL index into a table in [Parquet](http://parquet.apache.org/) or [ORC](https://orc.apache.org/) format.
 
 ```
-> APPJAR=target/cc-spark-0.1-SNAPSHOT-jar-with-dependencies.jar
+> APPJAR=target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar
 > $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.CCIndex2Table $APPJAR
 
 CCIndex2Table [options] <inputPathSpec> <outputPath>
@@ -94,6 +94,48 @@ synod2018.va              |     3 |      113 | {en=24, it=67, fr=22}
 
 ## Process the Table with Spark
 
-tbd.
+### Export Views
+
+As a first use case, let's export parts of the table and save it in one of the formats supported by Spark. The tool [CCIndexExport](src/main/java/org/commoncrawl/spark/examples/CCIndexExport.java) runs a Spark job to extract parts of the index table and save it as a table in Parquet, ORC, JSON or CSV. It may even transform the data into an entirely different table. Please refert to the [Spark SQL programming guide](https://spark.apache.org/docs/latest/sql-programming-guide.html) and the [overview of built-in SQL functions](https://spark.apache.org/docs/latest/api/sql/) for more information.
+
+The tool requires as arguments input and output path, but you also want to pass a useful SQL query instead of the default `SELECT * FROM ccindex LIMIT 10`. All available command-line options are show when called with `--help`:
+
+```
+% $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexExport target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar --help
+
+CCIndexExport [options] <tablePath> <outputPath>
+
+Arguments:
+  <tablePath>
+        path to cc-index table
+        s3://commoncrawl/cc-index/table/cc-main/warc/
+  <outputPath>
+        output directory
+
+Options:
+  -h,--help                       Show this message
+     --numOutputPartitions <arg>  repartition data to have <n> output partitions
+     --outputCompression <arg>    data output compression codec: none, gzip/zlib
+                                  (default), snappy, lzo, etc.
+                                  Note: the availability of compression options
+                                  depends on the chosen output format.
+     --outputFormat <arg>         data output format: parquet (default), orc,
+                                  json, csv
+     --outputPartitionBy <arg>    partition data by columns (comma-separated,
+                                  default: crawl,subset)
+  -q,--query <arg>                SQL query to select rows
+  -t,--table <arg>                name of the table data is loaded into
+                                  (default: ccindex)
+```
+
+TODO: concrete example
 
 
+
+### Export Subsets of the Common Crawl Archives
+
+TODO: description and example
+
+```
+$SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexWarcExport target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar --help
+```

@@ -1,7 +1,25 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.commoncrawl.spark.examples;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -26,7 +44,6 @@ import org.slf4j.LoggerFactory;
 public class CCIndexExport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CCIndexExport.class);
-	private static final String name = CCIndexExport.class.getCanonicalName();
 
 	// static output configuration, defaults overwritten by command-line options
 	protected String tableName = "ccindex";
@@ -36,61 +53,76 @@ public class CCIndexExport {
 	protected String outputCompression = "gzip";
 	protected int numOutputPartitions = -1;
 
+	protected String sqlQuery = "SELECT * FROM " + tableName + " LIMIT 10";
 
-	private void loadTable(SparkSession spark, String tablePath, String tableName) {
+	protected Options options = new Options();
+
+	protected SparkSession sparkSession;
+	protected JobStatsListener sparkStats = new JobStatsListener();
+
+	protected CCIndexExport() {
+		options.addOption(new Option("h", "help", false, "Show this message"))
+				.addOption(new Option("q", "query", true, "SQL query to select rows"))
+				.addOption(new Option("t", "table", true, "name of the table data is loaded into (default: ccindex)"));
+		SparkConf conf = new SparkConf();
+		conf.setAppName(this.getClass().getCanonicalName());
+		SparkContext sc = new SparkContext(conf);
+		sparkStats = new JobStatsListener();
+		sc.addSparkListener(sparkStats);
+		sparkSession = SparkSession.builder().config(conf).getOrCreate();
+	}
+
+	protected void loadTable(SparkSession spark, String tablePath, String tableName) {
 		Dataset<Row> df = spark.read().load(tablePath);
 		df.createOrReplaceTempView(tableName);
 		LOG.info("Schema of table {}:\n{}", tableName, df.schema());
 	}
 
-	private Dataset<Row> executeQuery(SparkSession spark, String sqlQuery) {
+	protected Dataset<Row> executeQuery(SparkSession spark, String sqlQuery) {
 		Dataset<Row> sqlDF = spark.sql(sqlQuery);
 		LOG.info("Executing query {}:", sqlQuery);
 		sqlDF.explain();
 		return sqlDF;
 	}
 
-	private int run(String sqlQuery, String tablePath, String outputPath) {
-		SparkConf conf = new SparkConf();
-		conf.setAppName(name);
-		SparkContext sc = new SparkContext(conf);
-		JobStatsListener stats = new JobStatsListener();
-		sc.addSparkListener(stats);
-		SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
-		loadTable(spark, tablePath, tableName);
-		Dataset<Row> sqlDF = executeQuery(spark, sqlQuery);
+	protected int run(String sqlQuery, String tablePath, String outputPath) {
+		loadTable(sparkSession, tablePath, tableName);
+		Dataset<Row> sqlDF = executeQuery(sparkSession, sqlQuery);
 		if (numOutputPartitions > 0) {
+			LOG.info("Repartitioning data to {} output partitions", numOutputPartitions);
 			sqlDF = sqlDF.repartition(numOutputPartitions);
 		}
 		sqlDF.write().format(outputFormat).option("compression", outputCompression).save(outputPath);
-		stats.report();
+		sparkStats.report();
 		return 0;
 	}
 
-	private void help(Options options) {
-		String usage = CCIndexExport.class.getSimpleName() + " [options] <inputPathSpec> <outputPath>";
+	protected void help(Options options) {
+		String usage = this.getClass().getSimpleName() + " [options] <tablePath> <outputPath>";
 		System.err.println("\n" + usage);
 		System.err.println("\nArguments:");
 		System.err.println("  <tablePath>");
 		System.err.println("  \tpath to cc-index table");
-		System.err.println("  \ts3a://commoncrawl/cc-index/table/cc-main/warc/");
+		System.err.println("  \ts3://commoncrawl/cc-index/table/cc-main/warc/");
 		System.err.println("  <outputPath>");
 		System.err.println("  \toutput directory");
 		System.err.println("\nOptions:");
 		new HelpFormatter().printOptions(new PrintWriter(System.err, true), 80, options, 2, 2);
 	}
 
-	public int run(String[] args) throws IOException {
-		Options options = new Options();
-		options.addOption(new Option("h", "help", false, "Show this message"))
-				.addOption(new Option("q", "query", true, "SQL query to select rows"))
-				.addOption(new Option("t", "table", true, "name of the table data is loaded into (default: ccindex)"))
-				.addOption(new Option(null, "outputPartitionBy", true,
-						"partition data by columns (comma-separated, default: crawl,subset)"))
-				.addOption(new Option(null, "outputFormat", true, "data output format: parquet (default), orc"))
+	protected void addOptions() {
+		options.addOption(new Option(null, "outputPartitionBy", true,
+				"partition data by columns (comma-separated, default: crawl,subset)"))
+				.addOption(
+						new Option(null, "outputFormat", true, "data output format: parquet (default), orc, json, csv"))
 				.addOption(new Option(null, "outputCompression", true,
-						"data output compression codec: gzip/zlib (default), snappy, lzo, none"))
-				.addOption(new Option(null, "numOutputPartitions", true, "repartition data to "));
+						"data output compression codec: none, gzip/zlib (default), snappy, lzo, etc."
+								+ "\nNote: the availability of compression options depends on the chosen output format."))
+				.addOption(new Option(null, "numOutputPartitions", true,
+						"repartition data to have <n> output partitions"));
+	}
+
+	protected int parseOptions(String[] args, List<String> arguments) {
 
 		CommandLineParser parser = new PosixParser();
 		CommandLine cli;
@@ -105,7 +137,7 @@ public class CCIndexExport {
 
 		if (cli.hasOption("help")) {
 			help(options);
-			return 0;
+			return -1;
 		}
 
 		if (cli.hasOption("tableName")) {
@@ -124,24 +156,38 @@ public class CCIndexExport {
 			numOutputPartitions = Integer.parseInt(cli.getOptionValue("numOutputPartitions"));
 		}
 
-		String sqlQuery = "SELECT * FROM ccindex LIMIT 10";
-		if (cli.hasOption("query")) {
-			sqlQuery = cli.getOptionValue("query");
-		}
-
-		String[] arguments = cli.getArgs();
-		if (arguments.length < 2) {
-			help(options);
-			return 1;
-		}
-
-		String tablePath = arguments[0];
-		String outputPath = arguments[1];
-
 		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression) ) {
 			// gzip for Parquet, zlib for ORC
 			outputCompression = "zlib";
 		}
+
+		if (cli.hasOption("query")) {
+			sqlQuery = cli.getOptionValue("query");
+		}
+
+		// remaining non-option arguments
+		for (String arg : cli.getArgs()) {
+			arguments.add(arg);
+		}
+		return 0;
+	}
+
+	public int run(String[] args) throws IOException {
+
+		addOptions();
+
+		List<String> arguments = new ArrayList<>();
+		int res = parseOptions(args, arguments);
+		if (res != 0) {
+			return res;
+		}
+		if (arguments.size() < 2) {
+			help(options);
+			return 1;
+		}
+
+		String tablePath = arguments.get(0);
+		String outputPath = arguments.get(1);
 
 		return run(sqlQuery, tablePath, outputPath);
 	}

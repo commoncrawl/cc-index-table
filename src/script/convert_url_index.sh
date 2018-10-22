@@ -30,7 +30,7 @@ SPARK_EXTRA_OPTS=""
 test -e $(dirname $0)/convert_url_index_conf.sh && . $(dirname $0)/convert_url_index_conf.sh
 
 
-_APPJAR=$PWD/target/cc-spark-0.1-SNAPSHOT-jar-with-dependencies.jar
+_APPJAR=$PWD/target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar
 
 
 
