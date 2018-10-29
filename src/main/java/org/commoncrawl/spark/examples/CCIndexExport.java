@@ -85,7 +85,7 @@ public class CCIndexExport {
 		return sqlDF;
 	}
 
-	protected int run(String sqlQuery, String tablePath, String outputPath) {
+	protected int run(String tablePath, String outputPath) {
 		loadTable(sparkSession, tablePath, tableName);
 		Dataset<Row> sqlDF = executeQuery(sparkSession, sqlQuery);
 		if (numOutputPartitions > 0) {
@@ -189,7 +189,7 @@ public class CCIndexExport {
 		String tablePath = arguments.get(0);
 		String outputPath = arguments.get(1);
 
-		return run(sqlQuery, tablePath, outputPath);
+		return run(tablePath, outputPath);
 	}
 
 	public static void main(String[] args) throws IOException {

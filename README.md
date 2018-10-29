@@ -63,6 +63,7 @@ A couple of sample queries are also provided (for the flat schema):
 - export WARC record specs (file, offset, length) for
   - a single domain: [get-records-of-domain.sql](src/sql/examples/cc-index/get-records-of-domain.sql)
   - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/cc-index/get-records-of-mime-type.sql)
+  - a specific language (e.g., Icelandic): [get-records-for-language.sql](src/sql/examples/cc-index/get-records-for-language.sql)
 - find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/cc-index/similar-domains.sql)
 - average length and occupied storage of WARC records by MIME type: [average-warc-record-length-by-mime-type.sql](src/sql/examples/cc-index/average-warc-record-length-by-mime-type.sql)
 - count pairs of top-level domain and content language: [count-language-tld.sql](src/sql/examples/cc-index/count-language-tld.sql)
@@ -101,7 +102,7 @@ As a first use case, let's export parts of the table and save it in one of the f
 The tool requires as arguments input and output path, but you also want to pass a useful SQL query instead of the default `SELECT * FROM ccindex LIMIT 10`. All available command-line options are show when called with `--help`:
 
 ```
-% $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexExport target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar --help
+> $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexExport $APPJAR --help
 
 CCIndexExport [options] <tablePath> <outputPath>
 
@@ -114,6 +115,9 @@ Arguments:
 
 Options:
   -h,--help                       Show this message
+  -q,--query <arg>                SQL query to select rows
+  -t,--table <arg>                name of the table data is loaded into
+                                  (default: ccindex)
      --numOutputPartitions <arg>  repartition data to have <n> output partitions
      --outputCompression <arg>    data output compression codec: none, gzip/zlib
                                   (default), snappy, lzo, etc.
@@ -123,19 +127,75 @@ Options:
                                   json, csv
      --outputPartitionBy <arg>    partition data by columns (comma-separated,
                                   default: crawl,subset)
-  -q,--query <arg>                SQL query to select rows
-  -t,--table <arg>                name of the table data is loaded into
-                                  (default: ccindex)
 ```
-
-TODO: concrete example
 
 
 
 ### Export Subsets of the Common Crawl Archives
 
-TODO: description and example
+The [URL index](https://index.commoncrawl.org/) was initially created to easily fetch web page captures from the Common Crawl archives. The columnar index also contains the necessary information for this task - the fields `warc_filename`, `warc_record_offset` and `warc_record_length`. This allows us to define a subset of the Common Crawl archives by a SQL query, fetch all records of the subset and export them to WARC files for further processing. The tool [CCIndexWarcExport](src/main/java/org/commoncrawl/spark/examples/CCIndexWarcExport.java) addresses this use case:
 
 ```
-$SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexWarcExport target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar --help
+> $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexWarcExport $APPJAR --help
+
+CCIndexWarcExport [options] <tablePath> <outputPath>
+
+Arguments:
+  <tablePath>
+        path to cc-index table
+        s3://commoncrawl/cc-index/table/cc-main/warc/
+  <outputPath>
+        output directory
+
+Options:
+  -q,--query <arg>                  SQL query to select rows. Note: the result
+                                    is required to contain the columns `url',
+                                    `warc_filename', `warc_record_offset' and
+                                    `warc_record_length', make sure they're
+                                    SELECTed.
+  -t,--table <arg>                  name of the table data is loaded into
+                                    (default: ccindex)
+     --csv <arg>                    CSV file to load WARC records by filename,
+                                    offset and length.The CSV file must have
+                                    column headers and the input columns `url',
+                                    `warc_filename', `warc_record_offset' and
+                                    `warc_record_length' are mandatory, see also
+                                    option --query.
+  -h,--help                         Show this message
+     --numOutputPartitions <arg>    repartition data to have <n> output
+                                    partitions
+     --numRecordsPerWarcFile <arg>  allow max. <n> records per WARC file. This
+                                    will repartition the data so that in average
+                                    one partition contains not more than <n>
+                                    rows. Default is 10000, set to -1 to disable
+                                    this option.
+                                    Note: if both --numOutputPartitions and
+                                    --numRecordsPerWarcFile are used, the former
+                                    defines the minimum number of partitions,
+                                    the latter the maximum partition size.
+     --warcCreator <arg>            (WARC info record) creator of WARC export
+     --warcOperator <arg>           (WARC info record) operator of WARC export
+     --warcPrefix <arg>             WARC filename prefix
 ```
+
+Let's try to put together a couple of WARC files containing only web pages written in Icelandic (ISO-639-3 language code [isl](https://en.wikipedia.org/wiki/ISO_639:isl)). We choose Icelandic because it's not so common and the number of pages in the Common Crawl archives is manageable, cf. the [language statistics](https://commoncrawl.github.io/cc-crawl-statistics/plots/languages). We take the query [get-records-for-language.sql](src/sql/examples/cc-index/get-records-for-language.sql) and run it as Spark job:
+
+```
+> $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexWarcExport $APPJAR \
+   --query "SELECT url, warc_filename, warc_record_offset, warc_record_length
+            WHERE crawl = 'CC-MAIN-2018-43' AND subset = 'warc' AND content_languages = 'isl'" \
+   --numOutputPartitions 12 \
+   --numRecordsPerWarcFile 20000 \
+   --warcPrefix ICELANDIC-CC-2018-43 \
+   s3://commoncrawl/cc-index/table/cc-main/warc/ \
+   .../my_output_path/
+```
+
+It's also possible to pass the result of SQL query as a CSV file, e.g., an Athena result file. If you've already run the [get-records-for-language.sql](src/sql/examples/cc-index/get-records-for-language.sql) and the output file is available on S3, just replace the `--query` argument by `--csv` pointing to the result file:
+
+```
+> $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexWarcExport $APPJAR \
+   --csv s3://aws-athena-query-results-123456789012-us-east-1/Unsaved/2018/10/26/a1a82705-047c-4902-981d-b7a93338d5ac.csv \
+   ...
+```
+

@@ -51,6 +51,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 	protected String warcPrefix = "COMMON-CRAWL-EXPORT";
 	protected String warcCreator;
 	protected String warcOperator;
+	protected String csvQueryResult;
 
 	protected CCIndexWarcExport() {
 		super();
@@ -61,12 +62,16 @@ public class CCIndexWarcExport extends CCIndexExport {
 		options.getOption("query")
 				.setDescription("SQL query to select rows. Note: the result is required to contain the columns `url', "
 						+ "`warc_filename', `warc_record_offset' and `warc_record_length', make sure they're SELECTed.");
+		options.addOption(new Option(null, "csv", true, "CSV file to load WARC records by filename, offset and length."
+				+ "The CSV file must have column headers and the input columns `url', `warc_filename', "
+				+ "`warc_record_offset' and `warc_record_length' are mandatory, see also option --query. "));
+
 		options.addOption(
 				new Option(null, "numOutputPartitions", true, "repartition data to have <n> output partitions"));
 		options.addOption(new Option(null, "numRecordsPerWarcFile", true, "allow max. <n> records per WARC file. "
-				+ "This will repartition the data so that in average one partition contains not more than <n> rows."
+				+ "This will repartition the data so that in average one partition contains not more than <n> rows. "
 				+ "Default is 10000, set to -1 to disable this option."
-				+ "Note: if both --numOutputPartitions and --numRecordsPerWarcFile are used, the former defines"
+				+ "\nNote: if both --numOutputPartitions and --numRecordsPerWarcFile are used, the former defines "
 				+ "the minimum number of partitions, the latter the maximum partition size."));
 
 		options.addOption(new Option(null, "warcPrefix", true, "WARC filename prefix"));
@@ -93,6 +98,13 @@ public class CCIndexWarcExport extends CCIndexExport {
 			if (cli.hasOption("warcOperator")) {
 				warcOperator = cli.getOptionValue("warcOperator");
 			}
+			if (cli.hasOption("csv")) {
+				if (cli.hasOption("query")) {
+					LOG.error("Options --csv and --query are mutually exclusive.");
+					return 1;
+				}
+				csvQueryResult = cli.getOptionValue("csv");
+			}
 		} catch (ParseException e) {
 			// ignore, handled in call to super.parseOptions(...)
 		}
@@ -104,22 +116,37 @@ public class CCIndexWarcExport extends CCIndexExport {
 		LOG.debug("Fetching WARC record {} {} {}", filename, offset, length);
 		long from = offset;
 		long to = offset + length - 1;
+		S3Object s3obj = null;
 		try {
-			S3Object obj = s3.getObject(COMMON_CRAWL_BUCKET, filename, null, null, null, null, from, to);
+			s3obj = s3.getObject(COMMON_CRAWL_BUCKET, filename, null, null, null, null, from, to);
 			byte[] bytes = new byte[length];
-			obj.getDataInputStream().read(bytes);
+			s3obj.getDataInputStream().read(bytes);
+			s3obj.closeDataInputStream();
 			return bytes;
 		} catch (IOException | ServiceException e) {
 			LOG.error("Failed to fetch s3://{}/{} (bytes = {}-{}): {}", COMMON_CRAWL_BUCKET, filename, from, to, e);
+		} finally {
+			if (s3obj != null) {
+				try {
+					s3obj.closeDataInputStream();
+				} catch (IOException e) {
+				}
+			}
 		}
 		return null;
 	}
 
 	@Override
-	protected int run(String sqlQuery, String tablePath, String outputPath) {
+	protected int run(String tablePath, String outputPath) {
 
-		loadTable(sparkSession, tablePath, tableName);
-		Dataset<Row> sqlDF = executeQuery(sparkSession, sqlQuery);
+		Dataset<Row> sqlDF;
+		if (csvQueryResult != null) {
+			sqlDF = sparkSession.read().format("csv").option("header", true).option("inferSchema", true)
+					.load(csvQueryResult);
+		} else {
+			loadTable(sparkSession, tablePath, tableName);
+			sqlDF = executeQuery(sparkSession, sqlQuery);
+		}
 		sqlDF.persist();
 
 		long numRows = sqlDF.count();
@@ -171,7 +198,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 		}
 		conf.set("warc.export.software",
 				getClass().getCanonicalName() + " (Spark " + sparkSession.sparkContext().version() + ")");
-		conf.set("warc.export.description", "Common Crawl WARC export: " + sqlQuery);
+		conf.set("warc.export.description", "Common Crawl WARC export from " + tablePath + " for query: " + sqlQuery);
 
 		res.saveAsNewAPIHadoopFile(outputPath, String.class, byte[].class, WarcFileOutputFormat.class, conf);
 		LOG.info("Wrote {} WARC files with {} records total", numOutputPartitions, numRows);
