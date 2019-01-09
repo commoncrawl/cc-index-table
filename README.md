@@ -129,6 +129,18 @@ Options:
                                   default: crawl,subset)
 ```
 
+The following Spark SQL options are recommended to achieve an optimal query performance:
+```
+spark.hadoop.parquet.enable.dictionary=true
+spark.hadoop.parquet.enable.summary-metadata=false
+spark.sql.hive.metastorePartitionPruning=true
+spark.sql.parquet.filterPushdown=true
+```
+
+Because the schema of the index table has slightly changed over time by adding new columns the following option is required if any of the new columns (e.g., `content_languages`) is used in the query:
+```
+spark.sql.parquet.mergeSchema=true
+```
 
 
 ### Export Subsets of the Common Crawl Archives
@@ -181,8 +193,15 @@ Options:
 Let's try to put together a couple of WARC files containing only web pages written in Icelandic (ISO-639-3 language code [isl](https://en.wikipedia.org/wiki/ISO_639:isl)). We choose Icelandic because it's not so common and the number of pages in the Common Crawl archives is manageable, cf. the [language statistics](https://commoncrawl.github.io/cc-crawl-statistics/plots/languages). We take the query [get-records-for-language.sql](src/sql/examples/cc-index/get-records-for-language.sql) and run it as Spark job:
 
 ```
-> $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.examples.CCIndexWarcExport $APPJAR \
+> $SPARK_HOME/bin/spark-submit \
+   --conf spark.hadoop.parquet.enable.dictionary=true \
+   --conf spark.hadoop.parquet.enable.summary-metadata=false \
+   --conf spark.sql.hive.metastorePartitionPruning=true \
+   --conf spark.sql.parquet.filterPushdown=true \
+   --conf spark.sql.parquet.mergeSchema=true \
+   --class org.commoncrawl.spark.examples.CCIndexWarcExport $APPJAR \
    --query "SELECT url, warc_filename, warc_record_offset, warc_record_length
+            FROM ccindex
             WHERE crawl = 'CC-MAIN-2018-43' AND subset = 'warc' AND content_languages = 'isl'" \
    --numOutputPartitions 12 \
    --numRecordsPerWarcFile 20000 \
