@@ -37,6 +37,7 @@ import org.jets3t.service.S3Service;
 import org.jets3t.service.ServiceException;
 import org.jets3t.service.impl.rest.httpclient.RestS3Service;
 import org.jets3t.service.model.S3Object;
+import org.jets3t.service.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,14 +114,12 @@ public class CCIndexWarcExport extends CCIndexExport {
 	}
 
 	protected static byte[] getCCWarcRecord(S3Service s3, String filename, int offset, int length) {
-		LOG.debug("Fetching WARC record {} {} {}", filename, offset, length);
 		long from = offset;
 		long to = offset + length - 1;
 		S3Object s3obj = null;
 		try {
 			s3obj = s3.getObject(COMMON_CRAWL_BUCKET, filename, null, null, null, null, from, to);
-			byte[] bytes = new byte[length];
-			s3obj.getDataInputStream().read(bytes);
+			byte[] bytes = ServiceUtils.readInputStreamToBytes(s3obj.getDataInputStream());
 			s3obj.closeDataInputStream();
 			return bytes;
 		} catch (IOException | ServiceException e) {
@@ -181,8 +180,11 @@ public class CCIndexWarcExport extends CCIndexExport {
 				String filename = row.getString(1);
 				int offset = row.getInt(2);
 				int length = row.getInt(3);
+				LOG.info("Fetching WARC record {} {} {} for {}", filename, offset, length, url);
 				byte[] bytes = getCCWarcRecord(s3, filename, offset, length);
-				reslist.add(new scala.Tuple2<Text, byte[]>(new Text(url), bytes));
+				if (bytes != null) {
+					reslist.add(new scala.Tuple2<Text, byte[]>(new Text(url), bytes));
+				}
 			}
 			return reslist.iterator();
 		}, false);
