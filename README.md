@@ -2,15 +2,26 @@
 
 # Common Crawl Index Table
 
-Provide an index to Common Crawl archives in a tabular format.
+Build and process the [Common Crawl index table](https://commoncrawl.org/2018/03/index-to-warc-files-and-urls-in-columnar-format/) – an index to WARC files in a columnar data format ([Apache Parquet](https://parquet.apache.org/)).
+
+The index table is built from the Common Crawl URL index files by [Apache Spark](https://spark.apache.org/). It can be queried by SparkSQL, [Amazon Athena](https://aws.amazon.com/athena/), Hive and many other big data frameworks and applications.
+
+This projects provides a comprehensive set of example queries (SQL) and also Java code to fetch and process the WARC records matched by a SQL query.
+
 
 ## Build Java tools
 
 `mvn package`
 
+
+## Python and PySpark
+
+Not part of this project. Please have a look at [cc-pyspark](//github.com/commoncrawl/cc-pyspark) for examples how to query and process the tabular URL index with Python and PySpark.
+
+
 ## Conversion of the URL index
 
-A Spark job converts the Common Crawl URL index into a table in [Parquet](http://parquet.apache.org/) or [ORC](https://orc.apache.org/) format.
+A Spark job converts the Common Crawl URL index files (a [sharded gzipped index](https://pywb.readthedocs.io/en/latest/manual/indexing.html#zipnum-sharded-index) in [CDXJ format](https://iipc.github.io/warc-specifications/specifications/cdx-format/openwayback-cdxj/)) into a table in [Parquet](https://parquet.apache.org/) or [ORC](https://orc.apache.org/) format.
 
 ```
 > APPJAR=target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar
@@ -38,12 +49,12 @@ Options:
 
 The script [convert_url_index.sh](src/script/convert_url_index.sh) runs `CCIndex2Table` using Spark on Yarn.
 
-Columns are defined described in the table schema ([flat](src/main/resources/schema/cc-index-schema-flat.json) or [nested](src/main/resources/schema/cc-index-schema-nested.json)).
+Columns are defined and described in the table schema ([flat](src/main/resources/schema/cc-index-schema-flat.json) or [nested](src/main/resources/schema/cc-index-schema-nested.json)).
 
 
 ## Query the table in AWS Athena
 
-First, the table needs to be imported into [AWS Athena](). In the Athena Query Editor:
+First, the table needs to be imported into [Amazon Athena](https://aws.amazon.com/athena/). In the Athena Query Editor:
 
 1. create a database `ccindex`: `CREATE DATABASE ccindex` and make sure that it's selected as "DATABASE"
 2. edit the "create table" statement ([flat](src/sql/athena/cc-index-create-table-flat.sql) or [nested](src/sql/athena/cc-index-create-table-nested.sql)) and add the correct table name and path to the Parquet/ORC data on `s3://`. Execute the "create table" query.
