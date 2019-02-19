@@ -29,3 +29,7 @@ hs_err_pid*
 
 # maven build directory
 /target/
+
+# Spark-specific files from testing locally
+spark-warehouse/
+metastore_db/
