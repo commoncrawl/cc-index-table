@@ -164,15 +164,6 @@
       }
     },
     {
-      "name": "fetch_redirect",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Target location of HTTP redirect",
-        "example": "https://example.com/"
-      }
-    },
-    {
       "name": "content_digest",
       "type": "string",
       "nullable": true,
@@ -197,40 +188,6 @@
       "metadata": {
         "description": "Content-Type detected based on content (WARC-Identified-Payload-Type)",
         "example": "application/rss+xml"
-      }
-    },
-    {
-      "name": "content_charset",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Character set of an HTML page and other text-based document formats",
-        "example": "UTF-8",
-        "since": "CC-MAIN-2018-39"
-      }
-    },
-    {
-      "name": "content_languages",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Language(s) of a document as ISO-639-3 language code(s), multiple values are separated by a comma",
-        "example": "fra,eng",
-        "since": "CC-MAIN-2018-39"
-      }
-    },
-    {
-      "name": "content_truncated",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Non-null if the WARC record payload is truncated. The value then indicates the reason for the truncation, cf. https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#warc-truncated",
-        "enumeration": {
-          "length": "payload exceeds configured maximum length",
-          "time": "fetching exceeded the configured maximum time",
-          "disconnect": "network disconnect or protocol-level error",
-          "unspecified": "other/unknown reason for truncation"
-        }
       }
     },
     {
