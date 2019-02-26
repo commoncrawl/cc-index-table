@@ -105,13 +105,17 @@ public class CCIndex2Table {
 		String url = jsonobj.get("url").getAsString();
 		CommonCrawlURL u = new CommonCrawlURL(url);
 		short status = -1;
-		try {
-			status = jsonobj.get("status").getAsShort();
-		} catch (NumberFormatException e) {
-			// https://tools.ietf.org/html/rfc7231#page-47
-			// defines HTTP status codes as "a three-digit integer code"
-			// -- it should fit into a short integer
-			LOG.error("Invalid HTTP status code {}: {}", jsonobj.get("status"), e);
+		if (jsonobj.has("status")) {
+			try {
+				status = jsonobj.get("status").getAsShort();
+			} catch (NumberFormatException e) {
+				// https://tools.ietf.org/html/rfc7231#page-47
+				// defines HTTP status codes as "a three-digit integer code"
+				// -- it should fit into a short integer
+				LOG.error("Invalid HTTP status code {}: {}", jsonobj.get("status"), e);
+			}
+		} else {
+			LOG.error("No status code for {}", url);
 		}
 		String digest = null;
 		if (jsonobj.has("digest")) {
