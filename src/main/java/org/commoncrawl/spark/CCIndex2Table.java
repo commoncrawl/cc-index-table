@@ -95,10 +95,11 @@ public class CCIndex2Table {
 		} catch (IOException e) {
 			// cannot happen: it's a StringReader on a line which length is greater or at
 			// least equal to the number of skipped characters
-			LOG.error("Failed to read line: ", line);
+			LOG.error("Failed to read line: {}", line);
 		}
 		JsonElement json = new JsonParser().parse(new JsonReader(in));
 		if (!json.isJsonObject()) {
+			LOG.error("Failed to read JSON: {}", json);
 			return null;
 		}
 		JsonObject jsonobj = (JsonObject) json;

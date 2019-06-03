@@ -4,7 +4,7 @@
 
 Build and process the [Common Crawl index table](https://commoncrawl.org/2018/03/index-to-warc-files-and-urls-in-columnar-format/) – an index to WARC files in a columnar data format ([Apache Parquet](https://parquet.apache.org/)).
 
-The index table is built from the Common Crawl URL index files by [Apache Spark](https://spark.apache.org/). It can be queried by SparkSQL, [Amazon Athena](https://aws.amazon.com/athena/), Hive and many other big data frameworks and applications.
+The index table is built from the Common Crawl URL index files by [Apache Spark](https://spark.apache.org/). It can be queried by [SparkSQL](https://spark.apache.org/sql/), [Amazon Athena](https://aws.amazon.com/athena/) (built on [Presto](https://prestosql.io/)), [Apache Hive](https://hive.apache.org/) and many other big data frameworks and applications.
 
 This projects provides a comprehensive set of example queries (SQL) and also Java code to fetch and process the WARC records matched by a SQL query.
 
@@ -52,7 +52,7 @@ The script [convert_url_index.sh](src/script/convert_url_index.sh) runs `CCIndex
 Columns are defined and described in the table schema ([flat](src/main/resources/schema/cc-index-schema-flat.json) or [nested](src/main/resources/schema/cc-index-schema-nested.json)).
 
 
-## Query the table in AWS Athena
+## Query the table in Amazon Athena
 
 First, the table needs to be imported into [Amazon Athena](https://aws.amazon.com/athena/). In the Athena Query Editor:
 
