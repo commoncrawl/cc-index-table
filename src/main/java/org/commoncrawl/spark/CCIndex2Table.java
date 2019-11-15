@@ -118,6 +118,10 @@ public class CCIndex2Table {
 		} else {
 			LOG.error("No status code for {}", url);
 		}
+		String redirect = null;
+		if (jsonobj.has("redirect")) {
+			redirect = jsonobj.get("redirect").getAsString();
+		}
 		String digest = null;
 		if (jsonobj.has("digest")) {
 			digest = jsonobj.get("digest").getAsString();
@@ -151,6 +155,10 @@ public class CCIndex2Table {
 			// multiple values separated by a comma
 			languages = jsonobj.get("languages").getAsString();
 		}
+		String truncated = null;
+		if (jsonobj.has("truncated")) {
+			languages = jsonobj.get("truncated").getAsString();
+		}
 		// Note: the row layout must be congruent with the schema
 		if (useNestedSchema) {
 			return RowFactory.create(
@@ -163,8 +171,9 @@ public class CCIndex2Table {
 							u.getUrl().getPath(),
 							u.getUrl().getQuery()
 							),
-					RowFactory.create(timestamp, status),
-					RowFactory.create(digest, mime, mimeDetected),
+					RowFactory.create(timestamp, status, redirect),
+					RowFactory.create(digest, mime, mimeDetected,
+							charset, languages, truncated),
 					RowFactory.create(filename, offset, length, segment),
 					crawl, subset);
 		} else {
@@ -186,10 +195,14 @@ public class CCIndex2Table {
 					u.getUrl().getQuery(),
 					// fetch info
 					timestamp, status,
+					// HTTP redirects (since CC-MAIN-2019-47)
+					redirect,
 					// content-related
 					digest, mime, mimeDetected,
 					// content-related (since CC-MAIN-2018-34/CC-MAIN-2018-39)
 					charset, languages,
+					// content (WARC record payload) truncated (since CC-MAIN-2019-47)
+					truncated,
 					// WARC record location
 					filename, offset, length, segment,
 					// partition fields
@@ -197,8 +210,8 @@ public class CCIndex2Table {
 		}
 	}
 
-	public StructType readJsonSchemaResource(String resource) throws IOException {
-		InputStream in = this.getClass().getResourceAsStream(resource);
+	public static StructType readJsonSchemaResource(String resource) throws IOException {
+		InputStream in = CCIndex2Table.class.getResourceAsStream(resource);
 		if (in == null) {
 			LOG.error("JSON schema {} not found", resource);
 			return null;
