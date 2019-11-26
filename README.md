@@ -68,6 +68,7 @@ A couple of sample queries are also provided (for the flat schema):
   - URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/cc-index/count-url-path-elements.sql)
 - count HTTP status codes: [count-fetch-status.sql](src/sql/examples/cc-index/count-fetch-status.sql)
 - count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/cc-index/count-domains-of-tld.sql)
+- page counts for the Alexa top 1 million sites by joining two tables (ccindex and a CSV file): [count-domains-alexa-top-1m.sql](src/sql/examples/cc-index/count-domains-alexa-top-1m.sql)
 - compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/cc-index/compare-mime-type-http-vs-detected.sql)
 - distribution/histogram of host name lengths: [host-length-distrib.sql](src/sql/examples/cc-index/host-length-distrib.sql)
 - count URL paths to robots.txt files [count-robotstxt-url-paths.sql](src/sql/examples/cc-index/count-robotstxt-url-paths.sql)
@@ -79,6 +80,7 @@ A couple of sample queries are also provided (for the flat schema):
 - average length and occupied storage of WARC records by MIME type: [average-warc-record-length-by-mime-type.sql](src/sql/examples/cc-index/average-warc-record-length-by-mime-type.sql)
 - count pairs of top-level domain and content language: [count-language-tld.sql](src/sql/examples/cc-index/count-language-tld.sql)
 - find correlations between TLD and content language using the log-likelihood ratio: [loglikelihood-language-tld.sql](src/sql/examples/cc-index/loglikelihood-language-tld.sql)
+- ... and similar for correlations between content language and character encoding: [correlation-language-charset.sql](src/sql/examples/cc-index/correlation-language-charset.sql)
 - find multi-lingual domains by analyzing URL paths: [get-language-translations-url-path.sql](src/sql/examples/cc-index/get-language-translations-url-path.sql)
 
 Athena creates results in CSV format. E.g., for the last example, the mining of multi-lingual domains we get:
