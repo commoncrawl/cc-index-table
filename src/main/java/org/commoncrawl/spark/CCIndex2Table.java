@@ -157,7 +157,7 @@ public class CCIndex2Table {
 		}
 		String truncated = null;
 		if (jsonobj.has("truncated")) {
-			languages = jsonobj.get("truncated").getAsString();
+			truncated = jsonobj.get("truncated").getAsString();
 		}
 		// Note: the row layout must be congruent with the schema
 		if (useNestedSchema) {
