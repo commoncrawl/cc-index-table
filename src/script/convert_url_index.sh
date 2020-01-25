@@ -57,6 +57,7 @@ $SPARK_HOME/bin/spark-submit \
     --conf spark.sql.parquet.mergeSchema=false \
     --conf spark.sql.hive.metastorePartitionPruning=true \
     --conf spark.hadoop.parquet.enable.summary-metadata=false \
+    --conf spark.sql.parquet.outputTimestampType=TIMESTAMP_MILLIS \
     --class org.commoncrawl.spark.CCIndex2Table $_APPJAR \
     --outputCompression=$COMPRS \
     --outputFormat=$FORMAT $NESTED \
