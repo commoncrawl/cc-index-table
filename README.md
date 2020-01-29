@@ -24,7 +24,7 @@ Not part of this project. Please have a look at [cc-pyspark](//github.com/common
 A Spark job converts the Common Crawl URL index files (a [sharded gzipped index](https://pywb.readthedocs.io/en/latest/manual/indexing.html#zipnum-sharded-index) in [CDXJ format](https://iipc.github.io/warc-specifications/specifications/cdx-format/openwayback-cdxj/)) into a table in [Parquet](https://parquet.apache.org/) or [ORC](https://orc.apache.org/) format.
 
 ```
-> APPJAR=target/cc-spark-0.2-SNAPSHOT-jar-with-dependencies.jar
+> APPJAR=target/cc-index-table-0.2-SNAPSHOT-jar-with-dependencies.jar
 > $SPARK_HOME/bin/spark-submit --class org.commoncrawl.spark.CCIndex2Table $APPJAR
 
 CCIndex2Table [options] <inputPathSpec> <outputPath>

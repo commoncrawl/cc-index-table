@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.commoncrawl</groupId>
-	<artifactId>cc-spark</artifactId>
+	<artifactId>cc-index-table</artifactId>
 	<version>0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>cc-spark</name>
-	<url>http://maven.apache.org</url>
+	<name>cc-index-table</name>
+	<url>https://github.com/commoncrawl/cc-index-table</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -63,7 +63,7 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					<finalName>cc-spark-${project.version}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 				</configuration>
 				<executions>
 					<execution>
