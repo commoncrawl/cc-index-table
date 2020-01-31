@@ -1,66 +1,29 @@
 -- search for correlations between top-level domain and content language
 -- using the log-likelihood ratio test (cf. http://aclweb.org/anthology/J93-1003)
 
--- get the total number of pages/captures
---  (usually 3 billion, 2841194829 for CC-MAIN-2018-39)
-CREATE OR REPLACE VIEW tmp_total_pages AS
-SELECT COUNT(*) as total_pages,
-       'xxxjoin' as join_column
-FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2018-39'
-  AND subset = 'warc';
+-- * first step (create view):
+--   - count occurences
+--   - calculate log-likelihood ratio (cf. http://aclweb.org/anthology/J93-1003)
+-- * second step: filter to reduce noise and sort the results
 
--- TLD counts
-CREATE OR REPLACE VIEW tld_counts AS
-SELECT COUNT(*) as n_pages_tld,
-       url_host_tld,
-       'xxxjoin' as join_column
-FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2018-39'
-  AND subset = 'warc'
-GROUP BY url_host_tld
-HAVING COUNT(*) >= 1000;
-
--- add total pages to TLD counts
-CREATE OR REPLACE VIEW tld_counts_total AS
-SELECT url_host_tld,
-       total_pages,
-       n_pages_tld
-FROM tmp_total_pages
- FULL OUTER JOIN tld_counts
-   ON tmp_total_pages.join_column = tld_counts.join_column;
-
--- count content languages
-CREATE OR REPLACE VIEW language_counts AS
-SELECT COUNT(*) as n_pages_languages,
-       content_languages
-FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2018-39'
-  AND subset = 'warc'
-   -- skip pages with more than one language:
-  AND NOT content_languages LIKE '%,%'
-GROUP BY content_languages
-HAVING COUNT(*) >= 1000;
-
--- combinations of content language and TLD
-CREATE OR REPLACE VIEW language_tld_counts AS
-SELECT COUNT(*) as n_pages,
-       content_languages,
-       url_host_tld
-FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2018-39'
-  AND subset = 'warc'
-   -- skip pages with more than one language:
-  AND NOT content_languages LIKE '%,%'
-GROUP BY content_languages,
-         url_host_tld
-HAVING COUNT(*) >= 1000;
-
--- join tables and calculate log-likelihood
+-- create a view to filter and sort the results later
 CREATE OR REPLACE VIEW language_tld_loglikelihood AS
-SELECT language_tld_counts.url_host_tld AS tld,
-       language_tld_counts.content_languages AS language,
-       total_pages,
+-- first, get counts on entire data
+WITH tmp AS
+(SELECT COUNT(*) as n_pages,
+       url_host_tld AS tld,
+       content_languages AS languages,
+       SUM(COUNT(*)) OVER() AS total_pages,
+       SUM(COUNT(*)) OVER(PARTITION BY url_host_tld) AS n_pages_tld,
+       SUM(COUNT(*)) OVER(PARTITION BY content_languages) as n_pages_languages
+FROM "ccindex"."ccindex"
+WHERE crawl = 'CC-MAIN-2018-39'
+  AND subset = 'warc'
+GROUP BY url_host_tld,
+         content_languages)
+-- second, calculate loglikelihood and conditional probabilities
+SELECT tld,
+       languages,
        n_pages_tld,
        n_pages_languages,
        n_pages,
@@ -71,23 +34,32 @@ SELECT language_tld_counts.url_host_tld AS tld,
               ln((n_pages_languages-n_pages)/(n_pages_languages*(total_pages-n_pages_tld)/CAST(total_pages AS DOUBLE))))
           +if(((total_pages+n_pages)=(n_pages_languages+n_pages_tld)),0,
               ln((total_pages-n_pages_languages-n_pages_tld+n_pages)
-                 /((total_pages-n_pages_tld)*(total_pages-n_pages_languages)/CAST(total_pages AS DOUBLE))))))
-        AS loglikelihood
-FROM language_tld_counts
- INNER JOIN tld_counts_total
-   ON language_tld_counts.url_host_tld = tld_counts_total.url_host_tld
- INNER JOIN language_counts
-   ON language_tld_counts.content_languages = language_counts.content_languages;
+                 /(CAST((total_pages-n_pages_tld) AS DOUBLE)*(total_pages-n_pages_languages)/CAST(total_pages AS DOUBLE))))))
+       AS loglikelihood,
+       (n_pages/CAST(n_pages_languages AS DOUBLE)) AS probability_tld_given_language,
+       (n_pages/CAST(n_pages_tld AS DOUBLE)) AS probability_language_given_tld
+FROM tmp;
 
 
--- get tld language pairs with positive loglikelihood
--- (more pages in a specific language per tld than expected by for a random distribution)
+-- finally, filter the results to reduce noise
 SELECT tld,
-       language,
+       languages,
        n_pages_tld,
        n_pages_languages,
        n_pages,
-       loglikelihood
+       loglikelihood,
+       probability_language_given_tld,
+       probability_tld_given_language
 FROM language_tld_loglikelihood
-WHERE loglikelihood > 0.0
-ORDER BY language, loglikelihood DESC;
+WHERE
+  -- skip low-frequency pairs of language and tld:
+      n_pages >= 1000
+  -- skip pages with more than one language:
+      AND NOT languages LIKE '%,%'
+  -- not every URL contains a top-level domain
+  -- (eg. host could be an IP address)
+      AND tld IS NOT NULL
+  -- skip pairs with negative loglikelihood
+  -- (less pages in a specific language per tld than expected for a random distribution)
+      AND loglikelihood >= 0.0
+ORDER BY languages, loglikelihood DESC;
