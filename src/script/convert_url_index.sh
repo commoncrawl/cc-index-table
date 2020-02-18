@@ -23,8 +23,9 @@ EXECUTOR_CORES=12
 NUM_EXECUTORS=4
 DRIVER_MEM=4g
 
-SPARK_ON_YARN="--master yarn"
-SPARK_EXTRA_OPTS=""
+SPARK_ON_YARN="${SPARK_ON_YARN:-"--master yarn"}"
+SPARK_HADOOP_OPTS="${SPARK_HADOOP_OPTS:-""}"
+SPARK_EXTRA_OPTS="${SPARK_EXTRA_OPTS:-""}"
 
 # source specific configuration file
 test -e $(dirname $0)/convert_url_index_conf.sh && . $(dirname $0)/convert_url_index_conf.sh
@@ -40,6 +41,7 @@ set -x
 
 $SPARK_HOME/bin/spark-submit \
     $SPARK_ON_YARN \
+    $SPARK_HADOOP_OPTS \
     --conf spark.serializer=org.apache.spark.serializer.KryoSerializer \
     --conf spark.core.connection.ack.wait.timeout=600s \
     --conf spark.network.timeout=120s \
