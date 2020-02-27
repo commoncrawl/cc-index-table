@@ -189,7 +189,12 @@ public class CCIndexExport {
 		String tablePath = arguments.get(0);
 		String outputPath = arguments.get(1);
 
-		return run(tablePath, outputPath);
+		int status = run(tablePath, outputPath);
+
+		// shut-down SparkSession
+		sparkSession.stop();
+
+		return status;
 	}
 
 	public static void main(String[] args) throws IOException {
