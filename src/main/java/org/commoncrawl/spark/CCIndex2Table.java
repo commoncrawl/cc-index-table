@@ -225,7 +225,7 @@ public class CCIndex2Table {
 		return (StructType) DataType.fromJson(json);
 	}
 
-	public int run(String inputPaths, String outputPath) throws IOException {
+	public void run(String inputPaths, String outputPath) throws IOException {
 		SparkConf conf = new SparkConf();
 		conf.setAppName(name);
 		JavaSparkContext sc = new JavaSparkContext(conf);
@@ -252,8 +252,7 @@ public class CCIndex2Table {
 			dfw.partitionBy(partitionArgs);
 		}
 		dfw.save(outputPath);
-		sc.close();
-		return 0;
+		sc.close(); // shut-down Spark context
 	}
 	
 	private void help(Options options) {
@@ -269,7 +268,7 @@ public class CCIndex2Table {
 		new HelpFormatter().printOptions(new PrintWriter(System.err, true), 80, options, 2, 2);
 	}
 
-	public int run(String[] args) throws IOException {
+	public void run(String[] args) throws IOException {
 		Options options = new Options();
 		options.addOption(new Option("h", "help", false, "Show this message"))
 				.addOption(new Option(null, "partitionBy", true,
@@ -288,12 +287,13 @@ public class CCIndex2Table {
 		} catch (ParseException e) {
 			System.err.println(e.getMessage());
 			help(options);
-			return 1;
+			System.exit(-1);
+			return;
 		}
 
 		if (cli.hasOption("help")) {
 			help(options);
-			return 0;
+			return;
 		}
 
 		if (cli.hasOption("partitionBy")) {
@@ -312,7 +312,7 @@ public class CCIndex2Table {
 		String[] arguments = cli.getArgs();
 		if (arguments.length < 2) {
 			help(options);
-			return 1;
+			System.exit(1);
 		}
 
 		String inputPaths = arguments[0];
@@ -323,12 +323,11 @@ public class CCIndex2Table {
 			outputCompression = "zlib";
 		}
 
-		return run(inputPaths, outputPath);
+		run(inputPaths, outputPath);
 	}
 	
 	public static void main(String[] args) throws IOException {
 		CCIndex2Table job = new CCIndex2Table();
-		int success = job.run(args);
-		System.exit(success);
+		job.run(args);
 	}
 }

@@ -54,10 +54,6 @@ public class CCIndexWarcExport extends CCIndexExport {
 	protected String warcOperator;
 	protected String csvQueryResult;
 
-	protected CCIndexWarcExport() {
-		super();
-	}
-
 	@Override
 	protected void addOptions() {
 		options.getOption("query")
@@ -211,8 +207,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 
 	public static void main(String[] args) throws IOException {
 		CCIndexExport job = new CCIndexWarcExport();
-		int success = job.run(args);
-		System.exit(success);
+		job.run(args);
 	}
 
 }
