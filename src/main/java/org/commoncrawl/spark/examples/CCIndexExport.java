@@ -25,6 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
@@ -162,9 +163,11 @@ public class CCIndexExport {
 
 	public void run(String[] args) throws IOException {
 
-		options.addOption(new Option("h", "help", false, "Show this message"))
-			.addOption(new Option("q", "query", true, "SQL query to select rows"))
-			.addOption(new Option("t", "table", true, "name of the table data is loaded into (default: ccindex)"));
+		options.addOption(new Option("h", "help", false, "Show this message"));
+		OptionGroup selectionSpec = new OptionGroup();
+		selectionSpec.addOption(new Option("q", "query", true, "SQL query to select rows"));
+		options.addOptionGroup(selectionSpec);
+		options.addOption(new Option("t", "table", true, "name of the table data is loaded into (default: ccindex)"));
 
 		addOptions();
 
@@ -174,7 +177,7 @@ public class CCIndexExport {
 			System.exit(res);
 		}
 		if (arguments.size() < 2) {
-			System.err.println("Input and output path required!");
+			System.err.println("Both, <tablePath> and <outputPath> are required!");
 			help(options);
 			System.exit(1);
 		}
