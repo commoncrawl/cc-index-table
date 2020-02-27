@@ -212,7 +212,6 @@ public class CCIndexWarcExport extends CCIndexExport {
 	public static void main(String[] args) throws IOException {
 		CCIndexExport job = new CCIndexWarcExport();
 		int success = job.run(args);
-		System.exit(success);
 	}
 
 }

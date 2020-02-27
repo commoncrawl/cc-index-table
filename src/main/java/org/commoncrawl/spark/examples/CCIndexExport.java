@@ -195,7 +195,6 @@ public class CCIndexExport {
 	public static void main(String[] args) throws IOException {
 		CCIndexExport job = new CCIndexExport();
 		int success = job.run(args);
-		System.exit(success);
 	}
 
 }
