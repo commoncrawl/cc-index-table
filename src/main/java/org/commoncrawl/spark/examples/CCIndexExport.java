@@ -25,6 +25,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
@@ -59,18 +60,6 @@ public class CCIndexExport {
 
 	protected SparkSession sparkSession;
 	protected JobStatsListener sparkStats = new JobStatsListener();
-
-	protected CCIndexExport() {
-		options.addOption(new Option("h", "help", false, "Show this message"))
-				.addOption(new Option("q", "query", true, "SQL query to select rows"))
-				.addOption(new Option("t", "table", true, "name of the table data is loaded into (default: ccindex)"));
-		SparkConf conf = new SparkConf();
-		conf.setAppName(this.getClass().getCanonicalName());
-		SparkContext sc = new SparkContext(conf);
-		sparkStats = new JobStatsListener();
-		sc.addSparkListener(sparkStats);
-		sparkSession = SparkSession.builder().config(conf).getOrCreate();
-	}
 
 	protected void loadTable(SparkSession spark, String tablePath, String tableName) {
 		Dataset<Row> df = spark.read().load(tablePath);
@@ -172,30 +161,46 @@ public class CCIndexExport {
 		return 0;
 	}
 
-	public int run(String[] args) throws IOException {
+	public void run(String[] args) throws IOException {
+
+		options.addOption(new Option("h", "help", false, "Show this message"));
+		OptionGroup selectionSpec = new OptionGroup();
+		selectionSpec.addOption(new Option("q", "query", true, "SQL query to select rows"));
+		options.addOptionGroup(selectionSpec);
+		options.addOption(new Option("t", "table", true, "name of the table data is loaded into (default: ccindex)"));
 
 		addOptions();
 
 		List<String> arguments = new ArrayList<>();
 		int res = parseOptions(args, arguments);
 		if (res != 0) {
-			return res;
+			System.exit(res);
 		}
 		if (arguments.size() < 2) {
+			System.err.println("Both, <tablePath> and <outputPath> are required!");
 			help(options);
-			return 1;
+			System.exit(1);
 		}
 
 		String tablePath = arguments.get(0);
 		String outputPath = arguments.get(1);
 
-		return run(tablePath, outputPath);
+		SparkConf conf = new SparkConf();
+		conf.setAppName(this.getClass().getCanonicalName());
+		SparkContext sc = new SparkContext(conf);
+		sparkStats = new JobStatsListener();
+		sc.addSparkListener(sparkStats);
+		sparkSession = SparkSession.builder().config(conf).getOrCreate();
+
+		run(tablePath, outputPath);
+
+		// shut-down SparkSession
+		sparkSession.stop();
 	}
 
 	public static void main(String[] args) throws IOException {
 		CCIndexExport job = new CCIndexExport();
-		int success = job.run(args);
-		System.exit(success);
+		job.run(args);
 	}
 
 }

@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.hadoop.conf.Configuration;
@@ -54,18 +55,16 @@ public class CCIndexWarcExport extends CCIndexExport {
 	protected String warcOperator;
 	protected String csvQueryResult;
 
-	protected CCIndexWarcExport() {
-		super();
-	}
-
 	@Override
 	protected void addOptions() {
-		options.getOption("query")
-				.setDescription("SQL query to select rows. Note: the result is required to contain the columns `url', "
-						+ "`warc_filename', `warc_record_offset' and `warc_record_length', make sure they're SELECTed.");
-		options.addOption(new Option(null, "csv", true, "CSV file to load WARC records by filename, offset and length."
-				+ "The CSV file must have column headers and the input columns `url', `warc_filename', "
-				+ "`warc_record_offset' and `warc_record_length' are mandatory, see also option --query. "));
+		Option query = options.getOption("query");
+		query.setDescription("SQL query to select rows. Note: the result is required to contain the columns `url', "
+				+ "`warc_filename', `warc_record_offset' and `warc_record_length', make sure they're SELECTed.");
+		OptionGroup g = options.getOptionGroup(query).addOption(query).addOption(new Option(null, "csv", true,
+				"CSV file to load WARC records by filename, offset and length. "
+						+ "The CSV file must have column headers and the input columns `url', `warc_filename', "
+						+ "`warc_record_offset' and `warc_record_length' are mandatory, see also option --query. "));
+		options.addOptionGroup(g);
 
 		options.addOption(
 				new Option(null, "numOutputPartitions", true, "repartition data to have <n> output partitions"));
@@ -211,8 +210,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 
 	public static void main(String[] args) throws IOException {
 		CCIndexExport job = new CCIndexWarcExport();
-		int success = job.run(args);
-		System.exit(success);
+		job.run(args);
 	}
 
 }
