@@ -68,6 +68,7 @@ A couple of sample queries are also provided (for the flat schema):
   - URL path elements (separated by `/`): [count-url-path-elements.sql](src/sql/examples/cc-index/count-url-path-elements.sql)
 - count HTTP status codes: [count-fetch-status.sql](src/sql/examples/cc-index/count-fetch-status.sql)
 - count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/cc-index/count-domains-of-tld.sql)
+- count page captures of Internationalized Domain Names (IDNA): [count-idna.sql](src/sql/examples/cc-index/count-idna.sql)
 - page counts for the Alexa top 1 million sites by joining two tables (ccindex and a CSV file): [count-domains-alexa-top-1m.sql](src/sql/examples/cc-index/count-domains-alexa-top-1m.sql)
 - compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/cc-index/compare-mime-type-http-vs-detected.sql)
 - distribution/histogram of host name lengths: [host-length-distrib.sql](src/sql/examples/cc-index/host-length-distrib.sql)
