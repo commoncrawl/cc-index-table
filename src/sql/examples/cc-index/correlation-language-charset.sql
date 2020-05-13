@@ -22,8 +22,8 @@ GROUP BY content_charset,
          content_languages)
 -- second, calculate loglikelihood and conditional probabilities
 --  (note: need to use floating point arithmetic for the multiplication
---         in the not*not cell to prevent form int64 overflows)
---- bigint multiplication overflow: 3069837805 * 3101097172
+--         in the not*not cell to prevent from int64 overflows:
+---        "bigint multiplication overflow: 3069837805 * 3101097172")
 SELECT languages,
        charset,
        n_pages_languages,
@@ -38,8 +38,8 @@ SELECT languages,
               ln((total_pages-n_pages_languages-n_pages_charset+n_pages)
                  /(CAST((total_pages-n_pages_charset) AS DOUBLE)*(total_pages-n_pages_languages)/CAST(total_pages AS DOUBLE))))))
        AS loglikelihood,
-       (n_pages/CAST(n_pages_languages AS DOUBLE)) AS probability_charset_given_language,
-       (n_pages/CAST(n_pages_charset AS DOUBLE)) AS probability_language_given_charset
+       (n_pages/CAST(n_pages_languages AS DOUBLE)) AS prob_cs_given_lang,
+       (n_pages/CAST(n_pages_charset AS DOUBLE)) AS prob_lang_given_cs
 FROM tmp;
 
 
@@ -50,8 +50,8 @@ SELECT languages,
        n_pages_charset,
        n_pages,
        loglikelihood,
-       probability_charset_given_language,
-       probability_language_given_charset
+       prob_cs_given_lang,
+       prob_lang_given_cs
 FROM language_charset_loglikelihood
 WHERE
   -- skip low-frequency pairs of language and charset:
