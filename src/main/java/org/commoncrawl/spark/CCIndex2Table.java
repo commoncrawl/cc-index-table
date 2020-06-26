@@ -27,8 +27,6 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +40,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -228,9 +225,8 @@ public class CCIndex2Table {
 	public void run(String inputPaths, String outputPath) throws IOException {
 		SparkConf conf = new SparkConf();
 		conf.setAppName(name);
-		JavaSparkContext sc = new JavaSparkContext(conf);
 		SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
-		JavaRDD<String> input = sc.textFile(inputPaths);
+		JavaRDD<String> input = spark.read().textFile(inputPaths).toJavaRDD();
 		JavaRDD<Row> output = input.map(CCIndex2Table::convertCdxLine);
 		StructType schema;
 		if (useNestedSchema) {
@@ -246,13 +242,10 @@ public class CCIndex2Table {
 		dfw.option("compression", outputCompression);
 		if (!partitionBy.trim().isEmpty()) {
 			// Note: cannot use nested columns for partitioning (SPARK-18084)
-			List<String> partitionByArgs = Arrays.asList(partitionBy.split("\\s*,\\s*"));
-			scala.collection.Seq<String> partitionArgs = scala.collection.JavaConverters
-					.collectionAsScalaIterableConverter(partitionByArgs).asScala().toSeq();
-			dfw.partitionBy(partitionArgs);
+			dfw.partitionBy(partitionBy.split("\\s*,\\s*"));
 		}
 		dfw.save(outputPath);
-		sc.close(); // shut-down Spark context
+		spark.close();
 	}
 	
 	private void help(Options options) {
