@@ -1,4 +1,4 @@
-![Common Crawl Logo](http://commoncrawl.org/wp-content/uploads/2016/12/logocommoncrawl.png)
+![Common Crawl Logo](https://commoncrawl.org/wp-content/uploads/2016/12/logocommoncrawl.png)
 
 # Common Crawl Index Table
 
@@ -70,7 +70,7 @@ A couple of sample queries are also provided (for the flat schema):
 - count the domains of a specific top-level domain: [count-domains-of-tld.sql](src/sql/examples/cc-index/count-domains-of-tld.sql)
 - count page captures of Internationalized Domain Names (IDNA): [count-idna.sql](src/sql/examples/cc-index/count-idna.sql)
 - page counts for the Alexa top 1 million sites by joining two tables (ccindex and a CSV file): [count-domains-alexa-top-1m.sql](src/sql/examples/cc-index/count-domains-alexa-top-1m.sql)
-- compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](http://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/cc-index/compare-mime-type-http-vs-detected.sql)
+- compare document MIME types (Content-Type in HTTP response header vs. MIME type detected by [Tika](https://tika.apache.org/): [compare-mime-type-http-vs-detected.sql](src/sql/examples/cc-index/compare-mime-type-http-vs-detected.sql)
 - distribution/histogram of host name lengths: [host-length-distrib.sql](src/sql/examples/cc-index/host-length-distrib.sql)
 - count URL paths to robots.txt files [count-robotstxt-url-paths.sql](src/sql/examples/cc-index/count-robotstxt-url-paths.sql)
 - export WARC record specs (file, offset, length) for
