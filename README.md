@@ -14,9 +14,9 @@ This projects provides a comprehensive set of example queries (SQL) and also Jav
 `mvn package`
 
 
-## Python and PySpark
+## Python, PySpark, Jupyter Notebooks
 
-Not part of this project. Please have a look at [cc-pyspark](//github.com/commoncrawl/cc-pyspark) for examples how to query and process the tabular URL index with Python and PySpark.
+Not part of this project. Please have a look at [cc-pyspark](//github.com/commoncrawl/cc-pyspark) for examples how to query and process the tabular URL index with Python and PySpark. The project [cc-notebooks](//github.com/commoncrawl/cc-notebooks) includes some examples how to gain insights into the Common Crawl data sets using the columnar index.
 
 
 ## Conversion of the URL index
