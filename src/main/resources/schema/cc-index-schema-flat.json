@@ -110,6 +110,15 @@
       }
     },
     {
+      "name": "url_host_name_reversed",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Hostname, excluding IP addresses, in reverse domain name notation",
+        "example": "com.example.www"
+      }
+    },
+    {
       "name": "url_protocol",
       "type": "string",
       "nullable": false,

@@ -117,12 +117,18 @@ public class HostName {
 		return revHost;
 	}
 
+	public String getHostNameReversed() {
+		if (revHost == null)
+			return null;
+		return String.join(".", revHost);
+	}
+
 	/**
-	 * Split host name into parts in reverse order: www.example.com becomes [com,
-	 * example, www].
+	 * Split host name into parts in reverse order: <code>www.example.com</code>
+	 * becomes <code>[com,example, www]</code>.
 	 * 
 	 * @param hostName
-	 * @return parts of hostname in reverse order
+	 * @return parts of host name in reverse order
 	 */
 	public static String[] reverseHost(String hostName) {
 		String[] rev = SPLIT_HOST_PATTERN.split(hostName);
@@ -139,11 +145,12 @@ public class HostName {
 	 * otherwise specified):
 	 * <ol>
 	 * <li>host name
-	 * <li>reverse host (array of strings: [com, example, www])
+	 * <li>parts 1 - 5 of the reversed host name (first part is the top-level domain)
 	 * <li>registry suffix
 	 * <li>domain name below registry suffix
 	 * <li>private suffix
 	 * <li>domain name below private suffix
+	 * <li>reversed host name (com.example.www)
 	 * </ol>
 	 * Reverse host is null if the host name is an IP address. Domain name and
 	 * suffixes are null if the host name is an IP address, or if no valid suffix is
@@ -162,8 +169,8 @@ public class HostName {
 				getRegistrySuffix(),
 				getDomainNameUnderRegistrySuffix(),
 				getPrivateSuffix(),
-				getPrivateDomainName()
+				getPrivateDomainName(),
+				getHostNameReversed()
 				);
 	}
-
 }

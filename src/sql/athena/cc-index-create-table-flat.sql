@@ -18,6 +18,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS ccindex (
   url_host_registered_domain    STRING,
   url_host_private_suffix       STRING,
   url_host_private_domain       STRING,
+  url_host_name_reversed        STRING,
   url_protocol                  STRING,
   url_port                      INT,
   url_path                      STRING,

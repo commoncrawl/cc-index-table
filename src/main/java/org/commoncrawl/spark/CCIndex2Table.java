@@ -185,6 +185,7 @@ public class CCIndex2Table {
 					h.get(4), h.get(5),
 					h.get(6), h.get(7),
 					h.get(8), h.get(9),
+					h.get(10),
 					// URL components
 					u.getUrl().getProtocol(),
 					(u.getUrl().getPort() != -1 ? u.getUrl().getPort() : null),
