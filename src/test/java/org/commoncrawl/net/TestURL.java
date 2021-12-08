@@ -79,4 +79,10 @@ public class TestURL {
 		assertEquals("myblog.blogspot.com", h.getPrivateDomainName());
 		assertEquals("blogspot.com", h.getDomainNameUnderRegistrySuffix());
 	}
+
+	@Test
+	void testHostNameReversed() {
+		HostName h = new HostName(getHostName(exampleUrl));
+		assertEquals("com.example.www", h.getHostNameReversed());
+	}
 }

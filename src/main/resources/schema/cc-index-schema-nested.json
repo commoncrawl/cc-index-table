@@ -123,6 +123,15 @@
                     "description": "Domain name of the host (one level below the private suffix)",
                     "example": "commoncrawl.s3.amazonaws.com or myblog.blogspot.com"
                   }
+                },
+                {
+                  "name": "name_reversed",
+                  "type": "string",
+                  "nullable": true,
+                  "metadata": {
+                    "description": "Hostname, excluding IP addresses, in reverse domain name notation",
+                    "example": "com.example.www"
+                  }
                 }
               ]
             }
