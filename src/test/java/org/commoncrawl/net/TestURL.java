@@ -31,7 +31,9 @@ public class TestURL {
 	public static final String ipv4Url = "http://" + ipv4Host + "/index.html";
 
 	public static final String exampleHost = "www.example.com";
-	public static final String exampleUrl = "http://" + exampleHost + "/index.html";
+	public static final String exampleUrl = "http://" + exampleHost + "/path/q?a=b&c=d";
+	public static final String exampleDnsUri = "dns:" + exampleHost;
+	public static final String exampleMetadataUri = "metadata://gnu.org/software/wget/warc/MANIFEST.txt";
 
 	public static final String privateDomain = "myblog.blogspot.com";
 
@@ -45,6 +47,17 @@ public class TestURL {
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+
+	@Test
+	void testURL() {
+		WarcUri u = new WarcUri(exampleUrl);
+		assertNotNull(u);
+		assertEquals(u.getHostName().getHostName(), exampleHost);
+		assertEquals(u.getProtocol(), "http");
+		assertNull(u.getPort()); // no port given
+		assertEquals(u.getPath(), "/path/q");
+		assertEquals(u.getQuery(), "a=b&c=d");
 	}
 
 	@Test
@@ -84,5 +97,57 @@ public class TestURL {
 	void testHostNameReversed() {
 		HostName h = new HostName(getHostName(exampleUrl));
 		assertEquals("com.example.www", h.getHostNameReversed());
+	}
+
+	@Test
+	void testURLinvalidURI() {
+		WarcUri u = new WarcUri("https://www.exæmple.com/path with space");
+		assertNotNull(u);
+		assertEquals(u.getHostName().getHostName(), "www.exæmple.com");
+		assertEquals(u.getProtocol(), "https");
+		assertNull(u.getPort()); // no port given
+		assertEquals(u.getPath(), "/path with space");
+		assertEquals(u.getQuery(), null);
+	}
+
+	/**
+	 * Test DNS records, cf. <a href=
+	 * "https://iipc.github.io/warc-specifications/specifications/warc-format/warc-1.1/#dns-scheme">WARC
+	 * <a href="https://datatracker.ietf.org/doc/html/rfc4501">RFC 4501</a>
+	 */
+	@Test
+	void testDNSrecordURI() {
+		WarcUri u = new WarcUri(exampleDnsUri);
+		assertNotNull(u);
+		assertEquals(exampleDnsUri, u.toString());
+		assertEquals(exampleHost, u.getHostName().getHostName());
+	}
+
+	@Test
+	void testWhoisRecordURI() {
+		WarcUri u = new WarcUri("whois://whois.iana.org/example.com");
+		assertNotNull(u);
+		assertEquals("whois://whois.iana.org/example.com", u.toString());
+		assertEquals("example.com", u.getHostName().getHostName());
+		u = new WarcUri("whois:example.com");
+		assertNotNull(u);
+		assertEquals("whois:example.com", u.toString());
+		assertEquals("example.com", u.getHostName().getHostName());
+	}
+
+	@Test
+	void testMetadataRecordURI() {
+		WarcUri u = new WarcUri(exampleMetadataUri);
+		assertNotNull(u);
+		assertEquals(exampleMetadataUri, u.toString());
+		assertEquals("gnu.org", u.getHostName().getHostName());
+	}
+
+	@Test
+	void testFiledescUriSchemes() {
+		// filedesc:// - first record in ARC files
+		WarcUri u = new WarcUri("filedesc://file_name.arc.gz");
+		assertNotNull(u);
+		assertNull(u.getHostName().getHostName());
 	}
 }

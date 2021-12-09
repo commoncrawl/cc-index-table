@@ -16,6 +16,7 @@
  */
 package org.commoncrawl.net;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Pattern;
@@ -58,6 +59,37 @@ public class HostName {
 	public HostName(URL url) {
 		String hostName = url.getHost().toLowerCase(Locale.ROOT);
 		setHostName(hostName);
+	}
+
+	public HostName(URI uri) {
+		String scheme = uri.getScheme();
+		if (scheme == null) {
+			return; // or throw NPE / IllegalArgument / not implemented
+		}
+		switch (scheme) {
+		case "dns":
+			// dns:www.example.com
+			setHostName(uri.getSchemeSpecificPart());
+			break;
+		case "whois":
+			// whois://example.com
+			// whois://whois.iana.org/example.com
+			// - take the searched domain name (analogous to the dns: URI)
+			String domainOrIp = uri.getPath();
+			if (domainOrIp == null) {
+				domainOrIp = uri.getSchemeSpecificPart();
+			}
+			int i = 0;
+			while (domainOrIp.length() > i && domainOrIp.charAt(i) == '/')
+				i++;
+			setHostName(domainOrIp.substring(i));
+			break;
+		default:
+			if (uri.getHost() != null) {
+				String hostName = uri.getHost().toLowerCase(Locale.ROOT);
+				setHostName(hostName);
+			}
+		}
 	}
 
 	private void setHostName(String hostName) {

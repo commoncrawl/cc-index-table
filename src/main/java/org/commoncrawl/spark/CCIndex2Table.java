@@ -47,7 +47,7 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.StructType;
-import org.commoncrawl.net.CommonCrawlURL;
+import org.commoncrawl.net.WarcUri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +102,7 @@ public class CCIndex2Table {
 		}
 		JsonObject jsonobj = (JsonObject) json;
 		String url = jsonobj.get("url").getAsString();
-		CommonCrawlURL u = new CommonCrawlURL(url);
+		WarcUri u = new WarcUri(url);
 		short status = -1;
 		if (jsonobj.has("status")) {
 			try {
@@ -164,11 +164,10 @@ public class CCIndex2Table {
 							urlkey,
 							url,
 							u.getHostName().asRow(),
-							u.getUrl().getProtocol(),
-							(u.getUrl().getPort() != -1 ? u.getUrl().getPort() : null),
-							u.getUrl().getPath(),
-							u.getUrl().getQuery()
-							),
+							u.getProtocol(),
+							u.getPort(),
+							u.getPath(),
+							u.getQuery()),
 					RowFactory.create(timestamp, status, redirect),
 					RowFactory.create(digest, mime, mimeDetected,
 							charset, languages, truncated),
@@ -188,10 +187,10 @@ public class CCIndex2Table {
 					h.get(8), h.get(9),
 					h.get(10),
 					// URL components
-					u.getUrl().getProtocol(),
-					(u.getUrl().getPort() != -1 ? u.getUrl().getPort() : null),
-					u.getUrl().getPath(),
-					u.getUrl().getQuery(),
+					u.getProtocol(),
+					u.getPort(),
+					u.getPath(),
+					u.getQuery(),
 					// fetch info
 					timestamp, status,
 					// HTTP redirects (since CC-MAIN-2019-47)
