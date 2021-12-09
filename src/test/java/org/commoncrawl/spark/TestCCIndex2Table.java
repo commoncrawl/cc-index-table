@@ -63,4 +63,16 @@ public class TestCCIndex2Table {
 		df.printSchema();
 		assertEquals(1, df.count());
 	}
+
+	@Test
+	void testDNSrecord() throws IOException {
+		String cdxDNSrecord = "dns:www.example.com 20211208232323 {\"url\": \"dns:www.example.com\", \"mime\": \"text/dns\", \"status\": \"200\", \"digest\": \"SZEWFSPRWM6MY4SEB2DKQKKYFEGCACDI\", \"length\": \"240\", \"offset\": \"31831131\", \"filename\": \"dns.warc.gz\"}";
+		Row row = CCIndex2Table.convertCdxLine(cdxDNSrecord);
+		List<Row> table = new ArrayList<Row>();
+		table.add(row);
+		StructType schema = CCIndex2Table.readJsonSchemaResource("/schema/cc-index-schema-flat.json");
+		Dataset<Row> df = getSession().createDataFrame(table, schema);
+		df.printSchema();
+		assertEquals(1, df.count());
+	}
 }
