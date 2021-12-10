@@ -64,6 +64,7 @@ public class CCIndex2Table {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CCIndex2Table.class);
 	private static final String name = CCIndex2Table.class.getCanonicalName();
+	protected boolean verbose = false;
 	
 	// (static) output configuration, defaults overwritten by command-line options
 	protected static boolean useNestedSchema = false;
@@ -227,18 +228,27 @@ public class CCIndex2Table {
 		SparkConf conf = new SparkConf();
 		conf.setAppName(name);
 		SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
+
 		JavaRDD<String> input = spark.read().textFile(inputPaths).toJavaRDD();
 		JavaRDD<Row> output = input.map(CCIndex2Table::convertCdxLine);
+
 		StructType schema;
 		if (useNestedSchema) {
 			schema = readJsonSchemaResource("/schema/cc-index-schema-nested.json");
 		} else {
 			schema = readJsonSchemaResource("/schema/cc-index-schema-flat.json");
 		}
-		LOG.info(schema.prettyJson());
+		if (verbose) {
+			LOG.info(schema.prettyJson());
+		}
+
 		Dataset<Row> df = spark.createDataFrame(output, schema);
-		df.printSchema();
-		df.show();
+		if (verbose) {
+			df.printSchema();
+			df.explain(true);
+			df.show();
+		}
+
 		DataFrameWriter<Row> dfw = df.write().format(outputFormat);
 		dfw.option("compression", outputCompression);
 		if (!partitionBy.trim().isEmpty()) {
@@ -288,6 +298,10 @@ public class CCIndex2Table {
 		if (cli.hasOption("help")) {
 			help(options);
 			return;
+		}
+
+		if (cli.hasOption("verbose")) {
+			verbose = true;
 		}
 
 		if (cli.hasOption("partitionBy")) {
