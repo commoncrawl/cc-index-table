@@ -20,10 +20,11 @@ SELECT COUNT(*) as n_pages,
        AVG(warc_record_length) as avg_warc_record_length,
        SUM(warc_record_length) as sum_warc_record_length,
        SUM(warc_record_length) * 100.0 / SUM(SUM(warc_record_length)) OVER() as perc_warc_storage,
+       SUM(case when content_truncated is null then 0 else 1 end) * 100.0 / COUNT(*) as perc_truncated,
        content_mime_detected,
-       histogram(content_truncated)
+       histogram(content_truncated) as reason_truncated
 FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2019-47'
+WHERE crawl = 'CC-MAIN-2022-05'
   AND subset = 'warc'
 GROUP BY content_mime_detected
 ORDER BY n_pages DESC;

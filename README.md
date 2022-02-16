@@ -85,6 +85,7 @@ A couple of sample queries are also provided (for the flat schema):
 - count pairs of top-level domain and content language: [count-language-tld.sql](src/sql/examples/cc-index/count-language-tld.sql)
 - find correlations between TLD and content language using the log-likelihood ratio: [loglikelihood-language-tld.sql](src/sql/examples/cc-index/loglikelihood-language-tld.sql)
 - ... and similar for correlations between content language and character encoding: [correlation-language-charset.sql](src/sql/examples/cc-index/correlation-language-charset.sql)
+- discover sites hosting content of specific language(s): [site-discovery-by-language.sql](src/sql/examples/cc-index/site-discovery-by-language.sql)
 - find multi-lingual domains by analyzing URL paths: [get-language-translations-url-path.sql](src/sql/examples/cc-index/get-language-translations-url-path.sql)
 
 Athena creates results in CSV format. E.g., for the last example, the mining of multi-lingual domains we get:
