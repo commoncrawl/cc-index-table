@@ -100,6 +100,9 @@ public class HostName {
 			type = Type.IPv6;
 		} else {
 			type = Type.hostname;
+			if (hostName.endsWith(".")) {
+				hostName = hostName.substring(0, hostName.length()-1);
+			}
 			revHost = reverseHost(hostName);
 			EffectiveTLD privateETld = EffectiveTldFinder.getEffectiveTLD(hostName, false);
 			if (privateETld != null) {

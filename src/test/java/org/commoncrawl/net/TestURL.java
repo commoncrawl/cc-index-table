@@ -20,8 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.net.MalformedURLException;
-
 import org.junit.jupiter.api.Test;
 
 
@@ -41,12 +39,11 @@ public class TestURL {
 
 
 	private String getHostName(String url) {
-		try {
-		java.net.URL u = new java.net.URL(url);
-		return u.getHost();
-		} catch (MalformedURLException e) {
+		WarcUri u = new WarcUri(url);
+		HostName h = u.getHostName();
+		if (h == null)
 			return null;
-		}
+		return h.getHostName();
 	}
 
 	@Test
@@ -97,6 +94,15 @@ public class TestURL {
 	void testHostNameReversed() {
 		HostName h = new HostName(getHostName(exampleUrl));
 		assertEquals("com.example.www", h.getHostNameReversed());
+	}
+
+	@Test
+	void testHostNameTrailingDot() {
+		String url = exampleUrl.replace(".com/", ".com./");
+		HostName h = new WarcUri(url).getHostName();
+		assertNotNull(h);
+		assertEquals("com", h.getReverseHost()[0]);
+		assertEquals("example.com", h.getDomainNameUnderRegistrySuffix());
 	}
 
 	@Test
