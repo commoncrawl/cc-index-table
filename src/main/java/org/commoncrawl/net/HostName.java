@@ -152,6 +152,10 @@ public class HostName {
 		return revHost;
 	}
 
+	public String getReverseHostPart(int i) {
+		return ((revHost != null && revHost.length > i) ? revHost[i] : null);
+	}
+
 	public String getHostNameReversed() {
 		if (revHost == null)
 			return null;

@@ -16,63 +16,32 @@
  */
 package org.commoncrawl.spark;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import org.apache.spark.SparkConf;
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.StructType;
 import org.junit.jupiter.api.Test;
 
 
-public class TestCCIndex2Table {
+public class TestCCIndex2Table extends TestIndexTableBase {
 
-	private SparkSession getSession() {
-		return SparkSession.builder().master("local[*]").config(new SparkConf()).getOrCreate();
-	}
-
-	private String getCdxLine() {
-		return "org,commoncrawl)/faq 20191107164557 {\"url\": \"https://commoncrawl.org/faq/\", \"mime\": \"text/html\", \"mime-detected\": \"text/html\", \"status\": \"301\", \"digest\": \"3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ\", \"length\": \"804\", \"offset\": \"815\", \"filename\": \"warc-cdx-redirects-examples-2/warc/crawldiagnostics/CC-MAIN-20191107164646-20191107164646-00000.warc.gz\", \"redirect\": \"http://commoncrawl.org/big-picture/frequently-asked-questions/\"}";
+	protected String getCdxLine() {
+		return "org,commoncrawl)/faq 20220127163355 {\"url\": \"https://commoncrawl.org/faq/\", \"mime\": \"text/html\", \"mime-detected\": \"text/html\", \"status\": \"301\", \"digest\": \"3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ\", \"length\": \"958\", \"offset\": \"6946714\", \"filename\": \"crawl-data/CC-MAIN-2022-05/segments/1642320305277.88/crawldiagnostics/CC-MAIN-20220127163150-20220127193150-00502.warc.gz\", \"redirect\": \"/big-picture/frequently-asked-questions/\"}";
 	}
 
 	@Test
 	void testFlatSchema() throws IOException {
-		CCIndex2Table.useNestedSchema = false;
+		CCIndex2Table.useBuiltinNestedSchema = false;
+		CCIndex2Table.schema = CCIndex2Table.readJsonSchemaResource("/schema/cc-index-schema-flat.json");
 		Row row = CCIndex2Table.convertCdxLine(getCdxLine());
-		List<Row> table = new ArrayList<Row>();
-		table.add(row);
-		StructType schema = CCIndex2Table.readJsonSchemaResource("/schema/cc-index-schema-flat.json");
-		Dataset<Row> df = getSession().createDataFrame(table, schema);
-		df.printSchema();
-		assertEquals(1, df.count());
+		testSingleRow(row, CCIndex2Table.schema);
 	}
 
 	@Test
 	void testNestedSchema() throws IOException {
-		CCIndex2Table.useNestedSchema = true;
+		CCIndex2Table.useBuiltinNestedSchema = true;
+		CCIndex2Table.schema = CCIndex2Table.readJsonSchemaResource("/schema/cc-index-schema-nested.json");
 		Row row = CCIndex2Table.convertCdxLine(getCdxLine());
-		List<Row> table = new ArrayList<Row>();
-		table.add(row);
-		StructType schema = CCIndex2Table.readJsonSchemaResource("/schema/cc-index-schema-nested.json");
-		Dataset<Row> df = getSession().createDataFrame(table, schema);
-		df.printSchema();
-		assertEquals(1, df.count());
+		testSingleRow(row, CCIndex2Table.schema);
 	}
 
-	@Test
-	void testDNSrecord() throws IOException {
-		String cdxDNSrecord = "dns:www.example.com 20211208232323 {\"url\": \"dns:www.example.com\", \"mime\": \"text/dns\", \"status\": \"200\", \"digest\": \"SZEWFSPRWM6MY4SEB2DKQKKYFEGCACDI\", \"length\": \"240\", \"offset\": \"31831131\", \"filename\": \"dns.warc.gz\"}";
-		Row row = CCIndex2Table.convertCdxLine(cdxDNSrecord);
-		List<Row> table = new ArrayList<Row>();
-		table.add(row);
-		StructType schema = CCIndex2Table.readJsonSchemaResource("/schema/cc-index-schema-flat.json");
-		Dataset<Row> df = getSession().createDataFrame(table, schema);
-		df.printSchema();
-		assertEquals(1, df.count());
-	}
 }
