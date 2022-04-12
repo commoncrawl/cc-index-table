@@ -200,17 +200,6 @@
               "example": "200",
               "fromCDX": "status"
             }
-          },
-          {
-            "name": "redirect",
-            "type": "string",
-            "nullable": true,
-            "metadata": {
-              "description": "Target location of HTTP redirect",
-              "example": "https://example.com/",
-              "since": "CC-MAIN-2019-47",
-              "fromCDX": "redirect"
-            }
           }
         ]
       }
@@ -248,29 +237,7 @@
             "metadata": {
               "description": "Content-Type detected based on content (WARC-Identified-Payload-Type)",
               "example": "application/rss+xml",
-             "fromCDX": "mime-detected"
-            }
-          },
-          {
-            "name": "charset",
-            "type": "string",
-            "nullable": true,
-            "metadata": {
-              "description": "Character set of an HTML page and other text-based document formats",
-              "example": "UTF-8",
-              "since": "CC-MAIN-2018-39",
-              "fromCDX": "charset"
-            }
-          },
-          {
-            "name": "languages",
-            "type": "string",
-            "nullable": true,
-            "metadata": {
-              "description": "Language(s) of a document as ISO-639-3 language code(s), multiple values are separated by a comma",
-              "example": "fra,eng",
-              "since": "CC-MAIN-2018-39",
-              "fromCDX": "languages"
+              "fromCDX": "mime-detected"
             }
           },
           {
@@ -298,6 +265,16 @@
       "type": {
         "type": "struct",
         "fields": [
+          {
+            "name": "type",
+            "type": "string",
+            "nullable": true,
+            "metadata": {
+              "description": "WARC record type (WARC-Type)",
+              "example": "response, request, info, metadata, conversion, etc.",
+              "fromCDX": "warc-type"
+            }
+          },
           {
             "name": "filename",
             "type": "string",
@@ -327,39 +304,8 @@
               "example": "24662",
               "fromCDX": "length"
             }
-          },
-          {
-            "name": "segment",
-            "type": "string",
-            "nullable": false,
-            "metadata": {
-              "description": "Segment the WARC file belongs to",
-              "example": "1505818689752.21"
-            }
           }
         ]
-      }
-    },
-    {
-      "name": "crawl",
-      "type": "string",
-      "nullable": false,
-      "metadata": {
-        "description": "Crawl the capture/record is part of",
-        "example": "CC-MAIN-2017-39"
-      }
-    },
-    {
-      "name": "subset",
-      "type": "string",
-      "nullable": false,
-      "metadata": {
-        "description": "Subset of responses (organized as subdirectory in segments)",
-        "enumeration": {
-          "warc": "successful captures",
-          "crawldiagnostics": "redirects, 404s, and other non-successful captures",
-          "robotstxt": "robots.txt responses"
-        }
       }
     }
   ]

@@ -16,8 +16,7 @@
       "nullable": false,
       "metadata": {
         "description": "URL string",
-        "example": "https://www.example.com/path/index.html",
-        "fromCDX": "url"
+        "example": "https://www.example.com/path/index.html"
       }
     },
     {
@@ -140,7 +139,7 @@
     {
       "name": "url_path",
       "type": "string",
-      "nullable": false,
+      "nullable": true,
       "metadata": {
         "description": "File path of the URL",
         "example": "/path/index.html"
@@ -170,19 +169,7 @@
       "nullable": false,
       "metadata": {
         "description": "HTTP response status code",
-        "example": "200",
-        "fromCDX": "status"
-      }
-    },
-    {
-      "name": "fetch_redirect",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Target location of HTTP redirect",
-        "example": "https://example.com/",
-        "since": "CC-MAIN-2019-47",
-        "fromCDX": "redirect"
+        "example": "200"
       }
     },
     {
@@ -212,29 +199,7 @@
       "metadata": {
         "description": "Content-Type detected based on content (WARC-Identified-Payload-Type)",
         "example": "application/rss+xml",
-        "fromCDX": "mime-detected"
-      }
-    },
-    {
-      "name": "content_charset",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Character set of an HTML page and other text-based document formats",
-        "example": "UTF-8",
-        "since": "CC-MAIN-2018-39",
-        "fromCDX": "charset"
-      }
-    },
-    {
-      "name": "content_languages",
-      "type": "string",
-      "nullable": true,
-      "metadata": {
-        "description": "Language(s) of a document as ISO-639-3 language code(s), multiple values are separated by a comma",
-        "example": "fra,eng",
-        "since": "CC-MAIN-2018-39",
-        "fromCDX": "languages"
+        "fromCDX": "warc-identified-payload-type"
       }
     },
     {
@@ -249,8 +214,17 @@
           "disconnect": "network disconnect or protocol-level error",
           "unspecified": "other/unknown reason for truncation"
         },
-        "since": "CC-MAIN-2019-47",
         "fromCDX": "warc-truncated"
+      }
+    },
+    {
+      "name": "warc_type",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "WARC record type (WARC-Type)",
+        "example": "response, request, info, metadata, conversion, etc.",
+        "fromCDX": "warc-type"
       }
     },
     {
@@ -258,8 +232,8 @@
       "type": "string",
       "nullable": false,
       "metadata": {
-        "description": "WARC filename/path below s3://commoncrawl/",
-        "example": "crawl-data/CC-MAIN-2017-39/segments/1505818689752.21/warc/CC-MAIN-20170923160736-20170923180736-00256.warc.gz",
+        "description": "WARC filename or file path",
+        "example": "path/to/my.warc.gz",
         "fromCDX": "filename"
       }
     },
@@ -281,37 +255,6 @@
         "description": "Length of the WARC record",
         "example": "24662",
         "fromCDX": "length"
-      }
-    },
-    {
-      "name": "warc_segment",
-      "type": "string",
-      "nullable": false,
-      "metadata": {
-        "description": "Segment the WARC file belongs to",
-        "example": "1505818689752.21"
-      }
-    },
-    {
-      "name": "crawl",
-      "type": "string",
-      "nullable": false,
-      "metadata": {
-        "description": "Crawl the capture/record is part of",
-        "example": "CC-MAIN-2017-39"
-      }
-    },
-    {
-      "name": "subset",
-      "type": "string",
-      "nullable": false,
-      "metadata": {
-        "description": "Subset of responses (organized as subdirectory in segments)",
-        "enumeration": {
-          "warc": "successful captures",
-          "crawldiagnostics": "redirects, 404s, and other non-successful captures",
-          "robotstxt": "robots.txt responses"
-        }
       }
     }
   ]

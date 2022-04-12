@@ -17,168 +17,101 @@
 package org.commoncrawl.spark;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.io.Reader;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
-import java.sql.Timestamp;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.sql.DataFrameWriter;
-import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
-import org.apache.spark.sql.SparkSession;
-import org.apache.spark.sql.types.DataType;
-import org.apache.spark.sql.types.StructType;
-import org.commoncrawl.net.WarcUri;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-
 
 /**
- * Convert Common Crawl's URL index into tabular format.
+ * Convert Common Crawl's URL index into a tabular format.
  */
-public class CCIndex2Table {
+public class CCIndex2Table extends IndexTable {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CCIndex2Table.class);
-	private static final String name = CCIndex2Table.class.getCanonicalName();
-	protected boolean verbose = false;
-	
-	// (static) output configuration, defaults overwritten by command-line options
-	protected static boolean useNestedSchema = false;
-	protected String partitionBy = "crawl,subset";
-	protected String outputFormat = "parquet";
-	protected String outputCompression = "gzip";
+	protected String name = CCIndex2Table.class.getCanonicalName();
 
-	protected static DateTimeFormatter fetchTimeParser = DateTimeFormatter.ofPattern("yyyyMMddHHmmss", Locale.ROOT)
-			.withZone(ZoneId.of(ZoneOffset.UTC.toString()));
+	protected static boolean useBuiltinNestedSchema = false;
 
-	private static final Pattern filenameAnalyzer = Pattern
+	protected static final Pattern filenameAnalyzer = Pattern
 			.compile("^(?:common-crawl/)?crawl-data/([^/]+)/segments/([^/]+)/(crawldiagnostics|robotstxt|warc)/");
 
-	public static Row convertCdxLine(String line) {
-		int timeStampOffset = line.indexOf(' ');
-		String urlkey = line.substring(0, timeStampOffset);
-		timeStampOffset++;
-		int jsonOffset = line.indexOf(' ', timeStampOffset);
-		String timeStampString = line.substring(timeStampOffset, jsonOffset);
-		ZonedDateTime fetchTime = (ZonedDateTime) fetchTimeParser.parse(timeStampString, ZonedDateTime::from);
-		Timestamp timestamp = Timestamp.from(fetchTime.toInstant());
-		jsonOffset++;
-		Reader in = new StringReader(line);
-		try {
-			in.skip(jsonOffset);
-		} catch (IOException e) {
-			// cannot happen: it's a StringReader on a line which length is greater or at
-			// least equal to the number of skipped characters
-			LOG.error("Failed to read line: {}", line);
+	protected static class CdxLine extends IndexTable.CdxLine {
+		String redirect;
+		String digest;
+		String mime, mimeDetected;
+		String filename;
+		int offset, length;
+		short status;
+		String crawl, segment, subset;
+		String charset, languages;
+		String truncated;
+
+		public CdxLine(String line) throws IOException {
+			super(line);
+
+			uri = getWarcUri("url");
+
+			redirect = getString("redirect");
+			digest = getString("digest");
+			mime = getString("mime");
+			mimeDetected = getString("mime-detected");
+
+			filename =  getString("filename");
+			offset = getInt("offset");
+			length = getInt("length");
+			status = getHttpStatus("status");
+
+			Matcher m = filenameAnalyzer.matcher(filename);
+			if (m.find()) {
+				crawl = m.group(1);
+				segment = m.group(2);
+				subset = m.group(3);
+			} else {
+				LOG.error("Filename not parseable: {}", filename);
+			}
+
+			charset = getString("charset");
+			languages = getString("languages");
+			truncated = getString("truncated");
 		}
-		JsonElement json = new JsonParser().parse(new JsonReader(in));
-		if (!json.isJsonObject()) {
-			LOG.error("Failed to read JSON: {}", json);
+	}
+
+	public static Row convertCdxLine(String line) {
+		CdxLine cdx;
+		try {
+			cdx = new CdxLine(line);
+		} catch (Exception e) {
 			return null;
 		}
-		JsonObject jsonobj = (JsonObject) json;
-		String url = jsonobj.get("url").getAsString();
-		WarcUri u = new WarcUri(url);
-		short status = -1;
-		if (jsonobj.has("status")) {
-			try {
-				status = jsonobj.get("status").getAsShort();
-			} catch (NumberFormatException e) {
-				// https://tools.ietf.org/html/rfc7231#page-47
-				// defines HTTP status codes as "a three-digit integer code"
-				// -- it should fit into a short integer
-				LOG.error("Invalid HTTP status code {}: {}", jsonobj.get("status"), e);
-			}
-		} else {
-			LOG.error("No status code for {}", url);
-		}
-		String redirect = null;
-		if (jsonobj.has("redirect")) {
-			redirect = jsonobj.get("redirect").getAsString();
-		}
-		String digest = null;
-		if (jsonobj.has("digest")) {
-			digest = jsonobj.get("digest").getAsString();
-		}
-		String mime = null;
-		if (jsonobj.has("mime")) {
-			mime = jsonobj.get("mime").getAsString();
-		}
-		String mimeDetected = null;
-		if (jsonobj.has("mime-detected")) {
-			mimeDetected = jsonobj.get("mime-detected").getAsString();
-		}
-		String filename =  jsonobj.get("filename").getAsString();
-		int offset = jsonobj.get("offset").getAsNumber().intValue();
-		int length = jsonobj.get("length").getAsNumber().intValue();
-		String crawl = null, segment = null, subset = null;
-		Matcher m = filenameAnalyzer.matcher(filename);
-		if (m.find()) {
-			crawl = m.group(1);
-			segment = m.group(2);
-			subset = m.group(3);
-		} else {
-			LOG.error("Filename not parseable: {}", filename);
-		}
-		String charset = null;
-		if (jsonobj.has("charset")) {
-			charset = jsonobj.get("charset").getAsString();
-		}
-		String languages = null;
-		if (jsonobj.has("languages")) {
-			// multiple values separated by a comma
-			languages = jsonobj.get("languages").getAsString();
-		}
-		String truncated = null;
-		if (jsonobj.has("truncated")) {
-			truncated = jsonobj.get("truncated").getAsString();
-		}
-		// Note: the row layout must be congruent with the schema
-		if (useNestedSchema) {
+		if (useBuiltinNestedSchema) {
+			// Note: the row layout must be congruent with the built-in schema
 			return RowFactory.create(
 					RowFactory.create(
-							urlkey,
-							url,
-							u.getHostName().asRow(),
-							u.getProtocol(),
-							u.getPort(),
-							u.getPath(),
-							u.getQuery()),
-					RowFactory.create(timestamp, status, redirect),
-					RowFactory.create(digest, mime, mimeDetected,
-							charset, languages, truncated),
-					RowFactory.create(filename, offset, length, segment),
-					crawl, subset);
+							cdx.urlkey,
+							cdx.uri.getUrlString(),
+							cdx.uri.getHostName().asRow(),
+							cdx.uri.getProtocol(),
+							cdx.uri.getPort(),
+							cdx.uri.getPath(),
+							cdx.uri.getQuery()),
+					RowFactory.create(cdx.timestamp, cdx.status, cdx.redirect),
+					RowFactory.create(cdx.digest, cdx.mime, cdx.mimeDetected,
+							cdx.charset, cdx.languages, cdx.truncated),
+					RowFactory.create(cdx.filename, cdx.offset, cdx.length, cdx.segment),
+					cdx.crawl, cdx.subset);
 		} else {
-			Row h = u.getHostName().asRow();
+			Row h = cdx.uri.getHostName().asRow();
 			return RowFactory.create(
 					// SURT and complete URL
-					urlkey,
-					url,
+					cdx.urlkey,
+					cdx.uri.getUrlString(),
 					// host
 					h.get(0), h.get(1),
 					h.get(2), h.get(3),
@@ -187,152 +120,61 @@ public class CCIndex2Table {
 					h.get(8), h.get(9),
 					h.get(10),
 					// URL components
-					u.getProtocol(),
-					u.getPort(),
-					u.getPath(),
-					u.getQuery(),
+					cdx.uri.getProtocol(),
+					cdx.uri.getPort(),
+					cdx.uri.getPath(),
+					cdx.uri.getQuery(),
 					// fetch info
-					timestamp, status,
+					cdx.timestamp, cdx.status,
 					// HTTP redirects (since CC-MAIN-2019-47)
-					redirect,
+					cdx.redirect,
 					// content-related
-					digest, mime, mimeDetected,
+					cdx.digest, cdx.mime, cdx.mimeDetected,
 					// content-related (since CC-MAIN-2018-34/CC-MAIN-2018-39)
-					charset, languages,
+					cdx.charset, cdx.languages,
 					// content (WARC record payload) truncated (since CC-MAIN-2019-47)
-					truncated,
+					cdx.truncated,
 					// WARC record location
-					filename, offset, length, segment,
+					cdx.filename, cdx.offset, cdx.length, cdx.segment,
 					// partition fields
-					crawl, subset);
+					cdx.crawl, cdx.subset);
 		}
 	}
 
-	public static StructType readJsonSchemaResource(String resource) throws IOException {
-		InputStream in = CCIndex2Table.class.getResourceAsStream(resource);
-		if (in == null) {
-			LOG.error("JSON schema {} not found", resource);
-			return null;
-		}
-		byte[] bytes = new byte[16384];
-		in.read(bytes);
-		if (in.available() > 0) {
-			LOG.warn("JSON schema {} not entirely read", resource);
-		}
-		String json = new String(bytes, StandardCharsets.UTF_8);
-		return (StructType) DataType.fromJson(json);
+	@Override
+	protected Options addCommandLineOptions(Options options) {
+		super.addCommandLineOptions(options);
+		options.addOption(new Option(null, "useNestedSchema", false,
+				"use the built-in schema with nested columns (default: false, use flat built-in schema)"));
+		return options;
 	}
 
-	public void run(String inputPaths, String outputPath) throws IOException {
-		SparkConf conf = new SparkConf();
-		conf.setAppName(name);
-		SparkSession spark = SparkSession.builder().config(conf).getOrCreate();
-
-		JavaRDD<String> input = spark.read().textFile(inputPaths).toJavaRDD();
-		JavaRDD<Row> output = input.map(CCIndex2Table::convertCdxLine);
-
-		StructType schema;
-		if (useNestedSchema) {
-			schema = readJsonSchemaResource("/schema/cc-index-schema-nested.json");
+	@Override
+	protected CommandLine applyCommandLineOptions(CommandLine cli) {
+		super.applyCommandLineOptions(cli);
+		String schemaDefinition;
+		if (cli.hasOption("schema")) {
+			schemaDefinition = cli.getOptionValue("schema");
+			LOG.info("Using custom schema definition: {}", schemaDefinition);
 		} else {
-			schema = readJsonSchemaResource("/schema/cc-index-schema-flat.json");
+			LOG.info("Using built-in schema and CDX to table row mapping");
+			// built-in schema and mapping
+			mapIndexEntries = CCIndex2Table::convertCdxLine;
+			schemaDefinition = "/schema/cc-index-schema-flat.json";
+			if (cli.hasOption("useNestedSchema")) {
+				LOG.info("Using nested built-in schema");
+				useBuiltinNestedSchema = true;
+				schemaDefinition = "/schema/cc-index-schema-nested.json";
+			}
 		}
-		if (verbose) {
-			LOG.info(schema.prettyJson());
-		}
-
-		Dataset<Row> df = spark.createDataFrame(output, schema);
-		if (verbose) {
-			df.printSchema();
-			df.explain(true);
-			df.show();
-		}
-
-		DataFrameWriter<Row> dfw = df.write().format(outputFormat);
-		dfw.option("compression", outputCompression);
-		if (!partitionBy.trim().isEmpty()) {
-			// Note: cannot use nested columns for partitioning (SPARK-18084)
-			dfw.partitionBy(partitionBy.split("\\s*,\\s*"));
-		}
-		dfw.save(outputPath);
-		spark.close();
-	}
-	
-	private void help(Options options) {
-		String usage = CCIndex2Table.class.getSimpleName() + " [options] <inputPathSpec> <outputPath>";
-		System.err.println("\n" + usage);
-		System.err.println("\nArguments:");
-		System.err.println("  <inputPaths>");
-		System.err.println("  \tpattern describing paths of input CDX files, e.g.");
-		System.err.println("  \ts3a://commoncrawl/cc-index/collections/CC-MAIN-2017-43/indexes/cdx-*.gz");
-		System.err.println("  <outputPath>");
-		System.err.println("  \toutput directory");
-		System.err.println("\nOptions:");
-		new HelpFormatter().printOptions(new PrintWriter(System.err, true), 80, options, 2, 2);
-	}
-
-	public void run(String[] args) throws IOException {
-		Options options = new Options();
-		options.addOption(new Option("h", "help", false, "Show this message"))
-				.addOption(new Option(null, "partitionBy", true,
-						"partition data by columns (comma-separated, default: crawl,subset)"))
-				.addOption(new Option(null, "useNestedSchema", false,
-						"use the schema with nested columns (default: false, use flat schema)"))
-				.addOption(new Option(null, "outputFormat", true, "data output format: parquet (default), orc"))
-				.addOption(new Option(null, "outputCompression", true,
-						"data output compression codec: gzip/zlib (default), snappy, lzo, none"));
-		
-		CommandLineParser parser = new PosixParser();
-		CommandLine cli;
-
 		try {
-			cli = parser.parse(options, args);
-		} catch (ParseException e) {
-			System.err.println(e.getMessage());
-			help(options);
-			System.exit(-1);
-			return;
+			schema = readJsonSchemaResource(schemaDefinition);
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to read output table schema " + schemaDefinition, e);
 		}
-
-		if (cli.hasOption("help")) {
-			help(options);
-			return;
-		}
-
-		if (cli.hasOption("verbose")) {
-			verbose = true;
-		}
-
-		if (cli.hasOption("partitionBy")) {
-			partitionBy = cli.getOptionValue("partitionBy");
-		}
-		if (cli.hasOption("useNestedSchema")) {
-			useNestedSchema = true;
-		}
-		if (cli.hasOption("outputFormat")) {
-			outputFormat = cli.getOptionValue("outputFormat");
-		}
-		if (cli.hasOption("outputCompression")) {
-			outputCompression = cli.getOptionValue("outputCompression");
-		}
-
-		String[] arguments = cli.getArgs();
-		if (arguments.length < 2) {
-			help(options);
-			System.exit(1);
-		}
-
-		String inputPaths = arguments[0];
-		String outputPath = arguments[1];
-
-		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression) ) {
-			// gzip for Parquet, zlib for ORC
-			outputCompression = "zlib";
-		}
-
-		run(inputPaths, outputPath);
+		return cli;
 	}
-	
+
 	public static void main(String[] args) throws IOException {
 		CCIndex2Table job = new CCIndex2Table();
 		job.run(args);
