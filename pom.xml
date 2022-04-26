@@ -20,6 +20,7 @@
 		<slf4j-api.version>1.7.36</slf4j-api.version>
 		<crawler-commons.version>1.2</crawler-commons.version>
 		<gson.version>2.2.4</gson.version>
+		<aws-s3-sdk.version>2.17.177</aws-s3-sdk.version>
 
 		<!-- Apache Commons CLI should be the same shipped with the Spark installation -->
 		<commons-cli.version>1.2</commons-cli.version>
@@ -77,6 +78,18 @@
 	</build>
 
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${aws-s3-sdk.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 
 		<dependency>
@@ -116,11 +129,16 @@
 			<version>${commons-cli.version}</version>
 		</dependency>
 
-		<!-- Spark 2.4.0 has dropped the dependency to jets3t, see #3 -->
 		<dependency>
-			<groupId>net.java.dev.jets3t</groupId>
-			<artifactId>jets3t</artifactId>
-			<version>0.9.4</version>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>s3</artifactId>
+			<exclusions>
+				<exclusion>
+					<!-- httpcore is provided by Spark -->
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpcore</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Test dependencies -->

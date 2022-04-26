@@ -34,13 +34,17 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.commoncrawl.spark.util.WarcFileOutputFormat;
-import org.jets3t.service.S3Service;
-import org.jets3t.service.ServiceException;
-import org.jets3t.service.impl.rest.httpclient.RestS3Service;
-import org.jets3t.service.model.S3Object;
-import org.jets3t.service.utils.ServiceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
+import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.sync.ResponseTransformer;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+
 
 
 public class CCIndexWarcExport extends CCIndexExport {
@@ -112,24 +116,15 @@ public class CCIndexWarcExport extends CCIndexExport {
 		return super.parseOptions(args, arguments);
 	}
 
-	protected static byte[] getCCWarcRecord(S3Service s3, String filename, int offset, int length) {
-		long from = offset;
-		long to = offset + length - 1;
-		S3Object s3obj = null;
+	protected static byte[] getCCWarcRecord(S3Client s3, String filename, int offset, int length) {
+		String range = new StringBuilder().append("bytes=").append(offset).append('-').append(offset + length - 1)
+				.toString();
 		try {
-			s3obj = s3.getObject(COMMON_CRAWL_BUCKET, filename, null, null, null, null, from, to);
-			byte[] bytes = ServiceUtils.readInputStreamToBytes(s3obj.getDataInputStream());
-			s3obj.closeDataInputStream();
+			byte[] bytes = s3.getObject(GetObjectRequest.builder().bucket(COMMON_CRAWL_BUCKET).key(filename)
+					.range(range.toString()).build(), ResponseTransformer.toBytes()).asByteArray();
 			return bytes;
-		} catch (IOException | ServiceException e) {
-			LOG.error("Failed to fetch s3://{}/{} (bytes = {}-{}): {}", COMMON_CRAWL_BUCKET, filename, from, to, e);
-		} finally {
-			if (s3obj != null) {
-				try {
-					s3obj.closeDataInputStream();
-				} catch (IOException e) {
-				}
-			}
+		} catch (SdkClientException | S3Exception e) {
+			LOG.error("Failed to fetch s3://{}/{} ({}): {}", COMMON_CRAWL_BUCKET, filename, range, e);
 		}
 		return null;
 	}
@@ -172,7 +167,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 		//   <Text url, byte[] warc_record>
 		JavaPairRDD<Text,byte[]> res = rdd.mapPartitionsToPair((Iterator<Row> rows) -> {
 			ArrayList<scala.Tuple2<Text, byte[]>> reslist = new ArrayList<>();
-			S3Service s3 = new RestS3Service(null);
+			S3Client s3 = S3Client.builder().region(Region.US_EAST_1).build();
 			while (rows.hasNext()) {
 				Row row = rows.next();
 				String url = row.getString(0);
