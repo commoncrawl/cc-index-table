@@ -88,6 +88,7 @@ public class CCIndex2Table extends IndexTable {
 		try {
 			cdx = new CdxLine(line);
 		} catch (Exception e) {
+			LOG.error("Failed to read CDX line: {}", line, e);
 			return null;
 		}
 		if (useBuiltinNestedSchema) {
