@@ -1,0 +1,257 @@
+{
+  "type": "struct",
+  "fields": [
+    {
+      "name": "url_surtkey",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "SURT URL key",
+        "example": "com,example)/path/index.html"
+      }
+    },
+    {
+      "name": "url",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "URL string",
+        "example": "https://www.example.com/path/index.html",
+        "fromCDX": "url"
+      }
+    },
+    {
+      "name": "url_host_name",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Hostname, including IP addresses",
+        "example": "www.example.com"
+      }
+    },
+    {
+      "name": "url_host_tld",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "Top-level domain or last part of the hostname",
+        "example": "com for the hostname www.example.com"
+      }
+    },
+    {
+      "name": "url_host_2nd_last_part",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "Second last part of the hostname",
+        "example": "example for the hostname www.example.com, co for bbc.co.uk"
+      }
+    },
+    {
+      "name": "url_host_3rd_last_part",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "Third last part of the hostname",
+        "example": "www for the hostname www.example.com"
+      }
+    },
+    {
+      "name": "url_host_4th_last_part",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "4th last part of the hostname",
+        "example": "host1 for host1.subdomain.example.com"
+      }
+    },
+    {
+      "name": "url_host_5th_last_part",
+      "nullable": true,
+      "type": "string",
+      "metadata": {
+        "description": "5th last part of the hostname",
+        "example": "host1 for host1.sub2.subdomain.example.com"
+      }
+    },
+    {
+      "name": "url_host_registry_suffix",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Domain registry suffix",
+        "example": "com, co.uk"
+      }
+    },
+    {
+      "name": "url_host_registered_domain",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Domain name of the host (one level below the registry suffix)",
+        "example": "example.com, bbc.co.uk"
+      }
+    },
+    {
+      "name": "url_host_private_suffix",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Suffix of domain registries including private registrars, see https://publicsuffix.org/",
+        "example": "com, co.uk, but also s3.amazonaws.com or blogspot.com"
+      }
+    },
+    {
+      "name": "url_host_private_domain",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Domain name of the host (one level below the private suffix)",
+        "example": "mypublicbucket.s3.amazonaws.com or myblog.blogspot.com"
+      }
+    },
+    {
+      "name": "url_host_name_reversed",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Hostname, excluding IP addresses, in reverse domain name notation",
+        "example": "com.example.www"
+      }
+    },
+    {
+      "name": "url_protocol",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Protocol of the URL",
+        "example": "https"
+      }
+    },
+    {
+      "name": "url_port",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "description": "Port of the URL (null if not explicitly specified in the URL)",
+        "example": "8443"
+      }
+    },
+    {
+      "name": "url_path",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "File path of the URL",
+        "example": "/path/index.html"
+      }
+    },
+    {
+      "name": "url_query",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Query part of the URL",
+        "example": "q=abc&lang=en for .../search?q=abc&lang=en"
+      }
+    },
+    {
+      "name": "fetch_time",
+      "type": "timestamp",
+      "nullable": false,
+      "metadata": {
+        "description": "Fetch time (capture time stamp)",
+        "example": "2017-10-24T00:14:32Z"
+      }
+    },
+    {
+      "name": "fetch_status",
+      "type": "short",
+      "nullable": false,
+      "metadata": {
+        "description": "HTTP response status code (-1 if absent, eg. for revisit records)",
+        "example": "200",
+        "fromCDX": "status"
+      }
+    },
+    {
+      "name": "content_digest",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "SHA-1 content digest (WARC-Payload-Digest)",
+        "example": "CH7IV3XAD3M7A42JARKRLJ3T5PGGCGXD",
+        "fromCDX": "digest"
+      }
+    },
+    {
+      "name": "content_mime_type",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "Content-Type sent in HTTP response header",
+        "example": "text/html",
+        "fromCDX": "mime"
+      }
+    },
+    {
+      "name": "warc_filename",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "WARC filename/path below s3://eotarchive/ or https://eotarchive.s3.amazonaws.com/",
+        "example": "crawl-data/EOT-2008/segments/IA-001/warc/DOTGOV-2008-01-20080923002742-04410-crawling14.us.archive.org.arc.gz",
+        "fromCDX": "filename"
+      }
+    },
+    {
+      "name": "warc_record_offset",
+      "type": "long",
+      "nullable": false,
+      "metadata": {
+        "description": "Offset of the WARC record",
+        "example": "397346194",
+        "fromCDX": "offset"
+      }
+    },
+    {
+      "name": "warc_record_length",
+      "type": "long",
+      "nullable": false,
+      "metadata": {
+        "description": "Length of the WARC record",
+        "example": "24662",
+        "fromCDX": "length"
+      }
+    },
+    {
+      "name": "warc_segment",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Segment the WARC file belongs to",
+        "example": "IA-001"
+      }
+    },
+    {
+      "name": "crawl",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Crawl the capture/record is part of",
+        "example": "EOT-2008"
+      }
+    },
+    {
+      "name": "subset",
+      "type": "string",
+      "nullable": false,
+      "metadata": {
+        "description": "Subset of responses (organized as subfolder of segments)",
+        "enumeration": {
+          "warc": "WARC captures"
+        }
+      }
+    }
+  ]
+}
