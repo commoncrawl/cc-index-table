@@ -47,7 +47,11 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
+import org.apache.spark.sql.types.BooleanType;
+import org.apache.spark.sql.types.ByteType;
 import org.apache.spark.sql.types.DataType;
+import org.apache.spark.sql.types.DoubleType;
+import org.apache.spark.sql.types.FloatType;
 import org.apache.spark.sql.types.IntegerType;
 import org.apache.spark.sql.types.LongType;
 import org.apache.spark.sql.types.ShortType;
@@ -153,6 +157,34 @@ public class IndexTable {
 				return jsonobj.get(key).getAsShort();
 			}
 			return -1;
+		}
+
+		public byte getByte(String key) throws NumberFormatException {
+			if (jsonobj.has(key)) {
+				return jsonobj.get(key).getAsByte();
+			}
+			return -1;
+		}
+
+		public boolean getBoolean(String key) throws NumberFormatException {
+			if (jsonobj.has(key)) {
+				return jsonobj.get(key).getAsBoolean();
+			}
+			return false;
+		}
+
+		public float getFloat(String key) throws NumberFormatException {
+			if (jsonobj.has(key)) {
+				return jsonobj.get(key).getAsFloat();
+			}
+			return .0f;
+		}
+
+		public double getDouble(String key) throws NumberFormatException {
+			if (jsonobj.has(key)) {
+				return jsonobj.get(key).getAsDouble();
+			}
+			return .0;
 		}
 
 		public WarcUri getWarcUri(String fromKey) {
@@ -311,6 +343,14 @@ public class IndexTable {
 					row.add(cdx.getLong(key));
 				} else if (type instanceof ShortType) {
 					row.add(cdx.getShort(key));
+				} else if (type instanceof ByteType) {
+					row.add(cdx.getByte(key));
+				} else if (type instanceof BooleanType) {
+					row.add(cdx.getBoolean(key));
+				} else if (type instanceof FloatType) {
+					row.add(cdx.getFloat(key));
+				} else if (type instanceof DoubleType) {
+					row.add(cdx.getDouble(key));
 				} else if (type instanceof StructType) {
 					row.add(convertCdxLine(cdx, (StructType) type, fieldName + "_"));
 				} else {
