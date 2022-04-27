@@ -49,6 +49,7 @@ import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataType;
 import org.apache.spark.sql.types.IntegerType;
+import org.apache.spark.sql.types.LongType;
 import org.apache.spark.sql.types.ShortType;
 import org.apache.spark.sql.types.StringType;
 import org.apache.spark.sql.types.StructField;
@@ -140,6 +141,13 @@ public class IndexTable {
 			return -1;
 		}
 
+		public long getLong(String key) throws NumberFormatException {
+			if (jsonobj.has(key)) {
+				return jsonobj.get(key).getAsLong();
+			}
+			return -1;
+		}
+
 		public short getShort(String key) throws NumberFormatException {
 			if (jsonobj.has(key)) {
 				return jsonobj.get(key).getAsShort();
@@ -212,6 +220,7 @@ public class IndexTable {
 		try {
 			cdx = new CdxLine(line);
 		} catch (Exception e) {
+			LOG.error("Failed to read CDX line: {}", line, e);
 			return null;
 		}
 		return convertCdxLine(cdx, schema, "");
@@ -298,11 +307,12 @@ public class IndexTable {
 					row.add(cdx.getString(key));
 				} else if (type instanceof IntegerType) {
 					row.add(cdx.getInt(key));
+				} else if (type instanceof LongType) {
+					row.add(cdx.getLong(key));
 				} else if (type instanceof ShortType) {
 					row.add(cdx.getShort(key));
 				} else if (type instanceof StructType) {
 					row.add(convertCdxLine(cdx, (StructType) type, fieldName + "_"));
-					// throw new RuntimeException("Nested schema not yet implemented");
 				} else {
 					row.add(null);
 				}
