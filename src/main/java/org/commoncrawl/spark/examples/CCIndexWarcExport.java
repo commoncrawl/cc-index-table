@@ -37,7 +37,6 @@ import org.commoncrawl.spark.util.WarcFileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import software.amazon.awssdk.auth.credentials.AnonymousCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.regions.Region;
@@ -57,6 +56,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 	protected String warcPrefix = "COMMON-CRAWL-EXPORT";
 	protected String warcCreator;
 	protected String warcOperator;
+	protected String warcDescription;
 	protected String csvQueryResult;
 
 	@Override
@@ -81,6 +81,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 		options.addOption(new Option(null, "warcPrefix", true, "WARC filename prefix"));
 		options.addOption(new Option(null, "warcCreator", true, "(WARC info record) creator of WARC export"));
 		options.addOption(new Option(null, "warcOperator", true, "(WARC info record) operator of WARC export"));
+		options.addOption(new Option(null, "warcDescription", true, "(WARC info record) description of WARC export"));
 	}
 
 	protected int parseOptions(String[] args, List<String> arguments) {
@@ -101,6 +102,9 @@ public class CCIndexWarcExport extends CCIndexExport {
 			}
 			if (cli.hasOption("warcOperator")) {
 				warcOperator = cli.getOptionValue("warcOperator");
+			}
+			if (cli.hasOption("warcDescription")) {
+				warcDescription = cli.getOptionValue("warcDescription");
 			}
 			if (cli.hasOption("csv")) {
 				if (cli.hasOption("query")) {
@@ -194,7 +198,10 @@ public class CCIndexWarcExport extends CCIndexExport {
 		}
 		conf.set("warc.export.software",
 				getClass().getCanonicalName() + " (Spark " + sparkSession.sparkContext().version() + ")");
-		conf.set("warc.export.description", "Common Crawl WARC export from " + tablePath + " for query: " + sqlQuery);
+		if (warcDescription == null) {
+			warcDescription = "Common Crawl WARC export from " + tablePath + " for query: " + sqlQuery;
+		}
+		conf.set("warc.export.description", warcDescription);
 
 		res.saveAsNewAPIHadoopFile(outputPath, String.class, byte[].class, WarcFileOutputFormat.class, conf);
 		LOG.info("Wrote {} WARC files with {} records total", numOutputPartitions, numRows);
