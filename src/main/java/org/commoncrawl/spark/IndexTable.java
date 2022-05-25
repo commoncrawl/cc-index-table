@@ -42,6 +42,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
+import org.apache.spark.sql.Column;
 import org.apache.spark.sql.DataFrameWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -393,17 +394,34 @@ public class IndexTable {
 		}
 
 		Dataset<Row> df = spark.createDataFrame(output, schema);
+
 		if (verbose) {
 			df.printSchema();
-			df.explain(true);
 			df.show();
+		}
+
+		// Note: cannot use nested columns for partitioning (SPARK-18084)
+		String[] partitionColumns = {};
+		if (!partitionBy.trim().isEmpty()) {
+			partitionColumns = partitionBy.trim().split("\\s*,\\s*");
+			Column[] pCols =  new Column[partitionColumns.length + 1];
+			for (int i = 0; i < partitionColumns.length; i++) {
+				pCols[i] = df.col(partitionColumns[i]);
+			}
+			// enforce sorting by "url_surtkey" within each partition
+			// below the columns used for partitioning
+			pCols[pCols.length - 1] = df.col("url_surtkey");
+			df = df.sortWithinPartitions(pCols);
+		}
+
+		if (verbose) {
+			df.explain(true);
 		}
 
 		DataFrameWriter<Row> dfw = df.write().format(outputFormat);
 		dfw.option("compression", outputCompression);
-		if (!partitionBy.trim().isEmpty()) {
-			// Note: cannot use nested columns for partitioning (SPARK-18084)
-			dfw.partitionBy(partitionBy.split("\\s*,\\s*"));
+		if (partitionColumns.length > 0) {
+			dfw.partitionBy(partitionColumns);
 		}
 		dfw.save(outputPath);
 		spark.close();
