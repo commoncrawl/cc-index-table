@@ -5,7 +5,7 @@
 # Table format configuration
 FORMAT=${FORMAT:-parquet} # parquet, orc
 NESTED="$NESTED"          # "" (empty) or --useNestedSchema
-COMPRS=${COMPRS:-gzip}    # gzip, snappy, lzo, none
+COMPRS=${COMPRS:-gzip}    # gzip, snappy, lzo, zstd, none
 PARTITION_BY="crawl,subset"
 
 # Input spec (URL index files to convert)
