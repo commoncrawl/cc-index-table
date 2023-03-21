@@ -22,9 +22,14 @@ SELECT COUNT(*) as n_pages,
        SUM(warc_record_length) * 100.0 / SUM(SUM(warc_record_length)) OVER() as perc_warc_storage,
        SUM(case when content_truncated is null then 0 else 1 end) * 100.0 / COUNT(*) as perc_truncated,
        content_mime_detected,
-       histogram(content_truncated) as reason_truncated
+       histogram(content_truncated) as reason_truncated,
+       slice(
+         array_sort(
+           map_entries(map_filter(histogram(regexp_extract(url_path, '\.[a-zA-Z0-9_-]{1,7}$')), (k, v) -> v > 4)),
+           (a, b) -> IF(a[2] < b[2], 1, IF(a[2] = b[2], 0, -1))),
+         1, 25) as common_url_path_suffixes
 FROM "ccindex"."ccindex"
-WHERE crawl = 'CC-MAIN-2022-05'
+WHERE crawl = 'CC-MAIN-2023-06'
   AND subset = 'warc'
 GROUP BY content_mime_detected
 ORDER BY n_pages DESC;
