@@ -20,13 +20,39 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
 import org.junit.jupiter.api.Test;
 
 
 public class TestURL {
 
-	public static final String ipv4Host = "123.123.123.123";
-	public static final String ipv4Url = "http://" + ipv4Host + "/index.html";
+	public static final byte[] ip4vAddr = { 123, 123, 123, 123 };
+	public static final List<String> ipv4Hosts = new ArrayList<>();
+	public static final List<String> ipv4URLs = new ArrayList<>();
+	static {
+		/* IP v4 addresses in various formats */
+		String[] formats = { "%d.%d.%d.%d", "%d.%d.%d", "%d.%d", "%d" };
+		for (String format : formats) {
+			String ipv4Host;
+			if (format.length() >= 11) {
+				ipv4Host = String.format(Locale.ROOT, format, ip4vAddr[0], ip4vAddr[1], ip4vAddr[2], ip4vAddr[3]);
+			} else if (format.length() >= 8) {
+				ipv4Host = String.format(Locale.ROOT, format, ip4vAddr[0], ip4vAddr[1],
+						(ip4vAddr[2] << 8) + ip4vAddr[3]);
+			} else if (format.length() >= 5) {
+				ipv4Host = String.format(Locale.ROOT, format, ip4vAddr[0],
+						(ip4vAddr[1] << 16) + (ip4vAddr[2] << 8) + ip4vAddr[3]);
+			} else {
+				ipv4Host = String.format(Locale.ROOT, format,
+						(ip4vAddr[0] << 24) + (ip4vAddr[1] << 16) + (ip4vAddr[2] << 8) + ip4vAddr[3]);
+			}
+			ipv4Hosts.add(ipv4Host);
+			ipv4URLs.add(String.format(Locale.ROOT, "http://%s/index.html", ipv4Host));
+		}
+	}
 
 	public static final String exampleHost = "www.example.com";
 	public static final String exampleUrl = "http://" + exampleHost + "/path/q?a=b&c=d";
@@ -59,11 +85,15 @@ public class TestURL {
 
 	@Test
 	void testIPAddress() {
-		assertEquals(ipv4Host, getHostName(ipv4Url));
-		HostName h = new HostName(getHostName(ipv4Url));
-		assertNull(h.getDomainNameUnderRegistrySuffix());
-		assertNull(h.getRegistrySuffix());
-		assertNull(h.getReverseHost());
+		String ipv4Host = ipv4Hosts.get(0);
+		for (int i = 0; i < ipv4Hosts.size(); i++) {
+			String ipv4URL = ipv4URLs.get(i);
+			assertEquals(ipv4Host, getHostName(ipv4URL), ipv4URL);
+			HostName h = new HostName(getHostName(ipv4URL));
+			assertNull(h.getDomainNameUnderRegistrySuffix());
+			assertNull(h.getRegistrySuffix());
+			assertNull(h.getReverseHost());
+		}
 	}
 
 	@Test
