@@ -15,6 +15,8 @@
 -- to the URL indexes to skip over truncated captures instantly. Here the column is used to measure
 -- the impact of the truncation on various document formats (MIME types).
 --
+-- Update Mar 2023: add histogram of common file suffixes (from the path component of the URL)
+--
 SELECT COUNT(*) as n_pages,
        COUNT(*) * 100.0 / SUM(COUNT(*)) OVER() as perc_pages,
        AVG(warc_record_length) as avg_warc_record_length,
