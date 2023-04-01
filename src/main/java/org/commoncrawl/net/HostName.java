@@ -16,18 +16,24 @@
  */
 package org.commoncrawl.net;
 
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import crawlercommons.domains.EffectiveTldFinder;
 import crawlercommons.domains.EffectiveTldFinder.EffectiveTLD;
 
 public class HostName {
+
+	private static final Logger LOG = LoggerFactory.getLogger(HostName.class);
 
 	public static enum Type {
 		hostname,
@@ -45,9 +51,18 @@ public class HostName {
 
 	private static Pattern SPLIT_HOST_PATTERN = Pattern.compile("\\.");
 
-	/** Pattern to match valid IPv4 addresses */
-	public static final Pattern IPV4_ADDRESS_PATTERN = Pattern.compile(
+	/**
+	 * Pattern to match valid IPv4 addresses in the canonical format 123.123.123.123
+	 */
+	public static final Pattern IPV4_ADDRESS_PATTERN_CANONICAL = Pattern.compile(
 			"(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])");
+	/**
+	 * Pattern to match valid IPv4 addresses in a variant format using decimal
+	 * numbers. Note: Java's {@link InetAddress#getByName(String)} does not support
+	 * other number representations (for example octal).
+	 */
+	public static final Pattern IPV4_ADDRESS_PATTERN_VARIANT_DECIMAL = Pattern
+			.compile("(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){0,3}(?:[0-9]+)");
 
 	/** Lazy pattern to catch IPv6 addresses (or what looks similar, does not validate) */
 	public static final Pattern IPV6_ADDRESS_PATTERN = Pattern.compile("\\[[0-9a-fA-F:]+\\]");
@@ -94,8 +109,16 @@ public class HostName {
 
 	private void setHostName(String hostName) {
 		this.hostName = hostName;
-		if (IPV4_ADDRESS_PATTERN.matcher(hostName).matches()) {
+		if (IPV4_ADDRESS_PATTERN_CANONICAL.matcher(hostName).matches()) {
 			type = Type.IPv4;
+		} else if (IPV4_ADDRESS_PATTERN_VARIANT_DECIMAL.matcher(hostName).matches()) {
+			try {
+				this.hostName = canonicalizeIpAddress(hostName);
+				type = Type.IPv4;
+			} catch (IllegalArgumentException e) {
+				type = Type.hostname;
+				LOG.error("Failed to canonicalize IP address", e);
+			}
 		} else if (IPV6_ADDRESS_PATTERN.matcher(hostName).matches()) {
 			type = Type.IPv6;
 		} else {
@@ -177,6 +200,25 @@ public class HostName {
 			rev[rev.length - i - 1] = temp;
 		}
 		return rev;
+	}
+
+	/**
+	 * Canonicalize IP address strings which are accepted by
+	 * {@link InetAddress#getByName(String)}.
+	 * 
+	 * @param ipAddrStr string representing a <strong>valid</strong> IP address
+	 * @return the canonical representation of the IP address
+	 */
+	private String canonicalizeIpAddress(String ipAddrStr) throws IllegalArgumentException {
+		if (!(IPV4_ADDRESS_PATTERN_VARIANT_DECIMAL.matcher(ipAddrStr).matches()
+				|| IPV6_ADDRESS_PATTERN.matcher(ipAddrStr).matches())) {
+			throw new IllegalArgumentException("Not an accepted IP address: " + ipAddrStr);
+		}
+		try {
+			return InetAddress.getByName(ipAddrStr).getHostAddress();
+		} catch (UnknownHostException e) {
+			throw new IllegalArgumentException("Not an accepted IP address: " + ipAddrStr, e.getCause());
+		}
 	}
 
 	/**
