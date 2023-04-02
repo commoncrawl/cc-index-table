@@ -16,10 +16,14 @@
  */
 package org.commoncrawl.net;
 
+import java.io.UnsupportedEncodingException;
+import java.net.IDN;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
@@ -27,6 +31,8 @@ import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.CharMatcher;
 
 import crawlercommons.domains.EffectiveTldFinder;
 import crawlercommons.domains.EffectiveTldFinder.EffectiveTLD;
@@ -107,13 +113,13 @@ public class HostName {
 		}
 	}
 
-	private void setHostName(String hostName) {
-		this.hostName = hostName;
+	private void setHostName(String name) {
+		hostName = name;
 		if (IPV4_ADDRESS_PATTERN_CANONICAL.matcher(hostName).matches()) {
 			type = Type.IPv4;
 		} else if (IPV4_ADDRESS_PATTERN_VARIANT_DECIMAL.matcher(hostName).matches()) {
 			try {
-				this.hostName = canonicalizeIpAddress(hostName);
+				hostName = canonicalizeIpAddress(hostName);
 				type = Type.IPv4;
 			} catch (IllegalArgumentException e) {
 				type = Type.hostname;
@@ -123,6 +129,24 @@ public class HostName {
 			type = Type.IPv6;
 		} else {
 			type = Type.hostname;
+			if (hostName.indexOf('%') > -1) {
+				try {
+					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8.toString());
+				} catch (IllegalArgumentException | UnsupportedEncodingException e) {
+					LOG.error("Failed to decode {}: {}", hostName, e, e.getMessage());
+					hostName = null;
+					return;
+				}
+			}
+			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
+				try {
+					hostName = IDN.toASCII(hostName);
+				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+					LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e, e.getMessage());
+					hostName = null;
+					return;
+				}
+			}
 			if (hostName.endsWith(".")) {
 				hostName = hostName.substring(0, hostName.length()-1);
 			}

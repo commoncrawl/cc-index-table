@@ -114,6 +114,33 @@ public class TestURL {
 	}
 
 	@Test
+	void testHostNameDecode() {
+		HostName h = new HostName("www.example%2ecom");
+		assertEquals("www.example.com", h.getHostName());
+		assertEquals("com", h.getReverseHost()[0]);
+		assertEquals("example.com", h.getDomainNameUnderRegistrySuffix());
+		assertEquals("example.com", h.getPrivateDomainName());
+	}
+
+	@Test
+	void testHostNameIDN() {
+		HostName h = new HostName("www.exæmple.com");
+		assertEquals("www.xn--exmple-qua.com", h.getHostName());
+		assertEquals("com", h.getReverseHost()[0]);
+		assertEquals("xn--exmple-qua.com", h.getDomainNameUnderRegistrySuffix());
+		assertEquals("xn--exmple-qua.com", h.getPrivateDomainName());
+	}
+
+	@Test
+	void testHostNameDecodeIDN() {
+		HostName h = new HostName("www.example.%d0%a0%d0%a4");
+		assertEquals("www.example.xn--p1ai", h.getHostName());
+		assertEquals("xn--p1ai", h.getReverseHost()[0]);
+		assertEquals("example.xn--p1ai", h.getDomainNameUnderRegistrySuffix());
+		assertEquals("example.xn--p1ai", h.getPrivateDomainName());
+	}
+
+	@Test
 	void testPrivateDomain() {
 		HostName h = new HostName(privateDomain);
 		assertEquals("myblog.blogspot.com", h.getPrivateDomainName());
@@ -137,10 +164,10 @@ public class TestURL {
 
 	@Test
 	void testURLinvalidURI() {
-		WarcUri u = new WarcUri("https://www.exæmple.com/path with space");
+		WarcUri u = new WarcUri("https://www.example.com/path with space");
 		assertNotNull(u);
-		assertEquals(u.getHostName().getHostName(), "www.exæmple.com");
-		assertEquals(u.getProtocol(), "https");
+		assertEquals("www.example.com", u.getHostName().getHostName());
+		assertEquals("https", u.getProtocol());
 		assertNull(u.getPort()); // no port given
 		assertEquals(u.getPath(), "/path with space");
 		assertEquals(u.getQuery(), null);
