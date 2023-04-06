@@ -4,7 +4,7 @@
 
 Build and process the [Common Crawl index table](https://commoncrawl.org/2018/03/index-to-warc-files-and-urls-in-columnar-format/) – an index to WARC files in a columnar data format ([Apache Parquet](https://parquet.apache.org/)).
 
-The index table is built from the Common Crawl URL index files by [Apache Spark](https://spark.apache.org/). It can be queried by [SparkSQL](https://spark.apache.org/sql/), [Amazon Athena](https://aws.amazon.com/athena/) (built on [Presto](https://prestosql.io/)), [Apache Hive](https://hive.apache.org/) and many other big data frameworks and applications.
+The index table is built from the Common Crawl URL index files by [Apache Spark](https://spark.apache.org/). It can be queried by [SparkSQL](https://spark.apache.org/sql/), [Amazon Athena](https://aws.amazon.com/athena/) (built on [Presto](https://prestosql.io/) or [Trino](https://trino.io/)), [Apache Hive](https://hive.apache.org/) and many other big data frameworks and applications.
 
 This projects provides a comprehensive set of example queries (SQL) and also Java code to fetch and process the WARC records matched by a SQL query.
 
@@ -12,6 +12,11 @@ This projects provides a comprehensive set of example queries (SQL) and also Jav
 ## Build Java tools
 
 `mvn package`
+
+
+## Spark installation
+
+[Spark](https://spark.apache.org/) needs to be installed in order to [build the table](#conversion-of-the-url-index) and also (alternatively) [for processing](#process-the-table-with-spark). Please refer to the [Spark documentation](https://spark.apache.org/docs/latest/) how to install Spark and set up a Spark cluster.
 
 
 ## Python, PySpark, Jupyter Notebooks
