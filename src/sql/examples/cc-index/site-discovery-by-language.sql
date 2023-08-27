@@ -81,6 +81,6 @@ SELECT num_pages,
        content_languages_histogram
 FROM tmp
 WHERE num_pages >= 5
-  AND regexp_like('(cat|eus|glg|oci)', primary_content_language)
+  AND regexp_like(primary_content_language, '(cat|eus|glg|oci)')
   AND (1.0*num_pages/total_pages_host) >= .05
 ORDER BY primary_content_language, tld, num_pages DESC;
