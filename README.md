@@ -84,6 +84,7 @@ A couple of sample queries are also provided (for the flat schema):
   - a specific MIME type: [get-records-of-mime-type.sql](src/sql/examples/cc-index/get-records-of-mime-type.sql)
   - a specific language (e.g., Icelandic): [get-records-for-language.sql](src/sql/examples/cc-index/get-records-for-language.sql)
   - home pages of a given list of domains: [get-records-home-pages.sql](src/sql/examples/cc-index/get-records-home-pages.sql)
+- find homepages for low-resource languages: [get-home-pages-languages.sql](src/sql/examples/cc-index/get-home-pages-languages.sql)
 - obtain a random sample of URLs: [random-sample-urls.sql](src/sql/examples/cc-index/random-sample-urls.sql)
 - find similar domain names by Levenshtein distance (few characters changed): [similar-domains.sql](src/sql/examples/cc-index/similar-domains.sql)
 - average length, occupied storage and payload truncation of WARC records by MIME type: [average-warc-record-length-by-mime-type.sql](src/sql/examples/cc-index/average-warc-record-length-by-mime-type.sql)
