@@ -17,17 +17,17 @@
 package org.commoncrawl.spark;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
+import org.commoncrawl.spark.util.CCIndex2FilenameParser;
+import org.commoncrawl.spark.util.CCIndex2FilenameParser.FilenameParts;
+import org.commoncrawl.spark.util.CCIndex2FilenameParser.FilenameParseError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Convert Common Crawl's URL index into a tabular format.
@@ -38,9 +38,6 @@ public class CCIndex2Table extends IndexTable {
 	protected String name = CCIndex2Table.class.getCanonicalName();
 
 	protected static boolean useBuiltinNestedSchema = false;
-
-	protected static final Pattern filenameAnalyzer = Pattern
-			.compile("^(?:common-crawl/)?crawl-data/([^/]+)/segments/([^/]+)/(crawldiagnostics|robotstxt|warc)/");
 
 	protected static class CdxLine extends IndexTable.CdxLine {
 		String redirect;
@@ -68,12 +65,12 @@ public class CCIndex2Table extends IndexTable {
 			length = getInt("length");
 			status = getHttpStatus("status");
 
-			Matcher m = filenameAnalyzer.matcher(filename);
-			if (m.find()) {
-				crawl = m.group(1);
-				segment = m.group(2);
-				subset = m.group(3);
-			} else {
+			try{
+				final FilenameParts parts = CCIndex2FilenameParser.getParts(filename);
+				crawl = parts.crawl;
+				segment = parts.segment;
+				subset = parts.subset;
+			} catch (FilenameParseError e) {
 				LOG.error("Filename not parseable: {}", filename);
 			}
 
