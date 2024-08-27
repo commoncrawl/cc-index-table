@@ -1,5 +1,3 @@
-![Common Crawl Logo](https://commoncrawl.org/wp-content/uploads/2016/12/logocommoncrawl.png)
-
 # Common Crawl Index Table
 
 Build and process the [Common Crawl index table](https://commoncrawl.org/2018/03/index-to-warc-files-and-urls-in-columnar-format/) – an index to WARC files in a columnar data format ([Apache Parquet](https://parquet.apache.org/)).
