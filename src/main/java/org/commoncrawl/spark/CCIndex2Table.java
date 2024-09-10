@@ -65,6 +65,10 @@ public class CCIndex2Table extends IndexTable {
 			length = getInt("length");
 			status = getHttpStatus("status");
 
+			crawl = "unknown";
+			segment = "unknown";
+			subset = "unknown";
+
 			try{
 				final FilenameParts parts = CCIndex2FilenameParser.getParts(filename);
 				crawl = parts.crawl;
@@ -106,6 +110,10 @@ public class CCIndex2Table extends IndexTable {
 					cdx.crawl, cdx.subset);
 		} else {
 			Row h = cdx.uri.getHostName().asRow();
+			if( h.get(0) == null ) {
+				LOG.error("Failed to parse hostname: " + cdx.uri.getHostName() + " from line:\n\t" + line);
+				return null;
+			}
 			return RowFactory.create(
 					// SURT and complete URL
 					cdx.urlkey,
