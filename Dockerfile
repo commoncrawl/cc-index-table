@@ -4,7 +4,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn package
 
-FROM spark:3.4.1
+FROM spark:3.5.1
 WORKDIR /app
 COPY --from=build /app/target/*.jar ./target/
 COPY --from=build /app/src/script/convert_url_index.sh ./src/script/convert_url_index.sh
