@@ -386,7 +386,8 @@ public class IndexTable {
 		LOG.info("Function to map CDX entries to table rows: {}", mapIndexEntries);
 
 		JavaRDD<String> input = spark.read().textFile(inputPaths).toJavaRDD();
-		JavaRDD<Row> output = input.map(mapIndexEntries);
+		JavaRDD<Row> output = input.map(mapIndexEntries)
+			.filter(row -> row != null);
 
 		if (verbose) {
 			LOG.info(schema.prettyJson());
