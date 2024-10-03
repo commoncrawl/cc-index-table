@@ -112,7 +112,7 @@ public class IndexTable {
 			timeStampOffset++;
 			int jsonOffset = line.indexOf(' ', timeStampOffset);
 			String timeStampString = line.substring(timeStampOffset, jsonOffset);
-			ZonedDateTime fetchTime = (ZonedDateTime) fetchTimeParser.parse(timeStampString, ZonedDateTime::from);
+			ZonedDateTime fetchTime = fetchTimeParser.parse(timeStampString, ZonedDateTime::from);
 			this.timestamp = Timestamp.from(fetchTime.toInstant());
 			jsonOffset++;
 			Reader in = new StringReader(line);
@@ -246,6 +246,9 @@ public class IndexTable {
 	 * 
 	 * Other fields are selected from the CDX JSON object by field name or the field
 	 * specified by &quot;fromCDX&quot; in the field metadata in the table schema.
+	 *
+	 * @param line CDX record input line
+	 * @return table row which holds the converted record
 	 */
 	public static Row convertCdxLine(String line) {
 		CdxLine cdx;
@@ -442,6 +445,10 @@ public class IndexTable {
 	/**
 	 * Add command-line options. Subclasses may override the method to add their
 	 * options but should call <code>super.addCommandLineOptions(options)</code>.
+	 * 
+	 * @param options command-line options, instantiated and optionally configured
+	 *                by caller
+	 * @return the resulting {@code Options} instance (with added options)
 	 */
 	protected Options addCommandLineOptions(Options options) {
 		options.addOption(new Option("h", "help", false, "Show this message"))
@@ -462,6 +469,9 @@ public class IndexTable {
 	 * apply their options but should call
 	 * <code>super.applyCommandLineOptions(cli)</code> so that inherited classes can
 	 * process and apply the options they expect.
+	 * 
+	 * @param cli parsed command-line options
+	 * @return the resulting @{@code CommandLine} instance
 	 */
 	protected CommandLine applyCommandLineOptions(CommandLine cli) {
 

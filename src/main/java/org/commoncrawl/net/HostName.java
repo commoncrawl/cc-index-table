@@ -211,9 +211,9 @@ public class HostName {
 
 	/**
 	 * Split host name into parts in reverse order: <code>www.example.com</code>
-	 * becomes <code>[com,example, www]</code>.
+	 * becomes <code>[com, example, www]</code>.
 	 * 
-	 * @param hostName
+	 * @param hostName host name, e.g. <code>www.example.com</code>
 	 * @return parts of host name in reverse order
 	 */
 	public static String[] reverseHost(String hostName) {
