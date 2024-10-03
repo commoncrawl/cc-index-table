@@ -55,6 +55,10 @@
 					<properties>
 						<excludeTags>performance</excludeTags>
 					</properties>
+					<argLine>
+						<!-- required for Java 17 -->
+						--add-opens=java.base/sun.nio.ch=ALL-UNNAMED
+					</argLine>
 				</configuration>
 			</plugin>
 			<plugin>
