@@ -18,6 +18,7 @@ package org.commoncrawl.spark;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -86,4 +87,16 @@ public abstract class TestIndexTableBase {
 		}
 	}
 
+	protected int getFieldIndex(String name, StructType schema) {
+		assertTrue(schema.getFieldIndex(name).nonEmpty());
+		return (Integer) schema.getFieldIndex(name).get();
+	}
+
+	protected void testField(String expectedValue, String fieldName, Row row, StructType schema) {
+		assertEquals(expectedValue, row.get(getFieldIndex(fieldName, schema)));
+	}
+
+	protected void testField(long expectedValue, String fieldName, Row row, StructType schema) {
+		assertEquals(expectedValue, row.get(getFieldIndex(fieldName, schema)));
+	}
 }
