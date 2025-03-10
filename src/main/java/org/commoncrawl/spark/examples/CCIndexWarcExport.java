@@ -37,9 +37,11 @@ import org.commoncrawl.spark.util.WarcFileOutputFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import software.amazon.awssdk.awscore.retry.AwsRetryStrategy;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.ResponseTransformer;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.retries.StandardRetryStrategy;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
@@ -51,6 +53,9 @@ public class CCIndexWarcExport extends CCIndexExport {
 	private static final Logger LOG = LoggerFactory.getLogger(CCIndexExport.class);
 
 	protected static final String COMMON_CRAWL_BUCKET = "commoncrawl";
+
+	/** Maximum number of retry attempts. */
+	protected static int maxS3RetryAttempts = 10;
 
 	protected int numRecordsPerWarcFile = 10000;
 	protected String warcPrefix = "COMMON-CRAWL-EXPORT";
@@ -84,6 +89,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 		options.addOption(new Option(null, "warcDescription", true, "(WARC info record) description of WARC export"));
 	}
 
+	@Override
 	protected int parseOptions(String[] args, List<String> arguments) {
 
 		CommandLineParser parser = new PosixParser();
@@ -128,7 +134,8 @@ public class CCIndexWarcExport extends CCIndexExport {
 					.range(range.toString()).build(), ResponseTransformer.toBytes()).asByteArray();
 			return bytes;
 		} catch (SdkClientException | S3Exception e) {
-			LOG.error("Failed to fetch s3://{}/{} ({}): {}", COMMON_CRAWL_BUCKET, filename, range, e);
+			LOG.error("Failed to fetch s3://{}/{} ({}): {}",
+					COMMON_CRAWL_BUCKET, filename, range, e.getMessage(), e);
 		}
 		return null;
 	}
@@ -171,7 +178,10 @@ public class CCIndexWarcExport extends CCIndexExport {
 		//   <Text url, byte[] warc_record>
 		JavaPairRDD<Text,byte[]> res = rdd.mapPartitionsToPair((Iterator<Row> rows) -> {
 			ArrayList<scala.Tuple2<Text, byte[]>> reslist = new ArrayList<>();
-			S3Client s3 = S3Client.builder().region(Region.US_EAST_1).build();
+			StandardRetryStrategy strategy = AwsRetryStrategy.standardRetryStrategy().toBuilder()
+					.maxAttempts(maxS3RetryAttempts).build();
+			S3Client s3 = S3Client.builder().region(Region.US_EAST_1)
+					.overrideConfiguration(o -> o.retryStrategy(strategy)).build();
 			while (rows.hasNext()) {
 				Row row = rows.next();
 				String url = row.getString(0);

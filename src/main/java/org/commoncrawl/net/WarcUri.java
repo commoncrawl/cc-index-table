@@ -41,8 +41,8 @@ public class WarcUri {
 				hostName = new HostName(url);
 				uri = url.toURI();
 			} catch (MalformedURLException urlExc) {
-				// should not happen HTTP captures (how could the URL have been fetched otherwise)
-				// but may happen for other schemes - dns, whois, ntp, metadata
+				// should not happen for HTTP captures (how could the URL have been fetched
+				// otherwise) but may happen for other schemes - dns, whois, ntp, metadata
 				uri = new java.net.URI(uriString);
 				scheme = uri.getScheme();
 				hostName = new HostName(uri);
