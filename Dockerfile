@@ -1,10 +1,10 @@
-FROM maven:3.6.3-jdk-11 AS build
+FROM maven:3.9.9-eclipse-temurin-17-focal AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 RUN mvn package
 
-FROM spark:3.5.1
+FROM spark:3.5.5-java17-python3
 WORKDIR /app
 COPY --from=build /app/target/*.jar ./target/
 COPY --from=build /app/src/script/convert_url_index.sh ./src/script/convert_url_index.sh
