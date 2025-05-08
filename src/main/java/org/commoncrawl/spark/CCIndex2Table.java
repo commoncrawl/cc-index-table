@@ -23,9 +23,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
-import org.commoncrawl.spark.util.CCIndex2FilenameParser;
-import org.commoncrawl.spark.util.CCIndex2FilenameParser.FilenameParts;
-import org.commoncrawl.spark.util.CCIndex2FilenameParser.FilenameParseError;
+import org.commoncrawl.spark.util.CCWarcFilenameParser;
+import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParts;
+import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParseError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,8 +65,8 @@ public class CCIndex2Table extends IndexTable {
 			length = getInt("length");
 			status = getHttpStatus("status");
 
-			try{
-				final FilenameParts parts = CCIndex2FilenameParser.getParts(filename);
+			try {
+				final FilenameParts parts = CCWarcFilenameParser.getParts(filename);
 				crawl = parts.crawl;
 				segment = parts.segment;
 				subset = parts.subset;
