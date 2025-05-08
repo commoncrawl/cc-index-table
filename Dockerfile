@@ -10,4 +10,5 @@ COPY --from=build /app/target/*.jar ./target/
 COPY --from=build /app/src/script/convert_url_index.sh ./src/script/convert_url_index.sh
 VOLUME /app/data
 ENV SPARK_ON_YARN="--master local"
+ENV SPARK_EXTRA_OPTS="--conf spark.executor.userClassPathFirst=true"
 ENTRYPOINT ["/app/src/script/convert_url_index.sh"]
