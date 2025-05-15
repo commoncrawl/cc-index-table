@@ -17,6 +17,39 @@ This projects provides a comprehensive set of example queries (SQL) and also Jav
 [Spark](https://spark.apache.org/) needs to be installed in order to [build the table](#conversion-of-the-url-index) and also (alternatively) [for processing](#process-the-table-with-spark). Please refer to the [Spark documentation](https://spark.apache.org/docs/latest/) how to install Spark and set up a Spark cluster.
 
 
+## Building and running using Docker
+
+A [Dockerfile](./Dockerfile) is provided to compile the project and run the Spark job in a Docker container.
+
+1. build the Docker image:
+   ```sh
+   docker build . -t cc-index-table
+   ```
+2. run the table converter tool, here showing the command-line help (`--help`):
+   ```sh
+   docker run --rm -ti cc-index-table --help
+   ```
+   More details to run the converter are given below.
+
+Note that the Dockerfile defines the conversion tool as entry point.
+Overriding the entrypoint woulld allow to inspect the container using an interactive shell:
+
+```
+$> docker run --rm --entrypoint=/bin/bash -ti cc-index-table
+
+spark@9eb71e5f09a6:/app$ java -version
+openjdk version "17.0.15" 2025-04-15
+OpenJDK Runtime Environment Temurin-17.0.15+6 (build 17.0.15+6)
+OpenJDK 64-Bit Server VM Temurin-17.0.15+6 (build 17.0.15+6, mixed mode, sharing)
+```
+
+Or you could directly call the command `spark-submit`:
+
+```sh
+docker run --rm --entrypoint=/opt/spark/bin/spark-submit cc-index-table
+```
+
+
 ## Python, PySpark, Jupyter Notebooks
 
 Not part of this project. Please have a look at [cc-pyspark](//github.com/commoncrawl/cc-pyspark) for examples how to query and process the tabular URL index with Python and PySpark. The project [cc-notebooks](//github.com/commoncrawl/cc-notebooks) includes some examples how to gain insights into the Common Crawl data sets using the columnar index.
@@ -53,6 +86,46 @@ Options:
 The script [convert_url_index.sh](src/script/convert_url_index.sh) runs `CCIndex2Table` using Spark on Yarn.
 
 Columns are defined and described in the table schema ([flat](src/main/resources/schema/cc-index-schema-flat.json) or [nested](src/main/resources/schema/cc-index-schema-nested.json)).
+
+
+### Runing the converter in a Docker container
+
+The converter can be run from the Docker container, built from the Dockerfile, see the instructions above.
+
+The steps given below are just an example – the way data is passed in and out from the container may vary.
+
+```sh
+# create a test folder
+mkdir -p /tmp/data/in
+
+# copy CDX files into /tmp/data/in/
+cp .../*.cdx.gz /tmp/data/in/
+
+tree /tmp/data/
+# outputs:
+# /tmp/data/
+# └── in
+#     └── CC-MAIN-20241208172518-20241208202518-00000.cdx.gz
+
+# ensure that also the user "spark" in the container has write permissions
+chmod a+w /tmp/data
+
+# note: the output will be written to /tmp/data/out/, but Spark
+#       will complain if the output folder already exists
+
+# launch the Docker container, running the Spark job
+docker run --mount=type=bind,source=/tmp/data,destination=/data --rm cc-index-table /data/in /data/out
+
+tree /tmp/data/
+# /tmp/data/
+# ├── in
+# │   └── CC-MAIN-20241208172518-20241208202518-00000.cdx.gz
+# └── out
+#     ├── crawl=CC-MAIN-2024-51
+#     │   └── subset=warc
+#     │       └── part-00000-4b2c091d-24db-4248-8c3c-817fd04b7a85.c000.gz.parquet
+#     └── _SUCCESS
+```
 
 
 ## Query the table in Amazon Athena
