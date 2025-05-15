@@ -17,16 +17,16 @@
 		<spark.version>3.5.5</spark.version>
 		<spark.core.version>2.12</spark.core.version>
 
-		<slf4j-api.version>2.0.16</slf4j-api.version>
+		<slf4j-api.version>2.0.17</slf4j-api.version>
 		<crawler-commons.version>1.4</crawler-commons.version>
 		<gson.version>2.13.1</gson.version>
 		<guava.version>33.4.8-jre</guava.version>
-		<aws-s3-sdk.version>2.31.36</aws-s3-sdk.version>
+		<aws-s3-sdk.version>2.31.43</aws-s3-sdk.version>
 
 		<!-- Apache Commons CLI should be the same shipped with the Spark installation -->
 		<commons-cli.version>1.5.0</commons-cli.version>
 
-		<junit.jupiter.version>5.11.2</junit.jupiter.version>
+		<junit.jupiter.version>5.12.2</junit.jupiter.version>
 	</properties>
 
 	<build>
