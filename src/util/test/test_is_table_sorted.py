@@ -1,10 +1,7 @@
-import pytest
 import random
 from unittest.mock import MagicMock
-import os
-import sys
 
-from src.script.is_table_sorted import are_parquet_file_row_groups_sorted
+from util.is_table_sorted import are_parquet_file_row_groups_sorted
 
 
 def _create_mock_parquet_file(column_name: str, row_groups_stats: list[tuple[str, str]]):
