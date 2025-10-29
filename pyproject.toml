@@ -1,7 +1,7 @@
 [project]
 name = "cc-index-table"
 version = "0.1.0"
-description = "Add your description here"
+description = "Tools for working with Common Crawl index tables."
 requires-python = ">=3.12"
 dependencies = [
     "boto3>=1.40.61",
