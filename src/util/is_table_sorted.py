@@ -10,7 +10,7 @@ import gzip
 from tqdm.auto import tqdm
 
 
-def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> tuple[bool, str, str]:
+def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> tuple[bool, str|None, str|None]:
     sort_column_index = next(i for i, name in enumerate(pf.schema.names)
                              if name == column_name)
 
@@ -50,6 +50,7 @@ def is_full_table_sorted(file_or_s3_url_list_ordered: list[str], sort_column_nam
             if prev_max is not None and prev_max > pf_min:
                 print(f"{prev_file_or_url} is not sorted with respect to {file_or_url}: '{prev_max}' > '{pf_min}'")
                 status['filewise_unsorted'] += 1
+                is_sorted = False
             pbar.set_postfix(status)
             prev_max = pf_max
             prev_file_or_url = file_or_url
@@ -83,7 +84,7 @@ def read_file_list(path_or_url: str, prefix: str) -> list[str]:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Check if a collection of Parquet files, considered as a whole, is sorted. Exit code is 0 if sorted, 1 if not sorted.")
-    parser.add_argument("files_or_s3_urls_file", type=str, help="URI or path to a text file containing a list of paths or S3 URLs, one per line, in the expected sorted order.")
+    parser.add_argument("files_or_s3_urls_file", type=str, help="URI or path to a text file containing a list of paths, URLs, or S3 URLs, one per line, in the expected sorted order.")
     parser.add_argument("--prefix", type=str, default="s3://commoncrawl/", help="Prefix to prepend to entries read from the file (default: 's3://commoncrawl/')")
     parser.add_argument("--column", type=str, default="url_surtkey", help="Column name to check sorting against (default: 'url_surtkey')")
 

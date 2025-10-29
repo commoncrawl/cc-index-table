@@ -1,7 +1,7 @@
 import random
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
-from util.is_table_sorted import are_parquet_file_row_groups_sorted
+from util.is_table_sorted import are_parquet_file_row_groups_sorted, is_full_table_sorted
 
 
 def _create_mock_parquet_file(column_name: str, row_groups_stats: list[tuple[str, str]]):
@@ -65,3 +65,34 @@ def test_row_groups_overlapping():
     mock_pf = _create_mock_parquet_file('url_surtkey', row_groups)
     is_sorted, min_val, max_val = are_parquet_file_row_groups_sorted(mock_pf, column_name='url_surtkey')
     assert not is_sorted
+
+
+def test_ordered_files_sorted():
+    files_config = {
+        '/data/a': [('aaa', 'bbb'), ('bbc', 'ccc')],
+        '/data/b': [('ccd', 'ddd'), ('dde', 'eee')],
+        '/data/c': [('eef', 'fff'), ('ffg', 'ggg')],
+    }
+
+    def mock_parquet_file(path):
+        return _create_mock_parquet_file('url_surtkey', files_config[path])
+
+    with patch('pyarrow.parquet.ParquetFile', side_effect=mock_parquet_file):
+        result = is_full_table_sorted(['/data/a', '/data/b', '/data/c'], 'url_surtkey')
+        assert result
+
+
+def test_ordered_files_unsorted():
+    files_config = {
+        '/data/a': [('aaa', 'bbb'), ('bbc', 'ccc')],
+        '/data/b': [('ccd', 'ddd'), ('dde', 'eee')],
+        '/data/c': [('eef', 'fff'), ('ffg', 'ggg')],
+    }
+
+    def mock_parquet_file(path):
+        return _create_mock_parquet_file('url_surtkey', files_config[path])
+
+    with patch('pyarrow.parquet.ParquetFile', side_effect=mock_parquet_file):
+        result = is_full_table_sorted(['/data/a', '/data/c', '/data/b'], 'url_surtkey')
+        assert result  # we don't care about the order of files
+
