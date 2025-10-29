@@ -34,5 +34,4 @@ jobs:
 
     - name: Run tests
       run: |
-        cd src/util/test
-        python -m pytest test_is_table_sorted.py -v
+        uv run -m pytest src -v
