@@ -10,7 +10,7 @@ import gzip
 from tqdm.auto import tqdm
 
 
-def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> bool:
+def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> tuple[bool, str, str]:
     sort_column_index = next(i for i, name in enumerate(pf.schema.names)
                              if name == column_name)
 
@@ -27,6 +27,7 @@ def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> 
             return False, None, None
         whole_min = column.statistics.min if whole_min is None else min(column.statistics.min, whole_min)
         whole_max = column.statistics.max if whole_max is None else max(column.statistics.max, whole_max)
+        prev_max = column.statistics.max
     return True, whole_min, whole_max
 
 
