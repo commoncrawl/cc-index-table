@@ -25,8 +25,8 @@ def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> 
             # internally unsorted
             print(f"row group {row_group_index} is not sorted on {column_name}: '{column.statistics.min}' <= '{prev_max}' ; stopping")
             return False, None, None
-        whole_min = column.statistics.min if whole_min is None else column.statistics.min
-        whole_max = column.statistics.max if whole_max is None else column.statistics.max
+        whole_min = column.statistics.min if whole_min is None else min(column.statistics.min, whole_min)
+        whole_max = column.statistics.max if whole_max is None else max(column.statistics.max, whole_max)
     return True, whole_min, whole_max
 
 
