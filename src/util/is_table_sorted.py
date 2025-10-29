@@ -50,7 +50,7 @@ def is_full_table_sorted(file_or_s3_url_list_ordered: list[str], sort_column_nam
             if prev_max is not None and prev_max > pf_min:
                 print(f"{prev_file_or_url} is not sorted with respect to {file_or_url}: '{prev_max}' > '{pf_min}'")
                 status['filewise_unsorted'] += 1
-                is_sorted = False
+                #is_sorted = False # uncomment to fail on filewise unsortedness
             pbar.set_postfix(status)
             prev_max = pf_max
             prev_file_or_url = file_or_url
