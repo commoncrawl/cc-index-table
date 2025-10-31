@@ -4,13 +4,12 @@ import pyarrow.parquet as pq
 import argparse
 
 from urllib.parse import urlparse
-from urllib.request import urlopen
 import boto3
 import gzip
 from tqdm.auto import tqdm
 
 
-def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> tuple[bool, str|None, str|None]:
+def are_parquet_file_row_groups_min_max_ordered(pf: pq.ParquetFile, column_name: str) -> bool:
     sort_column_index = next(i for i, name in enumerate(pf.schema.names)
                              if name == column_name)
 
@@ -22,38 +21,29 @@ def are_parquet_file_row_groups_sorted(pf: pq.ParquetFile, column_name: str) -> 
         row_group = pf.metadata.row_group(row_group_index)
         column = row_group.column(sort_column_index)
         if prev_max is not None and prev_max > column.statistics.min:
-            # internally unsorted
-            print(f"row group {row_group_index} is not sorted on {column_name}: '{column.statistics.min}' <= '{prev_max}' ; stopping")
-            return False, None, None
+            print(f"row group {row_group_index} min is not strictly increasing w.r.t previous row group max on {column_name}: '{column.statistics.min}' <= '{prev_max}' ; stopping")
+            return False
         whole_min = column.statistics.min if whole_min is None else min(column.statistics.min, whole_min)
         whole_max = column.statistics.max if whole_max is None else max(column.statistics.max, whole_max)
         prev_max = column.statistics.max
-    return True, whole_min, whole_max
+    return True
 
 
-def is_full_table_sorted(file_or_s3_url_list_ordered: list[str], sort_column_name: str) -> bool:
+def are_all_parts_min_max_ordered(file_or_s3_url_list: list[str], sort_column_name: str) -> bool:
     is_sorted = True
-    prev_max = None
-    prev_file_or_url = None
     status = defaultdict(int)
-    with tqdm(file_or_s3_url_list_ordered) as pbar:
+    with tqdm(file_or_s3_url_list) as pbar:
         for file_or_url in pbar:
             pf = pq.ParquetFile(file_or_url)
-            this_is_sorted, pf_min, pf_max = are_parquet_file_row_groups_sorted(pf, column_name=sort_column_name)
+            this_is_sorted = are_parquet_file_row_groups_min_max_ordered(pf, column_name=sort_column_name)
             if not this_is_sorted:
                 print(
-                    f"Row groups are *internally* not sorted in file {file_or_url}"
+                    f"Row groups are *internally* not ordered by min/max in file {file_or_url}"
                 )
                 is_sorted = False
                 status['internally_unsorted'] += 1
 
-            if prev_max is not None and prev_max > pf_min:
-                print(f"{prev_file_or_url} is not sorted with respect to {file_or_url}: '{prev_max}' > '{pf_min}'")
-                status['filewise_unsorted'] += 1
-                #is_sorted = False # uncomment to fail on filewise unsortedness
             pbar.set_postfix(status)
-            prev_max = pf_max
-            prev_file_or_url = file_or_url
     return is_sorted
 
 
@@ -69,11 +59,8 @@ def read_file_list(path_or_url: str, prefix: str) -> list[str]:
         key = parsed.path.lstrip("/")
         obj = s3.get_object(Bucket=bucket, Key=key)
         content = obj["Body"].read()
-    elif parsed.scheme in ("http", "https"):
-        with urlopen(path_or_url) as f:
-            content = f.read()
     else:
-        with open(path_or_url, "r") as f:
+        with open(path_or_url, "rb") as f:
             content = f.read()
 
     if is_gzip(content):
@@ -83,15 +70,15 @@ def read_file_list(path_or_url: str, prefix: str) -> list[str]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Check if a collection of Parquet files, considered as a whole, is sorted. Exit code is 0 if sorted, 1 if not sorted.")
-    parser.add_argument("files_or_s3_urls_file", type=str, help="URI or path to a text file containing a list of paths, URLs, or S3 URLs, one per line, in the expected sorted order.")
+    parser = argparse.ArgumentParser(description="Check if row groups within parquet files have strictly increasing non-overlapping min/max ranges. Exit code is 0 if sorted, 1 if not sorted.")
+    parser.add_argument("files_or_s3_urls_file", type=str, help="path or s3:// URI to a text file containing a list of paths, to check; used in combination with --prefix to recover individual file paths.")
     parser.add_argument("--prefix", type=str, default="s3://commoncrawl/", help="Prefix to prepend to entries read from the file (default: 's3://commoncrawl/')")
-    parser.add_argument("--column", type=str, default="url_surtkey", help="Column name to check sorting against (default: 'url_surtkey')")
+    parser.add_argument("--column", type=str, default="url_surtkey", help="Column name to check against (default: 'url_surtkey')")
 
     args = parser.parse_args()
 
     files = read_file_list(args.files_or_s3_urls_file, prefix=args.prefix)
-    is_sorted = is_full_table_sorted(files, sort_column_name=args.column)
+    is_sorted = are_all_parts_min_max_ordered(files, sort_column_name=args.column)
     if is_sorted:
         print("✅ Files are sorted")
         exit(0)

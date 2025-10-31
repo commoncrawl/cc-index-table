@@ -1,7 +1,7 @@
 import random
 from unittest.mock import MagicMock, patch
 
-from util.is_table_sorted import are_parquet_file_row_groups_sorted, is_full_table_sorted
+from util.are_part_min_max_increasing import are_parquet_file_row_groups_min_max_ordered, are_all_parts_min_max_ordered
 
 
 def _create_mock_parquet_file(column_name: str, row_groups_stats: list[tuple[str, str]]):
@@ -24,10 +24,8 @@ def _create_mock_parquet_file(column_name: str, row_groups_stats: list[tuple[str
 
 def test_single_row_group_sorted():
     mock_pf = _create_mock_parquet_file('url_surtkey', [('a', 'b')])
-    is_sorted, min_val, max_val = are_parquet_file_row_groups_sorted(mock_pf, column_name='url_surtkey')
+    is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
     assert is_sorted
-    assert min_val == 'a'
-    assert max_val == 'b'
 
 
 def test_row_groups_sorted():
@@ -35,11 +33,8 @@ def test_row_groups_sorted():
     for n in range(1, len(all_row_groups_stats)):
         row_groups_stats = all_row_groups_stats[:n]
         mock_pf = _create_mock_parquet_file('url_surtkey', row_groups_stats)
-        is_sorted, min_val, max_val = are_parquet_file_row_groups_sorted(mock_pf, column_name='url_surtkey')
+        is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
         assert is_sorted
-        assert is_sorted
-        assert min_val == row_groups_stats[0][0]
-        assert max_val == row_groups_stats[-1][1]
 
 
 def test_row_groups_unsorted():
@@ -54,7 +49,7 @@ def test_row_groups_unsorted():
                 continue
 
             mock_pf = _create_mock_parquet_file('url_surtkey', row_groups_stats)
-            is_sorted, min_val, max_val = are_parquet_file_row_groups_sorted(mock_pf, column_name='url_surtkey')
+            is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
             assert not is_sorted
 
         count += 1
@@ -63,7 +58,7 @@ def test_row_groups_unsorted():
 def test_row_groups_overlapping():
     row_groups = [('a', 'c'), ('b', 'd')]
     mock_pf = _create_mock_parquet_file('url_surtkey', row_groups)
-    is_sorted, min_val, max_val = are_parquet_file_row_groups_sorted(mock_pf, column_name='url_surtkey')
+    is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
     assert not is_sorted
 
 
@@ -78,7 +73,7 @@ def test_ordered_files_sorted():
         return _create_mock_parquet_file('url_surtkey', files_config[path])
 
     with patch('pyarrow.parquet.ParquetFile', side_effect=mock_parquet_file):
-        result = is_full_table_sorted(['/data/a', '/data/b', '/data/c'], 'url_surtkey')
+        result = are_all_parts_min_max_ordered(['/data/a', '/data/b', '/data/c'], 'url_surtkey')
         assert result
 
 
@@ -93,6 +88,6 @@ def test_ordered_files_unsorted():
         return _create_mock_parquet_file('url_surtkey', files_config[path])
 
     with patch('pyarrow.parquet.ParquetFile', side_effect=mock_parquet_file):
-        result = is_full_table_sorted(['/data/a', '/data/c', '/data/b'], 'url_surtkey')
+        result = are_all_parts_min_max_ordered(['/data/a', '/data/c', '/data/b'], 'url_surtkey')
         assert result  # we don't care about the order of files
 
