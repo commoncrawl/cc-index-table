@@ -1,0 +1,11 @@
+[project]
+name = "cc-index-table"
+version = "0.1.0"
+description = "Tools for working with Common Crawl index tables."
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.40.61",
+    "pyarrow>=22.0.0",
+    "pytest>=8.4.2",
+    "tqdm>=4.67.1",
+]
