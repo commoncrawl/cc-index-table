@@ -55,6 +55,27 @@ def test_row_groups_unsorted():
         count += 1
 
 
+def test_row_groups_null_stats_inorder():
+    row_groups = [('a', 'b'), (None, None), ('c', 'd')]
+    mock_pf = _create_mock_parquet_file('url_surtkey', row_groups)
+    is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
+    assert is_sorted
+
+
+def test_row_groups_null_stats_out_of_order():
+    row_groups = [('c', 'd'), (None, None), ('a', 'b')]
+    mock_pf = _create_mock_parquet_file('url_surtkey', row_groups)
+    is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
+    assert not is_sorted
+
+
+def test_row_groups_overlapping_min_max():
+    row_groups = [('a', 'b'), ('b', 'd'), ('e', 'f'), ('g', 'h')]
+    mock_pf = _create_mock_parquet_file('url_surtkey', row_groups)
+    is_sorted = are_parquet_file_row_groups_min_max_ordered(mock_pf, column_name='url_surtkey')
+    assert is_sorted
+
+
 def test_row_groups_overlapping():
     row_groups = [('a', 'c'), ('b', 'd')]
     mock_pf = _create_mock_parquet_file('url_surtkey', row_groups)
