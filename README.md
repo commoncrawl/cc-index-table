@@ -314,3 +314,9 @@ It's also possible to pass the result of SQL query as a CSV file, e.g., an Athen
    ...
 ```
 
+## Part Row Group Test
+
+This repository also includes a tool to check whether the row groups in a given table part parquet file have increasing min/max values - see `util/are_part_min_max_increasing.py`. 
+
+Note that this tool only checks that, within a single `.parquet` file, each row group's `.min` is greater than or equal to the previous row group's `.max`; further, the context of this condition is restricted to a single parquet file. For cases where the table as a whole consists of multiple parquet files, the condition may not hold across file boundaries.
+
