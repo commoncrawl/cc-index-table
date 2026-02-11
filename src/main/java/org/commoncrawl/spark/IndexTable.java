@@ -406,7 +406,7 @@ public class IndexTable {
 		String[] partitionColumns = {};
 		if (!partitionBy.trim().isEmpty()) {
 			partitionColumns = partitionBy.trim().split("\\s*,\\s*");
-			Column[] pCols =  new Column[partitionColumns.length + 1];
+			Column[] pCols = new Column[partitionColumns.length + 1];
 			for (int i = 0; i < partitionColumns.length; i++) {
 				pCols[i] = df.col(partitionColumns[i]);
 			}
@@ -538,7 +538,7 @@ public class IndexTable {
 		String inputPaths = arguments[0];
 		String outputPath = arguments[1];
 
-		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression) ) {
+		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression)) {
 			// gzip for Parquet, zlib for ORC
 			outputCompression = "zlib";
 		}

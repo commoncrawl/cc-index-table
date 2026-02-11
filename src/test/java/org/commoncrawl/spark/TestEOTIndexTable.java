@@ -22,7 +22,6 @@ import org.apache.spark.sql.Row;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
 public class TestEOTIndexTable extends TestIndexTableBase {
 
 	protected String getCdxLine() {

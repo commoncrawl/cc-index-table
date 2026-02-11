@@ -26,7 +26,6 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-
 public class TestURL {
 
 	public static final byte[] ip4vAddr = { 123, 123, 123, 123 };
@@ -62,7 +61,6 @@ public class TestURL {
 	public static final String privateDomain = "myblog.blogspot.com";
 
 	public static final String invalidDomain = "example.invalid";
-
 
 	private String getHostName(String url) {
 		WarcUri u = new WarcUri(url);

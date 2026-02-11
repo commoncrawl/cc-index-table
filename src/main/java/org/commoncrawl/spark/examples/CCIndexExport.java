@@ -145,7 +145,7 @@ public class CCIndexExport {
 			numOutputPartitions = Integer.parseInt(cli.getOptionValue("numOutputPartitions"));
 		}
 
-		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression) ) {
+		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression)) {
 			// gzip for Parquet, zlib for ORC
 			outputCompression = "zlib";
 		}

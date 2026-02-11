@@ -60,7 +60,7 @@ public class CCIndex2Table extends IndexTable {
 			mime = getString("mime");
 			mimeDetected = getString("mime-detected");
 
-			filename =  getString("filename");
+			filename = getString("filename");
 			offset = getInt("offset");
 			length = getInt("length");
 			status = getHttpStatus("status");
@@ -90,37 +90,36 @@ public class CCIndex2Table extends IndexTable {
 		}
 		if (useBuiltinNestedSchema) {
 			// Note: the row layout must be congruent with the built-in schema
-			return RowFactory.create(
-					RowFactory.create(
-							cdx.urlkey,
-							cdx.uri.getUrlString(),
-							cdx.uri.getHostName().asRow(),
-							cdx.uri.getProtocol(),
-							cdx.uri.getPort(),
-							cdx.uri.getPath(),
-							cdx.uri.getQuery()),
-					RowFactory.create(cdx.timestamp, cdx.status, cdx.redirect),
-					RowFactory.create(cdx.digest, cdx.mime, cdx.mimeDetected,
-							cdx.charset, cdx.languages, cdx.truncated),
-					RowFactory.create(cdx.filename, cdx.offset, cdx.length, cdx.segment),
+			return RowFactory.create(RowFactory.create( //
+					cdx.urlkey, //
+					cdx.uri.getUrlString(), //
+					cdx.uri.getHostName().asRow(), //
+					cdx.uri.getProtocol(), //
+					cdx.uri.getPort(), //
+					cdx.uri.getPath(), //
+					cdx.uri.getQuery()), //
+					RowFactory.create(cdx.timestamp, cdx.status, cdx.redirect), //
+					RowFactory.create(cdx.digest, cdx.mime, cdx.mimeDetected, cdx.charset, cdx.languages,
+							cdx.truncated), //
+					RowFactory.create(cdx.filename, cdx.offset, cdx.length, cdx.segment), //
 					cdx.crawl, cdx.subset);
 		} else {
 			Row h = cdx.uri.getHostName().asRow();
 			return RowFactory.create(
 					// SURT and complete URL
-					cdx.urlkey,
+					cdx.urlkey, //
 					cdx.uri.getUrlString(),
 					// host
-					h.get(0), h.get(1),
-					h.get(2), h.get(3),
-					h.get(4), h.get(5),
-					h.get(6), h.get(7),
-					h.get(8), h.get(9),
+					h.get(0), h.get(1), //
+					h.get(2), h.get(3), //
+					h.get(4), h.get(5), //
+					h.get(6), h.get(7), //
+					h.get(8), h.get(9), //
 					h.get(10),
 					// URL components
-					cdx.uri.getProtocol(),
-					cdx.uri.getPort(),
-					cdx.uri.getPath(),
+					cdx.uri.getProtocol(), //
+					cdx.uri.getPort(), //
+					cdx.uri.getPath(), //
 					cdx.uri.getQuery(),
 					// fetch info
 					cdx.timestamp, cdx.status,

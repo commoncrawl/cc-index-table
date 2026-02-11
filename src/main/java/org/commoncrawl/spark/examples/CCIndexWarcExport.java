@@ -46,8 +46,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
-
-
 public class CCIndexWarcExport extends CCIndexExport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CCIndexExport.class);
@@ -134,8 +132,7 @@ public class CCIndexWarcExport extends CCIndexExport {
 					.range(range.toString()).build(), ResponseTransformer.toBytes()).asByteArray();
 			return bytes;
 		} catch (SdkClientException | S3Exception e) {
-			LOG.error("Failed to fetch s3://{}/{} ({}): {}",
-					COMMON_CRAWL_BUCKET, filename, range, e.getMessage(), e);
+			LOG.error("Failed to fetch s3://{}/{} ({}): {}", COMMON_CRAWL_BUCKET, filename, range, e.getMessage(), e);
 		}
 		return null;
 	}
@@ -175,8 +172,8 @@ public class CCIndexWarcExport extends CCIndexExport {
 				.toJavaRDD();
 
 		// fetch WARC content from s3://commoncrawl/ and map to paired RDD
-		//   <Text url, byte[] warc_record>
-		JavaPairRDD<Text,byte[]> res = rdd.mapPartitionsToPair((Iterator<Row> rows) -> {
+		// <Text url, byte[] warc_record>
+		JavaPairRDD<Text, byte[]> res = rdd.mapPartitionsToPair((Iterator<Row> rows) -> {
 			ArrayList<scala.Tuple2<Text, byte[]>> reslist = new ArrayList<>();
 			StandardRetryStrategy strategy = AwsRetryStrategy.standardRetryStrategy().toBuilder()
 					.maxAttempts(maxS3RetryAttempts).build();

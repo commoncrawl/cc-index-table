@@ -23,7 +23,6 @@ import org.apache.spark.scheduler.SparkListenerTaskEnd;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /** Accumulate and report Spark metrics. */
 public class JobStatsListener extends SparkListener {
 
@@ -50,13 +49,13 @@ public class JobStatsListener extends SparkListener {
 
 	private static String prettyPrintBytes(long value) {
 		if (value >= 1099511627776L)
-			return String.format("%.3f TB", value/1099511627776.0);
+			return String.format("%.3f TB", value / 1099511627776.0);
 		if (value >= 1073741824)
-			return String.format("%.3f GB", value/1073741824.0);
+			return String.format("%.3f GB", value / 1073741824.0);
 		if (value >= 1048576)
-			return String.format("%.3f MB", value/1048576.0);
+			return String.format("%.3f MB", value / 1048576.0);
 		if (value >= 1024)
-			return String.format("%.3f kB", value/1024.0);
+			return String.format("%.3f kB", value / 1024.0);
 		return String.format("%d bytes", value);
 	}
 

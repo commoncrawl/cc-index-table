@@ -42,9 +42,7 @@ public class HostName {
 	private static final Logger LOG = LoggerFactory.getLogger(HostName.class);
 
 	public static enum Type {
-		hostname,
-		IPv4,
-		IPv6
+		hostname, IPv4, IPv6
 	}
 
 	private Type type;
@@ -70,7 +68,10 @@ public class HostName {
 	public static final Pattern IPV4_ADDRESS_PATTERN_VARIANT_DECIMAL = Pattern
 			.compile("(?:(?:25[0-5]|(?:2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){0,3}(?:[0-9]+)");
 
-	/** Lazy pattern to catch IPv6 addresses (or what looks similar, does not validate) */
+	/**
+	 * Lazy pattern to catch IPv6 addresses (or what looks similar, does not
+	 * validate)
+	 */
 	public static final Pattern IPV6_ADDRESS_PATTERN = Pattern.compile("\\[[0-9a-fA-F:]+\\]");
 
 	public HostName(String hostName) {
@@ -148,7 +149,7 @@ public class HostName {
 				}
 			}
 			if (hostName.endsWith(".")) {
-				hostName = hostName.substring(0, hostName.length()-1);
+				hostName = hostName.substring(0, hostName.length() - 1);
 			}
 			revHost = reverseHost(hostName);
 			EffectiveTLD privateETld = EffectiveTldFinder.getEffectiveTLD(hostName, false);
@@ -218,7 +219,7 @@ public class HostName {
 	 */
 	public static String[] reverseHost(String hostName) {
 		String[] rev = SPLIT_HOST_PATTERN.split(hostName);
-		for (int i = 0; i < (rev.length/2); i++) {
+		for (int i = 0; i < (rev.length / 2); i++) {
 			String temp = rev[i];
 			rev[i] = rev[rev.length - i - 1];
 			rev[rev.length - i - 1] = temp;
@@ -250,7 +251,8 @@ public class HostName {
 	 * otherwise specified):
 	 * <ol>
 	 * <li>host name
-	 * <li>parts 1 - 5 of the reversed host name (first part is the top-level domain)
+	 * <li>parts 1 - 5 of the reversed host name (first part is the top-level
+	 * domain)
 	 * <li>registry suffix
 	 * <li>domain name below registry suffix
 	 * <li>private suffix
@@ -264,18 +266,17 @@ public class HostName {
 	 * @return row
 	 */
 	public Row asRow() {
-		return RowFactory.create(
-				hostName,
-				((revHost != null && revHost.length > 0) ? revHost[0] : null),
-				((revHost != null && revHost.length > 1) ? revHost[1] : null),
-				((revHost != null && revHost.length > 2) ? revHost[2] : null),
-				((revHost != null && revHost.length > 3) ? revHost[3] : null),
-				((revHost != null && revHost.length > 4) ? revHost[4] : null),
-				getRegistrySuffix(),
-				getDomainNameUnderRegistrySuffix(),
-				getPrivateSuffix(),
-				getPrivateDomainName(),
-				getHostNameReversed()
-				);
+		return RowFactory.create( //
+				hostName, //
+				((revHost != null && revHost.length > 0) ? revHost[0] : null), //
+				((revHost != null && revHost.length > 1) ? revHost[1] : null), //
+				((revHost != null && revHost.length > 2) ? revHost[2] : null), //
+				((revHost != null && revHost.length > 3) ? revHost[3] : null), //
+				((revHost != null && revHost.length > 4) ? revHost[4] : null), //
+				getRegistrySuffix(), //
+				getDomainNameUnderRegistrySuffix(), //
+				getPrivateSuffix(), //
+				getPrivateDomainName(), //
+				getHostNameReversed());
 	}
 }

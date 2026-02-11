@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.apache.spark.sql.Row;
 import org.junit.jupiter.api.Test;
 
-
 public class TestIndexTable extends TestIndexTableBase {
 
 	private String minimalSchemaDefinition = "/schema/index-schema-simple.json";
