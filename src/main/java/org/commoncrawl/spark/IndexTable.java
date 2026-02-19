@@ -453,14 +453,17 @@ public class IndexTable {
 	protected Options addCommandLineOptions(Options options) {
 		options.addOption(new Option("h", "help", false, "Show this message"))
 				.addOption(new Option(null, "verbose", false, "be verbose"))
-				.addOption(new Option(null, "partitionBy", true,
-						"partition data by columns (comma-separated, default: crawl,subset)"))
-				.addOption(new Option(null, "schema", true,
-						"use a custom schema provided as JSON file read from the classpath "
-								+ "(otherwise the built-in schema is used)"))
+				.addOption(
+						new Option(null, "partitionBy", true,
+								"partition data by columns (comma-separated, default: crawl,subset)"))
+				.addOption(
+						new Option(null, "schema", true,
+								"use a custom schema provided as JSON file read from the classpath "
+										+ "(otherwise the built-in schema is used)"))
 				.addOption(new Option(null, "outputFormat", true, "data output format: parquet (default), orc"))
-				.addOption(new Option(null, "outputCompression", true,
-						"data output compression codec: gzip/zlib (default), zstd, snappy, lzo, none"));
+				.addOption(
+						new Option(null, "outputCompression", true,
+								"data output compression codec: gzip/zlib (default), zstd, snappy, lzo, none"));
 		return options;
 	}
 

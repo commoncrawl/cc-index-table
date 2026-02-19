@@ -82,11 +82,16 @@ public class EOTIndexTable extends IndexTable {
 				cdx.urlkey, //
 				cdx.uri.getUrlString(), //
 				// host
-				h.get(0), h.get(1), //
-				h.get(2), h.get(3), //
-				h.get(4), h.get(5), //
-				h.get(6), h.get(7), //
-				h.get(8), h.get(9), //
+				h.get(0),
+				h.get(1), //
+				h.get(2),
+				h.get(3), //
+				h.get(4),
+				h.get(5), //
+				h.get(6),
+				h.get(7), //
+				h.get(8),
+				h.get(9), //
 				h.get(10), //
 				// URL components
 				cdx.uri.getProtocol(), //
@@ -94,13 +99,19 @@ public class EOTIndexTable extends IndexTable {
 				cdx.uri.getPath(), //
 				cdx.uri.getQuery(), //
 				// fetch info
-				cdx.timestamp, cdx.status,
+				cdx.timestamp,
+				cdx.status,
 				// content-related
-				cdx.digest, cdx.mime,
+				cdx.digest,
+				cdx.mime,
 				// WARC record location
-				cdx.filename, cdx.offset, cdx.length, cdx.segment,
+				cdx.filename,
+				cdx.offset,
+				cdx.length,
+				cdx.segment,
 				// partition fields
-				cdx.crawl, cdx.subset);
+				cdx.crawl,
+				cdx.subset);
 	}
 
 	@Override

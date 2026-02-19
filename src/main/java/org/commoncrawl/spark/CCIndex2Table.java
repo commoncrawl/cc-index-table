@@ -90,19 +90,21 @@ public class CCIndex2Table extends IndexTable {
 		}
 		if (useBuiltinNestedSchema) {
 			// Note: the row layout must be congruent with the built-in schema
-			return RowFactory.create(RowFactory.create( //
-					cdx.urlkey, //
-					cdx.uri.getUrlString(), //
-					cdx.uri.getHostName().asRow(), //
-					cdx.uri.getProtocol(), //
-					cdx.uri.getPort(), //
-					cdx.uri.getPath(), //
-					cdx.uri.getQuery()), //
+			return RowFactory.create(
+					RowFactory.create( //
+							cdx.urlkey, //
+							cdx.uri.getUrlString(), //
+							cdx.uri.getHostName().asRow(), //
+							cdx.uri.getProtocol(), //
+							cdx.uri.getPort(), //
+							cdx.uri.getPath(), //
+							cdx.uri.getQuery()), //
 					RowFactory.create(cdx.timestamp, cdx.status, cdx.redirect), //
-					RowFactory.create(cdx.digest, cdx.mime, cdx.mimeDetected, cdx.charset, cdx.languages,
-							cdx.truncated), //
+					RowFactory
+							.create(cdx.digest, cdx.mime, cdx.mimeDetected, cdx.charset, cdx.languages, cdx.truncated), //
 					RowFactory.create(cdx.filename, cdx.offset, cdx.length, cdx.segment), //
-					cdx.crawl, cdx.subset);
+					cdx.crawl,
+					cdx.subset);
 		} else {
 			Row h = cdx.uri.getHostName().asRow();
 			return RowFactory.create(
@@ -110,11 +112,16 @@ public class CCIndex2Table extends IndexTable {
 					cdx.urlkey, //
 					cdx.uri.getUrlString(),
 					// host
-					h.get(0), h.get(1), //
-					h.get(2), h.get(3), //
-					h.get(4), h.get(5), //
-					h.get(6), h.get(7), //
-					h.get(8), h.get(9), //
+					h.get(0),
+					h.get(1), //
+					h.get(2),
+					h.get(3), //
+					h.get(4),
+					h.get(5), //
+					h.get(6),
+					h.get(7), //
+					h.get(8),
+					h.get(9), //
 					h.get(10),
 					// URL components
 					cdx.uri.getProtocol(), //
@@ -122,27 +129,36 @@ public class CCIndex2Table extends IndexTable {
 					cdx.uri.getPath(), //
 					cdx.uri.getQuery(),
 					// fetch info
-					cdx.timestamp, cdx.status,
+					cdx.timestamp,
+					cdx.status,
 					// HTTP redirects (since CC-MAIN-2019-47)
 					cdx.redirect,
 					// content-related
-					cdx.digest, cdx.mime, cdx.mimeDetected,
+					cdx.digest,
+					cdx.mime,
+					cdx.mimeDetected,
 					// content-related (since CC-MAIN-2018-34/CC-MAIN-2018-39)
-					cdx.charset, cdx.languages,
+					cdx.charset,
+					cdx.languages,
 					// content (WARC record payload) truncated (since CC-MAIN-2019-47)
 					cdx.truncated,
 					// WARC record location
-					cdx.filename, cdx.offset, cdx.length, cdx.segment,
+					cdx.filename,
+					cdx.offset,
+					cdx.length,
+					cdx.segment,
 					// partition fields
-					cdx.crawl, cdx.subset);
+					cdx.crawl,
+					cdx.subset);
 		}
 	}
 
 	@Override
 	protected Options addCommandLineOptions(Options options) {
 		super.addCommandLineOptions(options);
-		options.addOption(new Option(null, "useNestedSchema", false,
-				"use the built-in schema with nested columns (default: false, use flat built-in schema)"));
+		options.addOption(
+				new Option(null, "useNestedSchema", false,
+						"use the built-in schema with nested columns (default: false, use flat built-in schema)"));
 		return options;
 	}
 

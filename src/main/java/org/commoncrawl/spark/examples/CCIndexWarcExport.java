@@ -65,21 +65,25 @@ public class CCIndexWarcExport extends CCIndexExport {
 	@Override
 	protected void addOptions() {
 		Option query = options.getOption("query");
-		query.setDescription("SQL query to select rows. Note: the result is required to contain the columns `url', "
-				+ "`warc_filename', `warc_record_offset' and `warc_record_length', make sure they're SELECTed.");
-		OptionGroup g = options.getOptionGroup(query).addOption(query).addOption(new Option(null, "csv", true,
-				"CSV file to load WARC records by filename, offset and length. "
-						+ "The CSV file must have column headers and the input columns `url', `warc_filename', "
-						+ "`warc_record_offset' and `warc_record_length' are mandatory, see also option --query. "));
+		query.setDescription(
+				"SQL query to select rows. Note: the result is required to contain the columns `url', "
+						+ "`warc_filename', `warc_record_offset' and `warc_record_length', make sure they're SELECTed.");
+		OptionGroup g = options.getOptionGroup(query)
+				.addOption(query)
+				.addOption(
+						new Option(null, "csv", true, "CSV file to load WARC records by filename, offset and length. "
+								+ "The CSV file must have column headers and the input columns `url', `warc_filename', "
+								+ "`warc_record_offset' and `warc_record_length' are mandatory, see also option --query. "));
 		options.addOptionGroup(g);
 
 		options.addOption(
 				new Option(null, "numOutputPartitions", true, "repartition data to have <n> output partitions"));
-		options.addOption(new Option(null, "numRecordsPerWarcFile", true, "allow max. <n> records per WARC file. "
-				+ "This will repartition the data so that in average one partition contains not more than <n> rows. "
-				+ "Default is 10000, set to -1 to disable this option."
-				+ "\nNote: if both --numOutputPartitions and --numRecordsPerWarcFile are used, the former defines "
-				+ "the minimum number of partitions, the latter the maximum partition size."));
+		options.addOption(
+				new Option(null, "numRecordsPerWarcFile", true, "allow max. <n> records per WARC file. "
+						+ "This will repartition the data so that in average one partition contains not more than <n> rows. "
+						+ "Default is 10000, set to -1 to disable this option."
+						+ "\nNote: if both --numOutputPartitions and --numRecordsPerWarcFile are used, the former defines "
+						+ "the minimum number of partitions, the latter the maximum partition size."));
 
 		options.addOption(new Option(null, "warcPrefix", true, "WARC filename prefix"));
 		options.addOption(new Option(null, "warcCreator", true, "(WARC info record) creator of WARC export"));
@@ -125,11 +129,21 @@ public class CCIndexWarcExport extends CCIndexExport {
 	}
 
 	protected static byte[] getCCWarcRecord(S3Client s3, String filename, int offset, int length) {
-		String range = new StringBuilder().append("bytes=").append(offset).append('-').append(offset + length - 1)
+		String range = new StringBuilder().append("bytes=")
+				.append(offset)
+				.append('-')
+				.append(offset + length - 1)
 				.toString();
 		try {
-			byte[] bytes = s3.getObject(GetObjectRequest.builder().bucket(COMMON_CRAWL_BUCKET).key(filename)
-					.range(range.toString()).build(), ResponseTransformer.toBytes()).asByteArray();
+			byte[] bytes = s3
+					.getObject(
+							GetObjectRequest.builder()
+									.bucket(COMMON_CRAWL_BUCKET)
+									.key(filename)
+									.range(range.toString())
+									.build(),
+							ResponseTransformer.toBytes())
+					.asByteArray();
 			return bytes;
 		} catch (SdkClientException | S3Exception e) {
 			LOG.error("Failed to fetch s3://{}/{} ({}): {}", COMMON_CRAWL_BUCKET, filename, range, e.getMessage(), e);
@@ -142,7 +156,10 @@ public class CCIndexWarcExport extends CCIndexExport {
 
 		Dataset<Row> sqlDF;
 		if (csvQueryResult != null) {
-			sqlDF = sparkSession.read().format("csv").option("header", true).option("inferSchema", true)
+			sqlDF = sparkSession.read()
+					.format("csv")
+					.option("header", true)
+					.option("inferSchema", true)
 					.load(csvQueryResult);
 		} else {
 			loadTable(sparkSession, tablePath, tableName);
@@ -156,8 +173,11 @@ public class CCIndexWarcExport extends CCIndexExport {
 			int n = 1 + (int) (numRows / numRecordsPerWarcFile);
 			if (n > numOutputPartitions) {
 				numOutputPartitions = n;
-				LOG.info("Distributing {} records to {} output partitions (max. {} records per WARC file)", numRows,
-						numOutputPartitions, numRecordsPerWarcFile);
+				LOG.info(
+						"Distributing {} records to {} output partitions (max. {} records per WARC file)",
+						numRows,
+						numOutputPartitions,
+						numRecordsPerWarcFile);
 			} else {
 				// more output partitions requested
 				LOG.info("Distributing {} records to {} output partitions", numRows, numOutputPartitions);
@@ -168,17 +188,22 @@ public class CCIndexWarcExport extends CCIndexExport {
 			sqlDF = sqlDF.repartition(numOutputPartitions);
 		}
 
-		JavaRDD<Row> rdd = sqlDF.select("url", "warc_filename", "warc_record_offset", "warc_record_length").rdd()
+		JavaRDD<Row> rdd = sqlDF.select("url", "warc_filename", "warc_record_offset", "warc_record_length")
+				.rdd()
 				.toJavaRDD();
 
 		// fetch WARC content from s3://commoncrawl/ and map to paired RDD
 		// <Text url, byte[] warc_record>
 		JavaPairRDD<Text, byte[]> res = rdd.mapPartitionsToPair((Iterator<Row> rows) -> {
 			ArrayList<scala.Tuple2<Text, byte[]>> reslist = new ArrayList<>();
-			StandardRetryStrategy strategy = AwsRetryStrategy.standardRetryStrategy().toBuilder()
-					.maxAttempts(maxS3RetryAttempts).build();
-			S3Client s3 = S3Client.builder().region(Region.US_EAST_1)
-					.overrideConfiguration(o -> o.retryStrategy(strategy)).build();
+			StandardRetryStrategy strategy = AwsRetryStrategy.standardRetryStrategy()
+					.toBuilder()
+					.maxAttempts(maxS3RetryAttempts)
+					.build();
+			S3Client s3 = S3Client.builder()
+					.region(Region.US_EAST_1)
+					.overrideConfiguration(o -> o.retryStrategy(strategy))
+					.build();
 			while (rows.hasNext()) {
 				Row row = rows.next();
 				String url = row.getString(0);
@@ -203,7 +228,8 @@ public class CCIndexWarcExport extends CCIndexExport {
 		if (warcOperator != null) {
 			conf.set("warc.export.operator", warcOperator);
 		}
-		conf.set("warc.export.software",
+		conf.set(
+				"warc.export.software",
 				getClass().getCanonicalName() + " (Spark " + sparkSession.sparkContext().version() + ")");
 		if (warcDescription == null) {
 			warcDescription = "Common Crawl WARC export from " + tablePath + " for query: " + sqlQuery;
