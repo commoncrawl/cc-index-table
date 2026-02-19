@@ -33,7 +33,7 @@ public class TestURL {
 	public static final List<String> ipv4URLs = new ArrayList<>();
 	static {
 		/* IP v4 addresses in various formats */
-		String[] formats = { "%d.%d.%d.%d", "%d.%d.%d", "%d.%d", "%d" };
+		String[] formats = { "%d.%d.%d.%d", "%d.%d.%d", "%d.%d", "%d", "%d.%d.%d.%d." };
 		for (String format : formats) {
 			String ipv4Host;
 			if (format.length() >= 11) {
