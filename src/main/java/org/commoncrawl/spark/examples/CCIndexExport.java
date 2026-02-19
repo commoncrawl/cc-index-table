@@ -100,15 +100,18 @@ public class CCIndexExport {
 	}
 
 	protected void addOptions() {
-		options.addOption(new Option(null, "outputPartitionBy", true,
-				"partition data by columns (comma-separated, default: crawl,subset)"))
+		options.addOption(
+				new Option(null, "outputPartitionBy", true,
+						"partition data by columns (comma-separated, default: crawl,subset)"))
 				.addOption(
 						new Option(null, "outputFormat", true, "data output format: parquet (default), orc, json, csv"))
-				.addOption(new Option(null, "outputCompression", true,
-						"data output compression codec: none, gzip/zlib (default), snappy, lzo, etc."
-								+ "\nNote: the availability of compression options depends on the chosen output format."))
-				.addOption(new Option(null, "numOutputPartitions", true,
-						"repartition data to have <n> output partitions"));
+				.addOption(
+						new Option(null, "outputCompression", true,
+								"data output compression codec: none, gzip/zlib (default), snappy, lzo, etc."
+										+ "\nNote: the availability of compression options depends on the chosen output format."))
+				.addOption(
+						new Option(null, "numOutputPartitions", true,
+								"repartition data to have <n> output partitions"));
 	}
 
 	protected int parseOptions(String[] args, List<String> arguments) {
@@ -145,7 +148,7 @@ public class CCIndexExport {
 			numOutputPartitions = Integer.parseInt(cli.getOptionValue("numOutputPartitions"));
 		}
 
-		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression) ) {
+		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression)) {
 			// gzip for Parquet, zlib for ORC
 			outputCompression = "zlib";
 		}

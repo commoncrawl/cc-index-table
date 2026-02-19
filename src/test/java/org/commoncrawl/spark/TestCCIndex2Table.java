@@ -21,7 +21,6 @@ import java.io.IOException;
 import org.apache.spark.sql.Row;
 import org.junit.jupiter.api.Test;
 
-
 public class TestCCIndex2Table extends TestIndexTableBase {
 
 	protected String getCdxLine() {

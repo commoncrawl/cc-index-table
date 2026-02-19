@@ -26,7 +26,6 @@ import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
-
 public class TestURL {
 
 	public static final byte[] ip4vAddr = { 123, 123, 123, 123 };
@@ -40,13 +39,18 @@ public class TestURL {
 			if (format.length() >= 11) {
 				ipv4Host = String.format(Locale.ROOT, format, ip4vAddr[0], ip4vAddr[1], ip4vAddr[2], ip4vAddr[3]);
 			} else if (format.length() >= 8) {
-				ipv4Host = String.format(Locale.ROOT, format, ip4vAddr[0], ip4vAddr[1],
-						(ip4vAddr[2] << 8) + ip4vAddr[3]);
+				ipv4Host = String
+						.format(Locale.ROOT, format, ip4vAddr[0], ip4vAddr[1], (ip4vAddr[2] << 8) + ip4vAddr[3]);
 			} else if (format.length() >= 5) {
-				ipv4Host = String.format(Locale.ROOT, format, ip4vAddr[0],
+				ipv4Host = String.format(
+						Locale.ROOT,
+						format,
+						ip4vAddr[0],
 						(ip4vAddr[1] << 16) + (ip4vAddr[2] << 8) + ip4vAddr[3]);
 			} else {
-				ipv4Host = String.format(Locale.ROOT, format,
+				ipv4Host = String.format(
+						Locale.ROOT,
+						format,
 						(ip4vAddr[0] << 24) + (ip4vAddr[1] << 16) + (ip4vAddr[2] << 8) + ip4vAddr[3]);
 			}
 			ipv4Hosts.add(ipv4Host);
@@ -62,7 +66,6 @@ public class TestURL {
 	public static final String privateDomain = "myblog.blogspot.com";
 
 	public static final String invalidDomain = "example.invalid";
-
 
 	private String getHostName(String url) {
 		WarcUri u = new WarcUri(url);

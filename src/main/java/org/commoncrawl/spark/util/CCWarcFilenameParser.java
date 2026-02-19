@@ -34,12 +34,12 @@ public class CCWarcFilenameParser {
 		public String subset;
 	}
 
-    // Error class if we can't find the crawl, segment, and subset.
-    public static class FilenameParseError extends Exception {
-        public FilenameParseError(String message) {
-            super(message);
-        }
-    }
+	// Error class if we can't find the crawl, segment, and subset.
+	public static class FilenameParseError extends Exception {
+		public FilenameParseError(String message) {
+			super(message);
+		}
+	}
 
 	public static FilenameParts getParts(String filename) throws FilenameParseError {
 		FilenameParts parts = new FilenameParts();

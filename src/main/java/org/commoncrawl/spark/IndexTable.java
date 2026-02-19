@@ -406,7 +406,7 @@ public class IndexTable {
 		String[] partitionColumns = {};
 		if (!partitionBy.trim().isEmpty()) {
 			partitionColumns = partitionBy.trim().split("\\s*,\\s*");
-			Column[] pCols =  new Column[partitionColumns.length + 1];
+			Column[] pCols = new Column[partitionColumns.length + 1];
 			for (int i = 0; i < partitionColumns.length; i++) {
 				pCols[i] = df.col(partitionColumns[i]);
 			}
@@ -453,14 +453,17 @@ public class IndexTable {
 	protected Options addCommandLineOptions(Options options) {
 		options.addOption(new Option("h", "help", false, "Show this message"))
 				.addOption(new Option(null, "verbose", false, "be verbose"))
-				.addOption(new Option(null, "partitionBy", true,
-						"partition data by columns (comma-separated, default: crawl,subset)"))
-				.addOption(new Option(null, "schema", true,
-						"use a custom schema provided as JSON file read from the classpath "
-								+ "(otherwise the built-in schema is used)"))
+				.addOption(
+						new Option(null, "partitionBy", true,
+								"partition data by columns (comma-separated, default: crawl,subset)"))
+				.addOption(
+						new Option(null, "schema", true,
+								"use a custom schema provided as JSON file read from the classpath "
+										+ "(otherwise the built-in schema is used)"))
 				.addOption(new Option(null, "outputFormat", true, "data output format: parquet (default), orc"))
-				.addOption(new Option(null, "outputCompression", true,
-						"data output compression codec: gzip/zlib (default), zstd, snappy, lzo, none"));
+				.addOption(
+						new Option(null, "outputCompression", true,
+								"data output compression codec: gzip/zlib (default), zstd, snappy, lzo, none"));
 		return options;
 	}
 
@@ -538,7 +541,7 @@ public class IndexTable {
 		String inputPaths = arguments[0];
 		String outputPath = arguments[1];
 
-		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression) ) {
+		if ("orc".equals(outputFormat) && "gzip".equals(outputCompression)) {
 			// gzip for Parquet, zlib for ORC
 			outputCompression = "zlib";
 		}
