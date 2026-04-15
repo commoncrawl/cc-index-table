@@ -22,7 +22,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 5
     ignore:
-      - dependency-name: "commons-cli" # needs to be in sync with Hadoop / Spark
+      - dependency-name: "commons-cli:commons-cli" # needs to be in sync with the version provided by Hadoop / Spark
 
   - package-ecosystem: "github-actions"
     directory: "/"
