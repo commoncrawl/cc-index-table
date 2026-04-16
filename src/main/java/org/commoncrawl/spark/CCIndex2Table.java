@@ -43,6 +43,7 @@ public class CCIndex2Table extends IndexTable {
 		String redirect;
 		String digest;
 		String mime, mimeDetected;
+		String recordid, ipaddress;
 		String filename;
 		int offset, length;
 		short status;
@@ -60,6 +61,8 @@ public class CCIndex2Table extends IndexTable {
 			mime = getString("mime");
 			mimeDetected = getString("mime-detected");
 
+			recordid = getString("recordid");
+			ipaddress = getString("ipaddress");
 			filename = getString("filename");
 			offset = getInt("offset");
 			length = getInt("length");
@@ -102,7 +105,7 @@ public class CCIndex2Table extends IndexTable {
 					RowFactory.create(cdx.timestamp, cdx.status, cdx.redirect), //
 					RowFactory
 							.create(cdx.digest, cdx.mime, cdx.mimeDetected, cdx.charset, cdx.languages, cdx.truncated), //
-					RowFactory.create(cdx.filename, cdx.offset, cdx.length, cdx.segment), //
+					RowFactory.create(cdx.recordid, cdx.ipaddress, cdx.filename, cdx.offset, cdx.length, cdx.segment), //
 					cdx.crawl,
 					cdx.subset);
 		} else {
@@ -142,6 +145,9 @@ public class CCIndex2Table extends IndexTable {
 					cdx.languages,
 					// content (WARC record payload) truncated (since CC-MAIN-2019-47)
 					cdx.truncated,
+					// WARC record headers
+					cdx.recordid,
+					cdx.ipaddress,
 					// WARC record location
 					cdx.filename,
 					cdx.offset,

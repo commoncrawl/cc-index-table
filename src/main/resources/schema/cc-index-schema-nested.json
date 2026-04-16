@@ -299,6 +299,28 @@
         "type": "struct",
         "fields": [
           {
+            "name": "record_id",
+            "type": "string",
+            "nullable": true,
+            "metadata": {
+              "description": "UUID of the WARC record (WARC-Record-ID)",
+              "example": "019d6d22-5cf4-7ad9-8a24-81690cf43c7d",
+              "since": "CC-MAIN-2026-21",
+              "fromCDX": "recordid"
+            }
+          },
+          {
+            "name": "ip_address",
+            "type": "string",
+            "nullable": true,
+            "metadata": {
+              "description": "Numeric IP address contacted to retrieve the content (WARC-IP-Address)",
+              "example": "198.202.211.1 or 2620:cb:2000::1",
+              "since": "CC-MAIN-2026-21",
+              "fromCDX": "ipaddress"
+            }
+          },
+          {
             "name": "filename",
             "type": "string",
             "nullable": false,
