@@ -39,6 +39,10 @@ public class CCWarcFilenameParser {
 	protected static final Pattern newsFilenameAnalyzer = Pattern
 			.compile("^(?:common-crawl/)?crawl-data/CC-NEWS/(\\d+)/(\\d+)/CC-NEWS-(.+)\\.warc\\.gz");
 
+	/** Test crawl filename pattern */
+	protected static final Pattern testCrawlFilenameAnalyzer = Pattern
+			.compile("^[^/]+/[^/]+/(\\d+)/(crawldiagnostics|robotstxt|warc)/CC-TEST-(.+)\\.warc\\.gz");
+
 	/** Encapsulate the extracted crawl, segment, and subset. */
 	public static class FilenameParts {
 		public String crawl;
@@ -71,6 +75,23 @@ public class CCWarcFilenameParser {
 		if (m.find()) {
 			String crawl = String.format("CC-NEWS-%s-%s", m.group(1), m.group(2));
 			return new FilenameParts(crawl, m.group(3), "news-warc");
+		}
+		m = testCrawlFilenameAnalyzer.matcher(filename);
+		if (m.find()) {
+			String crawl;
+			String segment = m.group(1);
+			if (segment.startsWith("202601")) {
+				crawl = "CC-TEST-2026-04";
+			} else if (segment.startsWith("202602")) {
+				crawl = "CC-TEST-2026-08";
+			} else if (segment.startsWith("202603")) {
+				crawl = "CC-TEST-2026-12";
+			} else if (segment.startsWith("202604")) {
+				crawl = "CC-TEST-2026-17";
+			} else {
+				crawl = "CC-TEST-XXXX-YY";
+			}
+			return new FilenameParts(crawl, segment, m.group(2));
 		}
 		throw new FilenameParseError("Filename not parseable (tried main and news): " + filename);
 	}
