@@ -9,7 +9,17 @@ This projects provides a comprehensive set of example queries (SQL) and also Jav
 
 ## Build Java tools
 
+Java 11 or upwards are required.
+
 `mvn package`
+
+### Javadocs
+
+The Javadocs are created by `mvn javadoc:javadoc`. Then open the file `target/reports/apidocs/index.html` in a browser.
+
+### Source Code Formatting
+
+Run `mvn spotless:check` and `mvn spotless:apply`, see the [Spotless Maven guide](https://github.com/diffplug/spotless/blob/main/plugin-maven/README.md). Java formatting rules are defined in [eclipse-formatter.xml](eclipse-formatter.xml).
 
 
 ## Spark installation
