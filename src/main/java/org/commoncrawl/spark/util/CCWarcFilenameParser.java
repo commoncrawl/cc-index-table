@@ -19,22 +19,43 @@ package org.commoncrawl.spark.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Parse Common Crawl WARC filenames (full paths) and extracts crawl, segment,
+ * and subset.
+ */
 public class CCWarcFilenameParser {
+	/**
+	 * Main crawl filename pattern:
+	 * <code>s3://commoncrawl/crawl-data/CC-MAIN-YYYY-WW/segments/SEGMENT/SUBSET/*.warc.gz</code>
+	 */
 	protected static final Pattern filenameAnalyzer = Pattern.compile(
 			"^(?:common-crawl/)?crawl-data/([^/]+)/segments/([^/]+)/(crawldiagnostics|robotstxt|warc|wat|wet)/");
 
-	// crawl-data/CC-NEWS/2019/01/CC-NEWS-20190101042830-00057.warc.gz
+	/**
+	 * News crawl filename pattern:
+	 * <code>s3://commoncrawl/crawl-data/CC-NEWS/YYYY/MM/*.warc.gz</code> e.g.
+	 * <code>crawl-data/CC-NEWS/2019/01/CC-NEWS-20190101042830-00057.warc.gz</code>
+	 */
 	protected static final Pattern newsFilenameAnalyzer = Pattern
 			.compile("^(?:common-crawl/)?crawl-data/CC-NEWS/(\\d+)/(\\d+)/CC-NEWS-(.+)\\.warc\\.gz");
 
-	// Class to encapsulate the extracted crawl, segment, and subset.
+	/** Encapsulate the extracted crawl, segment, and subset. */
 	public static class FilenameParts {
 		public String crawl;
 		public String segment;
 		public String subset;
+
+		public FilenameParts(String crawl, String segment, String subset) {
+			this.crawl = crawl;
+			this.segment = segment;
+			this.subset = subset;
+		}
 	}
 
-	// Error class if we can't find the crawl, segment, and subset.
+	/**
+	 * Exception if parsing the WARC filename fails to find the required crawl,
+	 * segment, and subset.
+	 */
 	public static class FilenameParseError extends Exception {
 		public FilenameParseError(String message) {
 			super(message);
@@ -42,21 +63,15 @@ public class CCWarcFilenameParser {
 	}
 
 	public static FilenameParts getParts(String filename) throws FilenameParseError {
-		FilenameParts parts = new FilenameParts();
 		Matcher m = filenameAnalyzer.matcher(filename);
 		if (m.find()) {
-			parts.crawl = m.group(1);
-			parts.segment = m.group(2);
-			parts.subset = m.group(3);
-		} else {
-			Matcher newsParts = newsFilenameAnalyzer.matcher(filename);
-			if (!newsParts.find()) {
-				throw new FilenameParseError("Filename not parseable (tried default and news): " + filename);
-			}
-			parts.crawl = String.format("CC-NEWS-%s-%s", newsParts.group(1), newsParts.group(2));
-			parts.segment = newsParts.group(3);
-			parts.subset = "news-warc";
+			return new FilenameParts(m.group(1), m.group(2), m.group(3));
 		}
-		return parts;
+		m = newsFilenameAnalyzer.matcher(filename);
+		if (m.find()) {
+			String crawl = String.format("CC-NEWS-%s-%s", m.group(1), m.group(2));
+			return new FilenameParts(crawl, m.group(3), "news-warc");
+		}
+		throw new FilenameParseError("Filename not parseable (tried main and news): " + filename);
 	}
 }
