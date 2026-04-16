@@ -254,6 +254,17 @@
       }
     },
     {
+      "name": "warc_record_id",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "description": "UUID of the WARC record (WARC-Record-ID)",
+        "example": "019d6d22-5cf4-7ad9-8a24-81690cf43c7d",
+        "since": "CC-MAIN-2026-21",
+        "fromCDX": "recordid"
+      }
+    },
+    {
       "name": "warc_filename",
       "type": "string",
       "nullable": false,
