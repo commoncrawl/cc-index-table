@@ -35,6 +35,9 @@ public class WarcUri {
 	public WarcUri(String uriString) {
 		this.uriString = uriString;
 		try {
+			//LF: hot fix to work around malformed robot.txt urls such as https:////sites.google.com/robots.txt
+			uriString = uriString.replaceFirst("^(https?:)/{2,}", "$1//");
+
 			try {
 				url = new java.net.URL(uriString);
 				scheme = url.getProtocol();
