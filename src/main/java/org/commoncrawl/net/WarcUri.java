@@ -56,7 +56,7 @@ public class WarcUri {
 				hostName = new HostName(uri);
 			}
 		} catch (URISyntaxException uriExc) {
-			LOG.warn("Failed to parse WARC URI '{}': {}", this.uriString, uriExc);
+			LOG.warn("Failed to parse WARC URI '{}'", this.uriString, uriExc);
 		}
 	}
 

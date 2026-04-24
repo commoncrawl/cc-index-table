@@ -28,7 +28,7 @@ class WarcUriTest {
         WarcUri warcUri = new WarcUri("http://sites.google.com////robot.txt");
         assertNotNull(warcUri.getHostName());
         assertTrue(StringUtils.isNotEmpty(warcUri.getHostName().getHostName()), "getHostName() should not return an empty string.");
-        assertEquals("sites.google.com", warcUri.getHostName().getHostName(), "getHostName() should return 'www.google.com' for the malformed URL.");
+        assertEquals("sites.google.com", warcUri.getHostName().getHostName(), "getHostName() should return 'sites.google.com' for the URL with extra path slashes.");
     }
 
     @Test
@@ -36,6 +36,6 @@ class WarcUriTest {
         WarcUri warcUri = new WarcUri("https://sites.google.com////robot.txt");
         assertNotNull(warcUri.getHostName());
         assertTrue(StringUtils.isNotEmpty(warcUri.getHostName().getHostName()), "getHostName() should not return an empty string.");
-        assertEquals("sites.google.com", warcUri.getHostName().getHostName(), "getHostName() should return 'www.google.com' for the malformed URL.");
+        assertEquals("sites.google.com", warcUri.getHostName().getHostName(), "getHostName() should return 'sites.google.com' for the URL with extra path slashes.");
     }
 }
