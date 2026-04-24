@@ -16,7 +16,6 @@
  */
 package org.commoncrawl.net;
 
-import java.io.UnsupportedEncodingException;
 import java.net.IDN;
 import java.net.InetAddress;
 import java.net.URI;
@@ -36,6 +35,10 @@ import com.google.common.base.CharMatcher;
 
 import crawlercommons.domains.EffectiveTldFinder;
 import crawlercommons.domains.EffectiveTldFinder.EffectiveTLD;
+
+import static crawlercommons.domains.EffectiveTldFinder.DOT_REGEX;
+import static java.net.IDN.ALLOW_UNASSIGNED;
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class HostName {
 
@@ -114,6 +117,32 @@ public class HostName {
 		}
 	}
 
+	static String asciiConvert(String str) throws IllegalArgumentException {
+		if (isAscii(str)) {
+			return str.toLowerCase(Locale.ROOT);
+		}
+		return IDN.toASCII(str, ALLOW_UNASSIGNED);
+	}
+
+	static boolean isAscii(String str) {
+		char[] chars = str.toCharArray();
+		for (char c : chars) {
+			if (c > 127) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	static String normalizeName(String name) throws IllegalArgumentException {
+		String[] parts = name.split(DOT_REGEX);
+		String[] ary = new String[parts.length];
+		for (int i = 0; i < parts.length; i++) {
+			ary[i] = asciiConvert(parts[i]);
+		}
+		return join(ary, ".");
+	}
+
 	private void setHostName(String name) {
 		hostName = name;
 		if (IPV4_ADDRESS_PATTERN_CANONICAL.matcher(hostName).matches()) {
@@ -132,20 +161,31 @@ public class HostName {
 			type = Type.hostname;
 			if (hostName.indexOf('%') > -1) {
 				try {
-					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8.toString());
-				} catch (IllegalArgumentException | UnsupportedEncodingException e) {
-					LOG.error("Failed to decode {}: {}", hostName, e, e.getMessage());
-					hostName = null;
-					return;
+					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8);
+				} catch (IllegalArgumentException e) {
+					// LF not sure that we need this, added as defensive measure against another failure
+					try {
+						hostName = normalizeName(hostName);
+					} catch (IllegalArgumentException e2) {
+						e.addSuppressed(e2);
+						LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
+						hostName = null;
+						return;
+					}
 				}
 			}
 			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
 				try {
 					hostName = IDN.toASCII(hostName);
 				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-					LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e, e.getMessage());
-					hostName = null;
-					return;
+					try {
+						hostName = normalizeName(hostName);
+					} catch (IllegalArgumentException e2) {
+						e.addSuppressed(e2);
+						LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
+						hostName = null;
+						return;
+					}
 				}
 			}
 			if (hostName.endsWith(".")) {
@@ -213,7 +253,7 @@ public class HostName {
 	/**
 	 * Split host name into parts in reverse order: <code>www.example.com</code>
 	 * becomes <code>[com, example, www]</code>.
-	 * 
+	 *
 	 * @param hostName host name, e.g. <code>www.example.com</code>
 	 * @return parts of host name in reverse order
 	 */
@@ -230,7 +270,7 @@ public class HostName {
 	/**
 	 * Canonicalize IP address strings which are accepted by
 	 * {@link InetAddress#getByName(String)}.
-	 * 
+	 *
 	 * @param ipAddrStr string representing a <strong>valid</strong> IP address
 	 * @return the canonical representation of the IP address
 	 */
@@ -262,7 +302,7 @@ public class HostName {
 	 * Reverse host is null if the host name is an IP address. Domain name and
 	 * suffixes are null if the host name is an IP address, or if no valid suffix is
 	 * found.
-	 * 
+	 *
 	 * @return row
 	 */
 	public Row asRow() {
