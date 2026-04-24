@@ -16,7 +16,6 @@
  */
 package org.commoncrawl.net;
 
-import java.io.UnsupportedEncodingException;
 import java.net.IDN;
 import java.net.InetAddress;
 import java.net.URI;
@@ -118,32 +117,31 @@ public class HostName {
 		}
 	}
 
-    private static String asciiConvert(String str) throws IllegalArgumentException {
-        if (isAscii(str)) {
-            return str.toLowerCase(Locale.ROOT);
-        }
-        return IDN.toASCII(str, ALLOW_UNASSIGNED);
-    }
+	static String asciiConvert(String str) throws IllegalArgumentException {
+		if (isAscii(str)) {
+			return str.toLowerCase(Locale.ROOT);
+		}
+		return IDN.toASCII(str, ALLOW_UNASSIGNED);
+	}
 
-    private static boolean isAscii(String str) {
-        char[] chars = str.toCharArray();
-        for (char c : chars) {
-            if (c > 127) {
-                return false;
-            }
-        }
-        return true;
-    }
+	static boolean isAscii(String str) {
+		char[] chars = str.toCharArray();
+		for (char c : chars) {
+			if (c > 127) {
+				return false;
+			}
+		}
+		return true;
+	}
 
-    private String normalizeName(String name) throws IllegalArgumentException {
-        String[] parts = name.split(DOT_REGEX);
-        String[] ary = new String[parts.length];
-        for (int i = 0; i < parts.length; i++) {
-            ary[i] = asciiConvert(parts[i]);
-        }
-        return join(ary);
-    }
-
+	static String normalizeName(String name) throws IllegalArgumentException {
+		String[] parts = name.split(DOT_REGEX);
+		String[] ary = new String[parts.length];
+		for (int i = 0; i < parts.length; i++) {
+			ary[i] = asciiConvert(parts[i]);
+		}
+		return join(ary, ".");
+	}
 
 	private void setHostName(String name) {
 		hostName = name;
@@ -169,10 +167,11 @@ public class HostName {
 					try {
 						hostName = normalizeName(hostName);
 					} catch (IllegalArgumentException e2) {
-                        LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
-                        hostName = null;
-                        return;
-                    }
+						e.addSuppressed(e2);
+						LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
+						hostName = null;
+						return;
+					}
 				}
 			}
 			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
@@ -182,10 +181,11 @@ public class HostName {
 					try {
 						hostName = normalizeName(hostName);
 					} catch (IllegalArgumentException e2) {
-                        LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
-                        hostName = null;
-                        return;
-                    }
+						e.addSuppressed(e2);
+						LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
+						hostName = null;
+						return;
+					}
 				}
 			}
 			if (hostName.endsWith(".")) {
