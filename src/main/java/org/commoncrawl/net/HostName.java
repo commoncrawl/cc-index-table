@@ -163,7 +163,8 @@ public class HostName {
 				try {
 					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8);
 				} catch (IllegalArgumentException e) {
-					// LF not sure that we need this, added as defensive measure against another failure
+					// LF not sure that we need this, added as defensive measure against another
+					// failure
 					try {
 						hostName = normalizeName(hostName);
 					} catch (IllegalArgumentException e2) {
