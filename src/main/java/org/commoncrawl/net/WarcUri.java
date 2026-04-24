@@ -19,12 +19,17 @@ package org.commoncrawl.net;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Parses a string representation of a URI or URL found as WARC-Target-URI and
  * provides access to the parts of the URL/URI. Cf. {@link java.net.URL},
  * {@link java.net.URI} and {@link HostName}.
  */
 public class WarcUri {
+
+	private static final Logger LOG = LoggerFactory.getLogger(WarcUri.class);
 
 	private String uriString;
 	private java.net.URL url;
@@ -51,7 +56,7 @@ public class WarcUri {
 				hostName = new HostName(uri);
 			}
 		} catch (URISyntaxException uriExc) {
-			// failed to be parsed into parts
+			LOG.warn("Failed to parse WARC URI '{}': {}", this.uriString, uriExc);
 		}
 	}
 
