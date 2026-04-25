@@ -255,7 +255,7 @@
     },
     {
       "name": "warc_record_id",
-      "type": "string",
+      "type": "binary",
       "nullable": true,
       "metadata": {
         "description": "UUID of the WARC record (WARC-Record-ID)",
