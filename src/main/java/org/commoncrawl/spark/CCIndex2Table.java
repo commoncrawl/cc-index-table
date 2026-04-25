@@ -24,8 +24,8 @@ import org.apache.commons.cli.Options;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.commoncrawl.spark.util.CCWarcFilenameParser;
-import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParts;
 import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParseError;
+import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
