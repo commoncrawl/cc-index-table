@@ -17,6 +17,8 @@
 package org.commoncrawl.spark;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -28,6 +30,8 @@ import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParseError;
 import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.net.InetAddresses;
 
 /**
  * Convert Common Crawl's URL index into a tabular format.
@@ -43,7 +47,7 @@ public class CCIndex2Table extends IndexTable {
 		String redirect;
 		String digest;
 		String mime, mimeDetected;
-		String recordid, ipaddress;
+		byte[] recordid, ipaddress;
 		String filename;
 		int offset, length;
 		short status;
@@ -61,8 +65,19 @@ public class CCIndex2Table extends IndexTable {
 			mime = getString("mime");
 			mimeDetected = getString("mime-detected");
 
-			recordid = getString("recordid");
-			ipaddress = getString("ipaddress");
+			recordid = null;
+			String id = getString("recordid");
+			if (id != null) {
+				UUID uuid = UUID.fromString(id);
+				recordid = new byte[16];
+				ByteBuffer.wrap(recordid)
+						.putLong(uuid.getMostSignificantBits())
+						.putLong(uuid.getLeastSignificantBits());
+			}
+			String ip = getString("ipaddress");
+			if (ip != null) {
+				ipaddress = InetAddresses.forString(ip).getAddress();
+			}
 			filename = getString("filename");
 			offset = getInt("offset");
 			length = getInt("length");

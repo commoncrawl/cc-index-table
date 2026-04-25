@@ -300,7 +300,7 @@
         "fields": [
           {
             "name": "record_id",
-            "type": "string",
+            "type": "binary",
             "nullable": true,
             "metadata": {
               "description": "UUID of the WARC record (WARC-Record-ID)",
@@ -311,7 +311,7 @@
           },
           {
             "name": "ip_address",
-            "type": "string",
+            "type": "binary",
             "nullable": true,
             "metadata": {
               "description": "Numeric IP address contacted to retrieve the content (WARC-IP-Address)",
