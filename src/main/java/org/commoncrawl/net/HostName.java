@@ -38,7 +38,6 @@ import crawlercommons.domains.EffectiveTldFinder.EffectiveTLD;
 
 import static crawlercommons.domains.EffectiveTldFinder.DOT_REGEX;
 import static java.net.IDN.ALLOW_UNASSIGNED;
-import static org.apache.commons.lang3.StringUtils.join;
 
 public class HostName {
 
@@ -140,7 +139,7 @@ public class HostName {
 		for (int i = 0; i < parts.length; i++) {
 			ary[i] = asciiConvert(parts[i]);
 		}
-		return join(ary, ".");
+		return String.join(".", ary);
 	}
 
 	private void setHostName(String name) {
@@ -163,11 +162,9 @@ public class HostName {
 				try {
 					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8);
 				} catch (IllegalArgumentException e) {
-					// LF not sure that we need this, added as defensive measure against another
-					// failure
 					try {
 						hostName = normalizeName(hostName);
-					} catch (IllegalArgumentException e2) {
+					} catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
 						e.addSuppressed(e2);
 						LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
 						hostName = null;
