@@ -178,7 +178,7 @@ public class HostName {
 				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
 					try {
 						hostName = normalizeName(hostName);
-					} catch (IllegalArgumentException e2) {
+					} catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
 						e.addSuppressed(e2);
 						LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
 						hostName = null;
