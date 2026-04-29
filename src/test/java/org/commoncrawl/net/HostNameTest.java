@@ -22,9 +22,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HostNameTest {
-
-	// ── isAscii ────────────────────────────────────────────────────────────────
-
+	
 	@Test
 	void isAscii_shouldReturnTrue() {
 		assertTrue(HostName.isAscii("www.example.com"));
@@ -43,16 +41,14 @@ class HostNameTest {
 	@Test
 	void isAscii_boundaryAscii_returnsTrue() {
 		// DEL = 127 is the last ASCII codepoint
-		assertTrue(HostName.isAscii(""));
+		assertTrue(HostName.isAscii("\u007F"));
 	}
 
 	@Test
 	void isAscii_boundaryNonAscii_returnsFalse() {
 		// 128 is the first non-ASCII codepoint
-		assertFalse(HostName.isAscii(""));
+		assertFalse(HostName.isAscii("\u0080"));
 	}
-
-	// ── normalizeName ──────────────────────────────────────────────────────────
 
 	@Test
 	void normalizeName_punyCode_shouldNormalizeCorrectly() {
@@ -73,8 +69,6 @@ class HostNameTest {
 	void normalizeName_mixedAsciiAndUnicode() {
 		assertEquals("www.xn--qv9h.com", HostName.normalizeName("www.🧠.com"));
 	}
-
-	// ── setHostName end-to-end (regression for url_host_name == null bug) ──────
 
 	@Test
 	void setHostName_brainEmojiPercentEncoded_isPunycoded() {
