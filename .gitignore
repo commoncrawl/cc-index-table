@@ -39,3 +39,4 @@ metastore_db/
 
 # Python
 __pycache__/
+.idea
