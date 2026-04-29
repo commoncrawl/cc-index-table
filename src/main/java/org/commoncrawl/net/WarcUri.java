@@ -19,12 +19,17 @@ package org.commoncrawl.net;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Parses a string representation of a URI or URL found as WARC-Target-URI and
  * provides access to the parts of the URL/URI. Cf. {@link java.net.URL},
  * {@link java.net.URI} and {@link HostName}.
  */
 public class WarcUri {
+
+	private static final Logger LOG = LoggerFactory.getLogger(WarcUri.class);
 
 	private String uriString;
 	private java.net.URL url;
@@ -35,6 +40,8 @@ public class WarcUri {
 	public WarcUri(String uriString) {
 		this.uriString = uriString;
 		try {
+			uriString = normalizeMalformedHttpSlashes(uriString);
+
 			try {
 				url = new java.net.URL(uriString);
 				scheme = url.getProtocol();
@@ -48,8 +55,28 @@ public class WarcUri {
 				hostName = new HostName(uri);
 			}
 		} catch (URISyntaxException uriExc) {
-			// failed to be parsed into parts
+			LOG.warn("Failed to parse WARC URI '{}'", this.uriString, uriExc);
 		}
+	}
+
+	private static String normalizeMalformedHttpSlashes(String uriString) {
+		String schemePrefix;
+		if (uriString.startsWith("http:")) {
+			schemePrefix = "http:";
+		} else if (uriString.startsWith("https:")) {
+			schemePrefix = "https:";
+		} else {
+			return uriString;
+		}
+		int slashStart = schemePrefix.length();
+		int slashEnd = slashStart;
+		while (slashEnd < uriString.length() && uriString.charAt(slashEnd) == '/') {
+			slashEnd++;
+		}
+		if (slashEnd - slashStart < 3) {
+			return uriString;
+		}
+		return schemePrefix + "//" + uriString.substring(slashEnd);
 	}
 
 	public String getScheme() {
