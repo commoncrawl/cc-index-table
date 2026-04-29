@@ -1,0 +1,100 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.commoncrawl.net;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class HostNameTest {
+	
+	@Test
+	void isAscii_shouldReturnTrue() {
+		assertTrue(HostName.isAscii("www.example.com"));
+	}
+
+	@Test
+	void isAscii_shouldReturnFalse() {
+		assertFalse(HostName.isAscii("🧠.s.country"));
+	}
+
+	@Test
+	void isAscii_emptyString_returnsTrue() {
+		assertTrue(HostName.isAscii(""));
+	}
+
+	@Test
+	void isAscii_boundaryAscii_returnsTrue() {
+		// DEL = 127 is the last ASCII codepoint
+		assertTrue(HostName.isAscii("\u007F"));
+	}
+
+	@Test
+	void isAscii_boundaryNonAscii_returnsFalse() {
+		// 128 is the first non-ASCII codepoint
+		assertFalse(HostName.isAscii("\u0080"));
+	}
+
+	@Test
+	void normalizeName_punyCode_shouldNormalizeCorrectly() {
+		assertEquals("xn--qv9h.s.country", HostName.normalizeName("🧠.s.country"));
+	}
+
+	@Test
+	void normalizeName_singleLabel_noDots() {
+		assertEquals("xn--qv9h", HostName.normalizeName("🧠"));
+	}
+
+	@Test
+	void normalizeName_alreadyAscii_lowercased() {
+		assertEquals("www.example.com", HostName.normalizeName("WWW.Example.COM"));
+	}
+
+	@Test
+	void normalizeName_mixedAsciiAndUnicode() {
+		assertEquals("www.xn--qv9h.com", HostName.normalizeName("www.🧠.com"));
+	}
+
+	@Test
+	void setHostName_brainEmojiPercentEncoded_isPunycoded() {
+		// Mirrors the captured production failure: %f0%9f%a7%a0 = U+1F9E0 (🧠)
+		// Exercises URLDecoder → IDN.toASCII (fails) → normalizeName (recovers).
+		HostName h = new HostName("%f0%9f%a7%a0.s.country");
+		assertEquals("xn--qv9h.s.country", h.getHostName());
+	}
+
+	@Test
+	void setHostName_brainEmojiUnicodeDirect_isPunycoded() {
+		// Skips URLDecoder, exercises only the IDN fallback path.
+		HostName h = new HostName("🧠.s.country");
+		assertEquals("xn--qv9h.s.country", h.getHostName());
+	}
+
+	@Test
+	void setHostName_legitimateIdn_unchanged() {
+		// BMP IDN: strict IDN.toASCII succeeds, fallback is not invoked.
+		HostName h = new HostName("münchen.de");
+		assertEquals("xn--mnchen-3ya.de", h.getHostName());
+	}
+
+	@Test
+	void setHostName_asciiHost_unchanged() {
+		HostName h = new HostName("www.example.com");
+		assertEquals("www.example.com", h.getHostName());
+	}
+}
