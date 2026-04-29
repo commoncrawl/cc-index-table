@@ -40,9 +40,7 @@ public class WarcUri {
 	public WarcUri(String uriString) {
 		this.uriString = uriString;
 		try {
-			// LF: hot fix to work around malformed robot.txt urls such as
-			// https:////sites.google.com/robots.txt
-			uriString = uriString.replaceFirst("^(https?:)/{2,}", "$1//");
+			uriString = normalizeMalformedHttpSlashes(uriString);
 
 			try {
 				url = new java.net.URL(uriString);
@@ -59,6 +57,26 @@ public class WarcUri {
 		} catch (URISyntaxException uriExc) {
 			LOG.warn("Failed to parse WARC URI '{}'", this.uriString, uriExc);
 		}
+	}
+
+	private static String normalizeMalformedHttpSlashes(String uriString) {
+		String schemePrefix;
+		if (uriString.startsWith("http:")) {
+			schemePrefix = "http:";
+		} else if (uriString.startsWith("https:")) {
+			schemePrefix = "https:";
+		} else {
+			return uriString;
+		}
+		int slashStart = schemePrefix.length();
+		int slashEnd = slashStart;
+		while (slashEnd < uriString.length() && uriString.charAt(slashEnd) == '/') {
+			slashEnd++;
+		}
+		if (slashEnd - slashStart < 3) {
+			return uriString;
+		}
+		return schemePrefix + "//" + uriString.substring(slashEnd);
 	}
 
 	public String getScheme() {
