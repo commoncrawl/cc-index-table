@@ -29,7 +29,7 @@
 		<!-- Apache Commons CLI should be the same shipped with the Spark installation -->
 		<commons-cli.version>1.5.0</commons-cli.version>
 
-		<junit.jupiter.version>5.14.3</junit.jupiter.version>
+		<junit.jupiter.version>6.0.3</junit.jupiter.version>
 	</properties>
 
 	<dependencyManagement>
