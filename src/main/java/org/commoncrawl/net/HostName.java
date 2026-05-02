@@ -36,7 +36,6 @@ import com.google.common.base.CharMatcher;
 import crawlercommons.domains.EffectiveTldFinder;
 import crawlercommons.domains.EffectiveTldFinder.EffectiveTLD;
 
-import static crawlercommons.domains.EffectiveTldFinder.DOT_REGEX;
 import static java.net.IDN.ALLOW_UNASSIGNED;
 
 public class HostName {
@@ -116,32 +115,6 @@ public class HostName {
 		}
 	}
 
-	static String asciiConvert(String str) throws IllegalArgumentException {
-		if (isAscii(str)) {
-			return str.toLowerCase(Locale.ROOT);
-		}
-		return IDN.toASCII(str, ALLOW_UNASSIGNED);
-	}
-
-	static boolean isAscii(String str) {
-		char[] chars = str.toCharArray();
-		for (char c : chars) {
-			if (c > 127) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	static String normalizeName(String name) throws IllegalArgumentException {
-		String[] parts = name.split(DOT_REGEX);
-		String[] ary = new String[parts.length];
-		for (int i = 0; i < parts.length; i++) {
-			ary[i] = asciiConvert(parts[i]);
-		}
-		return String.join(".", ary);
-	}
-
 	private void setHostName(String name) {
 		hostName = name;
 		if (IPV4_ADDRESS_PATTERN_CANONICAL.matcher(hostName).matches()) {
@@ -162,23 +135,16 @@ public class HostName {
 				try {
 					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8);
 				} catch (IllegalArgumentException e) {
-					try {
-						hostName = normalizeName(hostName);
-					} catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
-						e.addSuppressed(e2);
-						LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
-						hostName = null;
-						return;
-					}
+					LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
 				}
 			}
 			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
 				try {
 					hostName = IDN.toASCII(hostName);
-				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
+				} catch (IllegalArgumentException e) {
 					try {
-						hostName = normalizeName(hostName);
-					} catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
+						hostName = IDN.toASCII(hostName, ALLOW_UNASSIGNED);
+					} catch (IllegalArgumentException e2) {
 						e.addSuppressed(e2);
 						LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
 						hostName = null;
