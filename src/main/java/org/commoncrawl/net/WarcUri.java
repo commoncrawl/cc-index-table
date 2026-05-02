@@ -19,7 +19,6 @@ package org.commoncrawl.net;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,7 @@ public class WarcUri {
 			LOG.warn("Failed to parse WARC URI '{}', trying to normalize slashes", this.uriString, uriExc);
 		}
 
-		if (StringUtils.isBlank(getHostName().getHostName())) {
+		if (this.hostName == null || this.hostName.getHostName().isEmpty()) {
 			uriString = normalizeMalformedHttpSlashes(uriString);
 			try {
 				parseAndSetURI(uriString);

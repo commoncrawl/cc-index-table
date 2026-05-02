@@ -17,12 +17,9 @@
 
 package org.commoncrawl.net;
 
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class WarcUriTest {
 
@@ -30,9 +27,7 @@ class WarcUriTest {
 	void getHostNameWithMalformedHttpsShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("https:////www.google.com/robots.txt");
 		assertNotNull(warcUri.getHostName());
-		assertTrue(
-				StringUtils.isNotEmpty(warcUri.getHostName().getHostName()),
-				"getHostName() should not return an empty string.");
+		assertNotEquals("", warcUri.getHostName().getHostName(), "getHostName() should not return an empty string.");
 		assertEquals(
 				"www.google.com",
 				warcUri.getHostName().getHostName(),
@@ -43,9 +38,7 @@ class WarcUriTest {
 	void getHostNameMalformedHttpShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("http:////www.google.com/robots.txt");
 		assertNotNull(warcUri.getHostName());
-		assertTrue(
-				StringUtils.isNotEmpty(warcUri.getHostName().getHostName()),
-				"getHostName() should not return an empty string.");
+		assertNotEquals("", warcUri.getHostName().getHostName(), "getHostName() should not return an empty string.");
 		assertEquals(
 				"www.google.com",
 				warcUri.getHostName().getHostName(),
@@ -56,9 +49,7 @@ class WarcUriTest {
 	void getHostNameValidHttpHostShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("http://sites.google.com////robots.txt");
 		assertNotNull(warcUri.getHostName());
-		assertTrue(
-				StringUtils.isNotEmpty(warcUri.getHostName().getHostName()),
-				"getHostName() should not return an empty string.");
+		assertNotEquals("", warcUri.getHostName().getHostName(), "getHostName() should not return an empty string.");
 		assertEquals(
 				"sites.google.com",
 				warcUri.getHostName().getHostName(),
@@ -69,9 +60,7 @@ class WarcUriTest {
 	void getHostNameValidHttpsHostShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("https://sites.google.com////robots.txt");
 		assertNotNull(warcUri.getHostName());
-		assertTrue(
-				StringUtils.isNotEmpty(warcUri.getHostName().getHostName()),
-				"getHostName() should not return an empty string.");
+		assertNotEquals("", warcUri.getHostName().getHostName(), "getHostName() should not return an empty string.");
 		assertEquals(
 				"sites.google.com",
 				warcUri.getHostName().getHostName(),
