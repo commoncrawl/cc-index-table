@@ -45,7 +45,7 @@ public class WarcUri {
 			LOG.warn("Failed to parse WARC URI '{}', trying to normalize slashes", this.uriString, uriExc);
 		}
 
-		if (this.hostName == null || this.hostName.getHostName().isEmpty()) {
+		if (this.hostName == null || (this.hostName.getHostName() != null && this.hostName.getHostName().isEmpty())) {
 			uriString = normalizeMalformedHttpSlashes(uriString);
 			try {
 				parseAndSetURI(uriString);
