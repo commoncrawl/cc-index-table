@@ -19,6 +19,7 @@ package org.commoncrawl.net;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,22 +41,33 @@ public class WarcUri {
 	public WarcUri(String uriString) {
 		this.uriString = uriString;
 		try {
-			uriString = normalizeMalformedHttpSlashes(uriString);
-
-			try {
-				url = new java.net.URL(uriString);
-				scheme = url.getProtocol();
-				hostName = new HostName(url);
-				uri = url.toURI();
-			} catch (MalformedURLException urlExc) {
-				// should not happen for HTTP captures (how could the URL have been fetched
-				// otherwise) but may happen for other schemes - dns, whois, ntp, metadata
-				uri = new java.net.URI(uriString);
-				scheme = uri.getScheme();
-				hostName = new HostName(uri);
-			}
+			parseAndSetURI(uriString);
 		} catch (URISyntaxException uriExc) {
-			LOG.warn("Failed to parse WARC URI '{}'", this.uriString, uriExc);
+			LOG.warn("Failed to parse WARC URI '{}', trying to normalize slashes", this.uriString, uriExc);
+		}
+
+		if (StringUtils.isBlank(getHostName().getHostName())) {
+			uriString = normalizeMalformedHttpSlashes(uriString);
+			try {
+				parseAndSetURI(uriString);
+			} catch (URISyntaxException e) {
+				LOG.warn("Failed to parse WARC URI '{}' after normalizing slashes", this.uriString, e);
+			}
+		}
+	}
+
+	private void parseAndSetURI(String uriString) throws URISyntaxException {
+		try {
+			this.url = new java.net.URL(uriString);
+			this.scheme = url.getProtocol();
+			this.hostName = new HostName(url);
+			this.uri = url.toURI();
+		} catch (MalformedURLException urlExc) {
+			// should not happen for HTTP captures (how could the URL have been fetched
+			// otherwise) but may happen for other schemes - dns, whois, ntp, metadata
+			this.uri = new java.net.URI(uriString);
+			this.scheme = uri.getScheme();
+			this.hostName = new HostName(uri);
 		}
 	}
 

@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class WarcUriTest {
 
 	@Test
-	void getHostName_malformedHttps_shouldNotBeEmpty() {
+	void getHostNameWithMalformedHttpsShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("https:////www.google.com/robots.txt");
 		assertNotNull(warcUri.getHostName());
 		assertTrue(
@@ -40,7 +40,7 @@ class WarcUriTest {
 	}
 
 	@Test
-	void getHostName_malformedHttp_shouldNotBeEmpty() {
+	void getHostNameMalformedHttpShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("http:////www.google.com/robots.txt");
 		assertNotNull(warcUri.getHostName());
 		assertTrue(
@@ -53,7 +53,7 @@ class WarcUriTest {
 	}
 
 	@Test
-	void getHostName_validHttpHost_shouldNotBeEmpty() {
+	void getHostNameValidHttpHostShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("http://sites.google.com////robots.txt");
 		assertNotNull(warcUri.getHostName());
 		assertTrue(
@@ -66,7 +66,7 @@ class WarcUriTest {
 	}
 
 	@Test
-	void getHostName_validHttpsHost_shouldNotBeEmpty() {
+	void getHostNameValidHttpsHostShouldNotBeEmpty() {
 		WarcUri warcUri = new WarcUri("https://sites.google.com////robots.txt");
 		assertNotNull(warcUri.getHostName());
 		assertTrue(
