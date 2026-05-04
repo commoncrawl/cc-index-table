@@ -112,4 +112,12 @@ class WarcUriTest {
 				WarcUri.normalizeMalformedHttpSlashes("http:/www.google.com/robots.txt"),
 				"Normalizer should fix change a malformed URL with one slash.");
 	}
+
+	@Test
+	void testNormalizeMalformedFtpShouldIgnore() {
+		assertEquals(
+				"ftp://////ftp.google.com",
+				WarcUri.normalizeMalformedHttpSlashes("ftp://////ftp.google.com"),
+				"Normalizer should fix change a malformed URL with one slash.");
+	}
 }
