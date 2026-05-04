@@ -66,4 +66,50 @@ class WarcUriTest {
 				warcUri.getHostName().getHostName(),
 				"getHostName() should return 'sites.google.com' for the URL with extra path slashes.");
 	}
+
+	@Test
+	void testNormalizeMalformedHttpUrlOK() {
+
+		String url = "http://www.google.com/robots.txt";
+
+		assertEquals(
+				url,
+				WarcUri.normalizeMalformedHttpSlashes(url),
+				"Normalizer should not change a well-formed URL.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttpsUrlOK() {
+
+		String url = "https://www.google.com/robots.txt";
+
+		assertEquals(
+				url,
+				WarcUri.normalizeMalformedHttpSlashes(url),
+				"Normalizer should not change a well-formed URL.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttps3SlashesIsFixed() {
+		assertEquals(
+				"http://www.google.com/robots.txt",
+				WarcUri.normalizeMalformedHttpSlashes("http:///www.google.com/robots.txt"),
+				"Normalizer should fix change a malformed URL with three slashes.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttps4SlashesIsFixed() {
+		assertEquals(
+				"http://www.google.com/robots.txt",
+				WarcUri.normalizeMalformedHttpSlashes("http:////www.google.com/robots.txt"),
+				"Normalizer should fix change a malformed URL with four slashes.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttps1SlashIsFixed() {
+		assertEquals(
+				"http://www.google.com/robots.txt",
+				WarcUri.normalizeMalformedHttpSlashes("http:/www.google.com/robots.txt"),
+				"Normalizer should fix change a malformed URL with one slash.");
+	}
 }

@@ -70,7 +70,7 @@ public class WarcUri {
 		}
 	}
 
-	private static String normalizeMalformedHttpSlashes(String uriString) {
+	static String normalizeMalformedHttpSlashes(String uriString) {
 		String schemePrefix;
 		if (uriString.startsWith("http:")) {
 			schemePrefix = "http:";
