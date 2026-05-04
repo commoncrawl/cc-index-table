@@ -84,7 +84,7 @@ public class WarcUri {
 		while (slashEnd < uriString.length() && uriString.charAt(slashEnd) == '/') {
 			slashEnd++;
 		}
-		if (slashEnd - slashStart < 3) {
+		if (slashEnd - slashStart == 2) {
 			return uriString;
 		}
 		return schemePrefix + "//" + uriString.substring(slashEnd);
