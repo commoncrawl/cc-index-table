@@ -1,0 +1,115 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.commoncrawl.net;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+class WarcUriTest {
+
+	@Test
+	void getHostNameWithMalformedHttpsShouldNotBeEmpty() {
+		WarcUri warcUri = new WarcUri("https:////www.google.com/robots.txt");
+		assertEquals(
+				"www.google.com",
+				warcUri.getHostName().getHostName(),
+				"getHostName() should return 'www.google.com' for the malformed URL.");
+	}
+
+	@Test
+	void getHostNameMalformedHttpShouldNotBeEmpty() {
+		WarcUri warcUri = new WarcUri("http:////www.google.com/robots.txt");
+		assertEquals(
+				"www.google.com",
+				warcUri.getHostName().getHostName(),
+				"getHostName() should return 'www.google.com' for the malformed URL.");
+	}
+
+	@Test
+	void getHostNameValidHttpHostShouldNotBeEmpty() {
+		WarcUri warcUri = new WarcUri("http://sites.google.com////robots.txt");
+		assertEquals(
+				"sites.google.com",
+				warcUri.getHostName().getHostName(),
+				"getHostName() should return 'sites.google.com' for the URL with extra path slashes.");
+	}
+
+	@Test
+	void getHostNameValidHttpsHostShouldNotBeEmpty() {
+		WarcUri warcUri = new WarcUri("https://sites.google.com////robots.txt");
+		assertEquals(
+				"sites.google.com",
+				warcUri.getHostName().getHostName(),
+				"getHostName() should return 'sites.google.com' for the URL with extra path slashes.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttpUrlOK() {
+
+		String url = "http://www.google.com/robots.txt";
+
+		assertEquals(
+				url,
+				WarcUri.normalizeMalformedHttpSlashes(url),
+				"Normalizer should not change a well-formed URL.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttpsUrlOK() {
+
+		String url = "https://www.google.com/robots.txt";
+
+		assertEquals(
+				url,
+				WarcUri.normalizeMalformedHttpSlashes(url),
+				"Normalizer should not change a well-formed URL.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttps3SlashesIsFixed() {
+		assertEquals(
+				"http://www.google.com/robots.txt",
+				WarcUri.normalizeMalformedHttpSlashes("http:///www.google.com/robots.txt"),
+				"Normalizer should fix change a malformed URL with three slashes.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttps4SlashesIsFixed() {
+		assertEquals(
+				"http://www.google.com/robots.txt",
+				WarcUri.normalizeMalformedHttpSlashes("http:////www.google.com/robots.txt"),
+				"Normalizer should fix change a malformed URL with four slashes.");
+	}
+
+	@Test
+	void testNormalizeMalformedHttps1SlashIsFixed() {
+		assertEquals(
+				"http://www.google.com/robots.txt",
+				WarcUri.normalizeMalformedHttpSlashes("http:/www.google.com/robots.txt"),
+				"Normalizer should fix change a malformed URL with one slash.");
+	}
+
+	@Test
+	void testNormalizeMalformedFtpShouldIgnore() {
+		assertEquals(
+				"ftp://////ftp.google.com",
+				WarcUri.normalizeMalformedHttpSlashes("ftp://////ftp.google.com"),
+				"Normalizer should fix change a malformed URL with one slash.");
+	}
+}
