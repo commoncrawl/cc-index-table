@@ -32,6 +32,7 @@ CREATE EXTERNAL TABLE IF NOT EXISTS ccindex (
   content_charset               STRING,
   content_languages             STRING,
   content_truncated             STRING,
+  warc_record_id                BINARY,
   warc_filename                 STRING,
   warc_record_offset            INT,
   warc_record_length            INT,

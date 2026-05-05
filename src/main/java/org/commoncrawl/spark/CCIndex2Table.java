@@ -154,7 +154,7 @@ public class CCIndex2Table extends IndexTable {
 					cdx.languages,
 					// content (WARC record payload) truncated (since CC-MAIN-2019-47)
 					cdx.truncated,
-					// WARC record headers
+					// WARC-Record-ID (since CC-MAIN-2026-30)
 					cdx.recordid,
 					// WARC record location
 					cdx.filename,
