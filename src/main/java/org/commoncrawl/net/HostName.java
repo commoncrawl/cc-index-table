@@ -16,6 +16,7 @@
  */
 package org.commoncrawl.net;
 
+import java.io.UnsupportedEncodingException;
 import java.net.IDN;
 import java.net.InetAddress;
 import java.net.URI;
@@ -141,10 +142,10 @@ public class HostName {
 			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
 				try {
 					hostName = IDN.toASCII(hostName);
-				} catch (IllegalArgumentException e) {
+				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
 					try {
 						hostName = IDN.toASCII(hostName, ALLOW_UNASSIGNED);
-					} catch (IllegalArgumentException e2) {
+					} catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
 						e.addSuppressed(e2);
 						LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
 						hostName = null;
