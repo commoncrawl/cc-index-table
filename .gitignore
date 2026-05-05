@@ -39,4 +39,6 @@ metastore_db/
 
 # Python
 __pycache__/
+
+# Intellij Idea
 .idea
