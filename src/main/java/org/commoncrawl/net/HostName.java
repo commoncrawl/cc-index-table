@@ -37,6 +37,8 @@ import com.google.common.base.CharMatcher;
 import crawlercommons.domains.EffectiveTldFinder;
 import crawlercommons.domains.EffectiveTldFinder.EffectiveTLD;
 
+import static java.net.IDN.ALLOW_UNASSIGNED;
+
 public class HostName {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HostName.class);
@@ -132,18 +134,16 @@ public class HostName {
 			type = Type.hostname;
 			if (hostName.indexOf('%') > -1) {
 				try {
-					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8.toString());
-				} catch (IllegalArgumentException | UnsupportedEncodingException e) {
-					LOG.error("Failed to decode {}: {}", hostName, e, e.getMessage());
-					hostName = null;
-					return;
+					hostName = URLDecoder.decode(hostName, StandardCharsets.UTF_8);
+				} catch (IllegalArgumentException e) {
+					LOG.error("Failed to decode {}: {}", hostName, e.getMessage(), e);
 				}
 			}
 			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
 				try {
-					hostName = IDN.toASCII(hostName);
+					hostName = IDN.toASCII(hostName, ALLOW_UNASSIGNED);
 				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-					LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e, e.getMessage());
+					LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
 					hostName = null;
 					return;
 				}
@@ -213,7 +213,7 @@ public class HostName {
 	/**
 	 * Split host name into parts in reverse order: <code>www.example.com</code>
 	 * becomes <code>[com, example, www]</code>.
-	 * 
+	 *
 	 * @param hostName host name, e.g. <code>www.example.com</code>
 	 * @return parts of host name in reverse order
 	 */
@@ -230,7 +230,7 @@ public class HostName {
 	/**
 	 * Canonicalize IP address strings which are accepted by
 	 * {@link InetAddress#getByName(String)}.
-	 * 
+	 *
 	 * @param ipAddrStr string representing a <strong>valid</strong> IP address
 	 * @return the canonical representation of the IP address
 	 */
@@ -262,7 +262,7 @@ public class HostName {
 	 * Reverse host is null if the host name is an IP address. Domain name and
 	 * suffixes are null if the host name is an IP address, or if no valid suffix is
 	 * found.
-	 * 
+	 *
 	 * @return row
 	 */
 	public Row asRow() {
