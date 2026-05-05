@@ -141,16 +141,11 @@ public class HostName {
 			}
 			if (!CharMatcher.ascii().matchesAllOf(hostName)) {
 				try {
-					hostName = IDN.toASCII(hostName);
+					hostName = IDN.toASCII(hostName, ALLOW_UNASSIGNED);
 				} catch (IllegalArgumentException | IndexOutOfBoundsException e) {
-					try {
-						hostName = IDN.toASCII(hostName, ALLOW_UNASSIGNED);
-					} catch (IllegalArgumentException | IndexOutOfBoundsException e2) {
-						e.addSuppressed(e2);
-						LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
-						hostName = null;
-						return;
-					}
+					LOG.error("Failed to convert Unicode host name to ASCII {}: {}", hostName, e.getMessage(), e);
+					hostName = null;
+					return;
 				}
 			}
 			if (hostName.endsWith(".")) {
