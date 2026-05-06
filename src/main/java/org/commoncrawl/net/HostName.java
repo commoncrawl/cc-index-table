@@ -16,7 +16,6 @@
  */
 package org.commoncrawl.net;
 
-import java.io.UnsupportedEncodingException;
 import java.net.IDN;
 import java.net.InetAddress;
 import java.net.URI;
