@@ -16,11 +16,11 @@
  */
 package org.commoncrawl.spark.util;
 
+import java.io.IOException;
+
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.OutputCommitter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-
-import java.io.IOException;
 
 public class NullOutputCommitter extends OutputCommitter {
 
