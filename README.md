@@ -42,7 +42,7 @@ A [Dockerfile](./Dockerfile) is provided to compile the project and run the Spar
    More details to run the converter are given below.
 
 Note that the Dockerfile defines the conversion tool as entry point.
-Overriding the entrypoint woulld allow to inspect the container using an interactive shell:
+Overriding the entrypoint would allow to inspect the container using an interactive shell:
 
 ```
 $> docker run --rm --entrypoint=/bin/bash -ti cc-index-table
@@ -172,9 +172,11 @@ A couple of sample queries are also provided (for the flat schema):
 - count pairs of top-level domain and content language: [count-language-tld.sql](src/sql/examples/cc-index/count-language-tld.sql)
 - find correlations between TLD and content language using the log-likelihood ratio: [loglikelihood-language-tld.sql](src/sql/examples/cc-index/loglikelihood-language-tld.sql)
 - ... and similar for correlations between content language and character encoding: [correlation-language-charset.sql](src/sql/examples/cc-index/correlation-language-charset.sql)
-- discover sites hosting content of specific language(s): [site-discovery-by-language.sql](src/sql/examples/cc-index/site-discovery-by-language.sql)
-- discover non-English sites: [discovery-of-non-english-sites](src/sql/examples/cc-index/discovery-of-non-english-sites.sql)
-- find multi-lingual domains by analyzing URL paths: [get-language-translations-url-path.sql](src/sql/examples/cc-index/get-language-translations-url-path.sql)
+- site discovery by content language:
+  - specific language(s): [site-discovery-by-language.sql](src/sql/examples/cc-index/site-discovery-by-language.sql)
+  - non-English sites: [discovery-of-non-english-sites](src/sql/examples/cc-index/discovery-of-non-english-sites.sql)
+  - Hungarian sites: [site-discovery-hungarian.sql](src/sql/examples/cc-index/site-discovery-hungarian.sql)
+  - find multi-lingual domains by analyzing URL paths: [get-language-translations-url-path.sql](src/sql/examples/cc-index/get-language-translations-url-path.sql)
 - extract robots.txt records for a list of sites: [get-records-robotstxt.sql](src/sql/examples/cc-index/get-records-robotstxt.sql)
 
 Athena creates results in CSV format. E.g., for the last example, the mining of multi-lingual domains we get:
