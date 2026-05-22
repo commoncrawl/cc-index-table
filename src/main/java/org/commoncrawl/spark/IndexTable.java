@@ -95,7 +95,7 @@ public class IndexTable {
 
 	/**
 	 * Parse and hold a CDX line of the format:
-	 * 
+	 *
 	 * <pre>
 	 * SURT-Key Timestamp JSON-Object
 	 * </pre>
@@ -215,12 +215,12 @@ public class IndexTable {
 
 	/**
 	 * Convert a CDX line into a table row.
-	 * 
+	 *
 	 * See {@link CdxLine} for the CDX line format.
-	 * 
+	 *
 	 * The JSON object in the CDX line must include a key &quot;url&quot; which
 	 * holds the URL used to fill predefined URL-based fields.
-	 * 
+	 *
 	 * The following fields are predefined:
 	 * <ul>
 	 * <li><code>url_surtkey</code></li>
@@ -243,7 +243,7 @@ public class IndexTable {
 	 * <li><code>fetch_time</code></li>
 	 * <li><code>fetch_status</code></li>
 	 * </ul>
-	 * 
+	 *
 	 * Other fields are selected from the CDX JSON object by field name or the field
 	 * specified by &quot;fromCDX&quot; in the field metadata in the table schema.
 	 *
@@ -445,7 +445,7 @@ public class IndexTable {
 	/**
 	 * Add command-line options. Subclasses may override the method to add their
 	 * options but should call <code>super.addCommandLineOptions(options)</code>.
-	 * 
+	 *
 	 * @param options command-line options, instantiated and optionally configured
 	 *                by caller
 	 * @return the resulting {@code Options} instance (with added options)
@@ -472,7 +472,7 @@ public class IndexTable {
 	 * apply their options but should call
 	 * <code>super.applyCommandLineOptions(cli)</code> so that inherited classes can
 	 * process and apply the options they expect.
-	 * 
+	 *
 	 * @param cli parsed command-line options
 	 * @return the resulting @{@code CommandLine} instance
 	 */

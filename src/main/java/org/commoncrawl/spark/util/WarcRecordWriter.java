@@ -126,7 +126,7 @@ class WarcRecordWriter extends RecordWriter<Text, byte[]> {
 
 	/**
 	 * Compose a unique WARC file name.
-	 * 
+	 *
 	 * @param prefix    WARC file name prefix
 	 * @param date      creation date
 	 * @param partition partition ID
@@ -139,10 +139,12 @@ class WarcRecordWriter extends RecordWriter<Text, byte[]> {
 		return prefix + "-" + date + "-" + numberFormat.format(partition) + ".warc.gz";
 	}
 
+	@Override
 	public synchronized void write(Text key, byte[] value) throws IOException {
 		warcOut.write(value);
 	}
 
+	@Override
 	public synchronized void close(TaskAttemptContext context) throws IOException {
 		warcOut.close();
 	}
