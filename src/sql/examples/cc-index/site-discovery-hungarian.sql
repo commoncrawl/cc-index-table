@@ -32,9 +32,6 @@
 -- To reduce the noise we limit the result to include only sites which
 -- host at least 50 pages and 10% of the content in Hungarian.
 --
--- Sites in the .hu top-level domain are excluded from discovery,
--- as they are supposed to be in Hungarian.
---
 with tmp as (
 select count(*) as pages_host_total,
        sum(count(*)) over(partition by url_host_registered_domain) as pages_domain_total,
@@ -74,5 +71,4 @@ select pages_domain_total,
 from tmp
 where pages_hungarian >= 50
   and (1.0*pages_hungarian/pages_host_total) >= .1
-  and url_host_tld != 'hu'
 order by pages_hungarian desc;
