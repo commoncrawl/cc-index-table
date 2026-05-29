@@ -37,7 +37,7 @@ public class CCWarcFilenameParser {
 	 * <code>projects/cc-open-athena-test/CC-SUPPLEMENTAL-2026-22-bis/20260522101936/warc/CC-SUPPLEMENTAL-2026-22-bis-20260522102012-20260522152012-00000.warc.gz</code>
 	 */
 	protected static final Pattern supplementalFilenameAnalyzer = Pattern.compile(
-			"^[^/]+/[^/]+/(CC-SUPPLEMENTAL-[^/]+)/(\\d+)/(crawldiagnostics|robotstxt|warc)/");
+			"^[^/]+/[^/]+/(CC-SUPPLEMENTAL-[^/]+)/segments/(\\d+)/(crawldiagnostics|robotstxt|warc)/");
 	/**
 	 * News crawl filename pattern:
 	 * <code>s3://commoncrawl/crawl-data/CC-NEWS/YYYY/MM/*.warc.gz</code> e.g.
@@ -83,6 +83,6 @@ public class CCWarcFilenameParser {
 			String crawl = String.format("CC-NEWS-%s-%s", m.group(1), m.group(2));
 			return new FilenameParts(crawl, m.group(3), "news-warc");
 		}
-		throw new FilenameParseError("Filename not parseable (tried main and news): " + filename);
+		throw new FilenameParseError("Filename not parseable (tried main, supplemental and news): " + filename);
 	}
 }
