@@ -34,12 +34,21 @@ public class TestCCWarcFilenameParser {
 	}
 
 	@Test
-	public void testSupplementalWarcFilename() throws FilenameParseError {
-		String filename = "projects/cc-open-athena-test/CC-SUPPLEMENTAL-2026-22/segments/20260522204839/warc/CC-SUPPLEMENTAL-2026-22-20260522204937-20260523014937-00119.warc.gz";
+	public void testSupplementalWarcFilenameCrawlDiagnostics() throws FilenameParseError {
+		String filename = "projects/cc-open-athena-test/CC-SUPPLEMENTAL-2026-22/segments/20260522204839/crawldiagnostics/CC-SUPPLEMENTAL-2026-22-20260522204937-20260523014937-00119.warc.gz";
 		FilenameParts parts = CCWarcFilenameParser.getParts(filename);
 		assertEquals("CC-SUPPLEMENTAL-2026-22", parts.crawl);
 		assertEquals("20260522204839", parts.segment);
-		assertEquals("warc", parts.subset);
+		assertEquals("crawldiagnostics", parts.subset);
+	}
+
+		@Test
+	public void testSupplementalWarcFilenameRobotsTxt() throws FilenameParseError {
+		String filename = "projects/cc-open-athena-test/CC-SUPPLEMENTAL-2026-22/segments/20260522204839/robotstxt/CC-SUPPLEMENTAL-2026-22-20260522204937-20260523014937-00119.warc.gz";
+		FilenameParts parts = CCWarcFilenameParser.getParts(filename);
+		assertEquals("CC-SUPPLEMENTAL-2026-22", parts.crawl);
+		assertEquals("20260522204839", parts.segment);
+		assertEquals("robotstxt", parts.subset);
 	}
 
 	@Test
