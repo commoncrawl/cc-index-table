@@ -44,7 +44,7 @@ public class CCIndex2Table extends IndexTable {
 		String digest;
 		String mime, mimeDetected;
 		String filename;
-		int offset, length;
+		long offset, length;
 		short status;
 		String crawl, segment, subset;
 		String charset, languages;
@@ -61,8 +61,8 @@ public class CCIndex2Table extends IndexTable {
 			mimeDetected = getString("mime-detected");
 
 			filename = getString("filename");
-			offset = getInt("offset");
-			length = getInt("length");
+			offset = getLong("offset");
+			length = getLong("length");
 			status = getHttpStatus("status");
 
 			try {

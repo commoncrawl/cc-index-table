@@ -265,7 +265,7 @@
     },
     {
       "name": "warc_record_offset",
-      "type": "integer",
+      "type": "long",
       "nullable": false,
       "metadata": {
         "description": "Offset of the WARC record",
@@ -275,7 +275,7 @@
     },
     {
       "name": "warc_record_length",
-      "type": "integer",
+      "type": "long",
       "nullable": false,
       "metadata": {
         "description": "Length of the WARC record",
