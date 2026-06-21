@@ -8,4 +8,5 @@ dependencies = [
     "pyarrow>=22.0.0",
     "pytest>=8.4.2",
     "tqdm>=4.67.1",
+    "pyathena>=3.31.0",
 ]
