@@ -5,7 +5,7 @@
 # Table format configuration
 FORMAT=${FORMAT:-parquet} # parquet, orc
 NESTED="$NESTED"          # "" (empty) or --useNestedSchema
-COMPRS=${COMPRS:-gzip}    # gzip, snappy, lzo, zstd, none
+COMPRS=${COMPRS:-zstd}    # gzip, snappy, lzo, zstd, none
 PARTITION_BY="crawl,subset"
 
 # Input spec (URL index files to convert)
@@ -60,6 +60,7 @@ $SPARK_HOME/bin/spark-submit \
     --conf spark.sql.hive.metastorePartitionPruning=true \
     --conf spark.hadoop.parquet.enable.summary-metadata=false \
     --conf spark.sql.parquet.outputTimestampType=TIMESTAMP_MILLIS \
+    --conf spark.hadoop.parquet.compression.codec.zstd.level=19 \
     --class org.commoncrawl.spark.CCIndex2Table $_APPJAR \
     --outputCompression=$COMPRS \
     --outputFormat=$FORMAT $NESTED \
