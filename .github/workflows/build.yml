@@ -26,4 +26,4 @@ jobs:
           cache: 'maven'
 
       - name: Build
-        run: mvn verify javadoc:aggregate
+        run: mvn verify javadoc:aggregate spotless:check
