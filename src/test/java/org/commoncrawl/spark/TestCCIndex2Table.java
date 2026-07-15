@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 public class TestCCIndex2Table extends TestIndexTableBase {
 
 	protected String getCdxLine() {
-		return "org,commoncrawl)/faq 20220127163355 {\"url\": \"https://commoncrawl.org/faq/\", \"mime\": \"text/html\", \"mime-detected\": \"text/html\", \"status\": \"301\", \"digest\": \"3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ\", \"length\": \"958\", \"offset\": \"6946714\", \"filename\": \"crawl-data/CC-MAIN-2022-05/segments/1642320305277.88/crawldiagnostics/CC-MAIN-20220127163150-20220127193150-00502.warc.gz\", \"redirect\": \"/big-picture/frequently-asked-questions/\"}";
+		return "org,commoncrawl)/faq 20260711045728 {\"url\": \"https://commoncrawl.org/faq\", \"mime\": \"text/html\", \"mime-detected\": \"text/html\", \"status\": \"200\", \"digest\": \"DIGO3UYP5E4RCVMRIJ6A7523DBTXRRGO\", \"length\": \"10201\", \"offset\": \"129368320\", \"filename\": \"crawl-data/CC-MAIN-2026-30/segments/1783663951473.63/warc/CC-MAIN-20260711043148-20260711073148-00793.warc.gz\", \"charset\": \"UTF-8\", \"languages\": \"eng\", \"recordid\": \"019f4f89-a39c-717a-8ad3-2371c5d248fe\"}";
 	}
 
 	@Test

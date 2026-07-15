@@ -56,6 +56,7 @@ $SPARK_HOME/bin/spark-submit \
     --executor-memory $EXECUTOR_MEM \
     --conf spark.hadoop.parquet.enable.dictionary=true \
     --conf 'spark.hadoop.parquet.enable.dictionary#warc_record_id=false' \
+    --conf 'spark.hadoop.parquet.enable.dictionary#warc.record_id=false' \
     --conf spark.sql.parquet.filterPushdown=true \
     --conf spark.sql.parquet.mergeSchema=false \
     --conf spark.sql.hive.metastorePartitionPruning=true \
