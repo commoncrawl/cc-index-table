@@ -299,6 +299,17 @@
         "type": "struct",
         "fields": [
           {
+            "name": "record_id",
+            "type": "binary",
+            "nullable": false,
+            "metadata": {
+              "description": "UUID of the WARC record (WARC-Record-ID)",
+              "example": "019d6d22-5cf4-7ad9-8a24-81690cf43c7d (stringified)",
+              "since": "CC-MAIN-2026-30",
+              "fromCDX": "recordid"
+            }
+          },
+          {
             "name": "filename",
             "type": "string",
             "nullable": false,

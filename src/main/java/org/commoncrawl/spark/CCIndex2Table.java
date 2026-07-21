@@ -17,6 +17,8 @@
 package org.commoncrawl.spark;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -24,8 +26,8 @@ import org.apache.commons.cli.Options;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.RowFactory;
 import org.commoncrawl.spark.util.CCWarcFilenameParser;
-import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParts;
 import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParseError;
+import org.commoncrawl.spark.util.CCWarcFilenameParser.FilenameParts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,7 @@ public class CCIndex2Table extends IndexTable {
 		String redirect;
 		String digest;
 		String mime, mimeDetected;
+		byte[] recordid;
 		String filename;
 		int offset, length;
 		short status;
@@ -60,6 +63,15 @@ public class CCIndex2Table extends IndexTable {
 			mime = getString("mime");
 			mimeDetected = getString("mime-detected");
 
+			recordid = null;
+			String id = getString("recordid");
+			if (id != null) {
+				UUID uuid = UUID.fromString(id);
+				recordid = new byte[16];
+				ByteBuffer.wrap(recordid)
+						.putLong(uuid.getMostSignificantBits())
+						.putLong(uuid.getLeastSignificantBits());
+			}
 			filename = getString("filename");
 			offset = getInt("offset");
 			length = getInt("length");
@@ -102,7 +114,7 @@ public class CCIndex2Table extends IndexTable {
 					RowFactory.create(cdx.timestamp, cdx.status, cdx.redirect), //
 					RowFactory
 							.create(cdx.digest, cdx.mime, cdx.mimeDetected, cdx.charset, cdx.languages, cdx.truncated), //
-					RowFactory.create(cdx.filename, cdx.offset, cdx.length, cdx.segment), //
+					RowFactory.create(cdx.recordid, cdx.filename, cdx.offset, cdx.length, cdx.segment), //
 					cdx.crawl,
 					cdx.subset);
 		} else {
@@ -142,6 +154,8 @@ public class CCIndex2Table extends IndexTable {
 					cdx.languages,
 					// content (WARC record payload) truncated (since CC-MAIN-2019-47)
 					cdx.truncated,
+					// WARC-Record-ID (since CC-MAIN-2026-30)
+					cdx.recordid,
 					// WARC record location
 					cdx.filename,
 					cdx.offset,
