@@ -33,3 +33,8 @@ updates:
     directory: "/"
     schedule:
       interval: monthly
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: weekly
